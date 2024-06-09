@@ -1,0 +1,12 @@
+*.cpp
+/build/
+/.vscode/
+/.venv/
+*.pyd
+test.png
+!/src/*
+.env
+*.dll
+*.pdb
+__pycache__/
+meshes/
