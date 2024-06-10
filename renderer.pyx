@@ -31,11 +31,17 @@ cdef class Mesh:
         return ret
 
     @staticmethod
-    def from_obj(file_path:str, Shader vertex_shader, Shader fragment_shader) -> Mesh:
+    def from_obj(file_path:str, Shader vertex_shader = None, Shader fragment_shader = None) -> Mesh:
         return mesh_from_obj(file_path, vertex_shader, fragment_shader)
 
 cpdef Mesh mesh_from_obj(str file_path, Shader vertex_shader, Shader fragment_shader):
-    cdef mesh* m = mesh.from_obj(file_path.encode(), vertex_shader.c_class, vertex_shader.c_class)
+    cdef mesh* m
+    if vertex_shader and fragment_shader:
+        m = mesh.from_obj(file_path.encode(), vertex_shader.c_class, fragment_shader.c_class)
+    elif vertex_shader:
+        m = mesh.from_obj(file_path.encode(), vertex_shader.c_class)
+    else:
+        m = mesh.from_obj(file_path.encode())
     return Mesh.from_cpp(m)
 
 
@@ -323,6 +329,14 @@ cdef class Window:
     @property
     def current_event(self):
         return self.c_class.current_event
+
+    @property
+    def deltatime(self) -> float:
+        return self.c_class.deltatime
+
+    @property
+    def dt(self) -> float:
+        return self.c_class.deltatime
 
     def __dealloc__(self):
         del self.c_class

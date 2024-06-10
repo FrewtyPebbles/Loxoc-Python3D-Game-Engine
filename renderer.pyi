@@ -16,7 +16,7 @@ class Mesh:
     """
 
     @staticmethod
-    def from_obj(file_path:str) -> Mesh:
+    def from_obj(file_path:str, vertex_shader:Shader = None, fragment_shader:Shader = None) -> Mesh:
         """
         Constructs a `Mesh` from a `.obj` file
         """
@@ -152,6 +152,18 @@ class Window:
     def current_event(self) -> event:
         """
         This is the most recent event that the window recieved durring `Window.update(self, objects)`
+        """
+
+    @property
+    def deltatime(self) -> float:
+        """
+        The current deltatime for the window.
+        """
+
+    @property
+    def dt(self) -> float:
+        """
+        The current deltatime for the window.
         """
 
     def update(self, objects:list[Object]):

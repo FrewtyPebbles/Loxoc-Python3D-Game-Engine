@@ -41,10 +41,12 @@ public:
     event current_event;
     bool fullscreen = false;
     void update(vector<object*> objects);
+    float deltatime;
 private:
     void create_window();
     SDL_Window* app_window = NULL;
     SDL_Renderer* renderer = NULL;
     SDL_Texture* texture = NULL;
     SDL_GLContext gl_context = NULL;
+    uint32_t old_time, new_time;
 };

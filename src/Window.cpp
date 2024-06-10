@@ -73,13 +73,15 @@ void window::create_window() {
     
     glViewport(0, 0, this->width, this->height);
     
+    this->old_time = SDL_GetTicks();
     
     return;
 }
 
 
 void window::update(vector<object*> objects) {
-    Uint32 current = SDL_GetTicks();
+    this->new_time = SDL_GetTicks();
+    this->deltatime = (this->new_time - this->old_time)/1000.0f;
     glViewport(0, 0, this->width, this->height);
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -141,5 +143,5 @@ void window::update(vector<object*> objects) {
 
     SDL_GL_SwapWindow(this->app_window);
     //SDL_Delay(1);
-
+    this->old_time = new_time;
 }

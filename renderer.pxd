@@ -162,6 +162,10 @@ cdef extern from "src/Mesh.h":
         mesh(map[string, meshgroup]* groups, map[string, material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals, shader* vertex_shader) except +
         mesh(map[string, meshgroup]* groups, map[string, material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals, shader* vertex_shader, shader* fragment_shader) except +
         @staticmethod
+        mesh* from_obj(string file_path)
+        @staticmethod
+        mesh* from_obj(string file_path, shader* vertex_shader)
+        @staticmethod
         mesh* from_obj(string file_path, shader* vertex_shader, shader* fragment_shader)
         map[string, meshgroup]* groups
         map[string, material*] materials
@@ -291,6 +295,7 @@ cdef extern from "src/Window.h":
         int width, height
         void update(vector[object3d*] objects)
         event current_event
+        float deltatime
 
 cdef class Window:
     cdef window* c_class
