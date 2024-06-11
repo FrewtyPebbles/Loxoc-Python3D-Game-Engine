@@ -19,8 +19,8 @@ enum illum_model {
     DIFFUSE_AND_SPECULAR
 };
 
-struct material {
-    material(){};
+struct obj_material {
+    obj_material(){};
     string name;
     tup<float, 3> ambient, diffuse, specular, emissive_coeficient;
     float specular_exponent, optical_density, transparency;
@@ -72,7 +72,7 @@ public:
     vector<vec3>* vertexes;
     vector<vec3>* uv_vertexes;
     vector<vec3>* vertex_normals;
-    material* material_data;
+    obj_material* material_data;
     vector<face> faces;
 };
 
@@ -81,12 +81,10 @@ public:
     mesh(){}
     mesh(
         map<std::string, meshgroup>* groups,
-        map<std::string, material*> materials,
+        map<std::string, obj_material*> materials,
         vector<vec3>* vertexes,
         vector<vec3>* uv_vertexes,
-        vector<vec3>* vertex_normals,
-        shader* vertex_shad = nullptr,
-        shader* fragment_shad = nullptr
+        vector<vec3>* vertex_normals
     ):
     groups(groups),
     materials(materials),
@@ -94,10 +92,7 @@ public:
     uv_vertexes(uv_vertexes),
     vertex_normals(vertex_normals)
     {
-        this->vertex_shader = (!vertex_shad) ? shader::from_file("./default_vertex.glsl", ShaderType::VERTEX) : vertex_shader;
-        this->fragment_shader = (!fragment_shad) ? shader::from_file("./default_fragment.glsl", ShaderType::FRAGMENT) : fragment_shader;
         this->create_VAO();
-        this->link_shaders();
     }
     ~mesh(){
         glDeleteVertexArrays(1, &gl_VAO);
@@ -107,24 +102,19 @@ public:
         delete uv_vertexes;
         delete vertex_normals;
         delete groups;
-        delete vertex_shader;
-        delete fragment_shader;
         for (auto& [k,v] : materials) {
             delete v;
         }
     }
-    static mesh* from_obj(string file_path, shader* vertex_shader = nullptr, shader* fragment_shader = nullptr);
+    static mesh* from_obj(string file_path);
     map<std::string, meshgroup>* groups;
-    map<std::string, material*> materials;
+    map<std::string, obj_material*> materials;
     // VVV THESE SHOULD BE HEAP ALLOCATED
     vector<vec3>* vertexes;
     vector<vec3>* uv_vertexes;
     vector<vec3>* vertex_normals;
 
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
-    shader* vertex_shader;
-    shader* fragment_shader;
-    GLuint shader_program;
     unsigned int gl_VAO, gl_VBO, gl_EBO;
     size_t indicies_size;
     size_t verticies_size;
@@ -132,9 +122,8 @@ private:
     static vector<tup<int, 3>> parse_face(vector<string> tokens);
 
     // RETURNS A HEAP ALLOCATED POINTER
-    static map<std::string, material*> get_materials(string file_path);
+    static map<std::string, obj_material*> get_materials(string file_path);
     void create_VAO();
-    void link_shaders();
 };
 
 inline string trim(const string& str)
@@ -148,9 +137,9 @@ inline string trim(const string& str)
     return str.substr(first, (last - first + 1));
 } 
   
-inline std::vector<std::string> split(std::string const &input) { 
+inline vector<std::string> split(std::string const &input) { 
     std::istringstream buffer(input);
-    std::vector<std::string> ret((std::istream_iterator<std::string>(buffer)), 
+    vector<std::string> ret((std::istream_iterator<std::string>(buffer)), 
                                  std::istream_iterator<std::string>());
     return ret;
 }

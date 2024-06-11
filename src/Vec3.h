@@ -4,7 +4,6 @@
 #include "Tup.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_SSE42 // or GLM_FORCE_SSE42 if your processor supports it
-#define GLM_FORCE_ALIGNED
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

@@ -1,6 +1,7 @@
 #pragma once
 #include "Vec3.h"
 #include <vector>
+#include "Material.h"
 using std::vector;
 class mesh;
 class camera;
@@ -11,19 +12,21 @@ class camera;
 class object {
 public:
     object(){};
-    // create 3 different constructors for the default arguments in .pxd file
-    object(mesh* mesh, vec3 position, vec3 rotation, vec3 scale);
+    object(mesh* mesh, vec3 position, vec3 rotation, vec3 scale, material* mat = nullptr) : mesh_data(mesh), position(position), rotation(rotation), scale(scale) {
+        this->mat = (!mat) ? new material() : mat;
+    }
     
-    ~object(){}
+    ~object(){
+        delete mat;
+    }
 
     mesh* mesh_data;
     vec3 position;
     vec3 rotation;
     vec3 scale;
+    material* mat;
 
     void render(camera& camera);
-    vector<vec3> get_translation(vector<vec3> vertexes);
-    vector<vec3> get_rotation(vector<vec3> vertexes);
 };
 
 typedef object object3d;

@@ -53,28 +53,6 @@ void mesh::create_VAO() {
     glBindVertexArray(0);
 }
 
-void mesh::link_shaders() {
-    this->vertex_shader->compile();
-    this->fragment_shader->compile();
-    this->shader_program = glCreateProgram();
-    glAttachShader(this->shader_program, this->vertex_shader->shader_handle);
-    glAttachShader(this->shader_program, this->fragment_shader->shader_handle);
-    glLinkProgram(this->shader_program);
-    
-    // Check for linking errors
-    GLint success;
-    GLchar infoLog[512];
-    glGetProgramiv(this->shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(this->shader_program, 512, NULL, infoLog);
-        throw std::runtime_error(std::format("ERROR::SHADER::PROGRAM::LINKING_FAILED\n{}\n", infoLog));
-    }
-    // glDetachShader(this->shader_program, this->vertex_shader.shader_handle);
-    // glDetachShader(this->shader_program, this->fragment_shader.shader_handle);
-    glDeleteShader(this->vertex_shader->shader_handle);
-    glDeleteShader(this->fragment_shader->shader_handle);
-}
-
 void mesh::get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts) {
     for (vec3 vert : *this->vertexes) {
         mut_verts->push_back(vert.axis.x);
@@ -83,32 +61,38 @@ void mesh::get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts) {
     }
 }
 
-mesh* mesh::from_obj(string file_path, shader* vertex_shader, shader* fragment_shader) {
+mesh* mesh::from_obj(std::string file_path) {
     // RETURNS HEAP ALLOCATED POINTER
-    
-    map<std::string, meshgroup>* groups = new map<std::string, meshgroup>;
-    vector<string> tokens;
-    string x, y, z, line, prefix;
+    map<std::string, meshgroup>* groups = new map<std::string, meshgroup>();
+    vector<std::string> tokens;
+    std::string x, y, z, line, prefix = "";
     vector<tup<int, 3>> face_data, poly_buffer;
-    map<std::string, material*> materials;
-    string current_group = "default";
-    vector<vec3>* vertexes = new vector<vec3>;
-    vector<vec3>* uv_vertexes = new vector<vec3>;
-    vector<vec3>* vertex_normals = new vector<vec3>;
-    (*groups)[current_group] = meshgroup(vertexes, uv_vertexes, vertex_normals);
+    map<std::string, obj_material*> materials;
+    std::string current_group = "default";
+    vector<vec3>* _vertexes = new vector<vec3>();
+    vector<vec3>* _uv_vertexes = new vector<vec3>();
+    vector<vec3>* _vertex_normals = new vector<vec3>();
+    (*groups)[current_group] = meshgroup(_vertexes, _uv_vertexes, _vertex_normals);
     std::ifstream file(file_path);
     while (std::getline(file, line)) {
-        tokens = split(trim(line));
-        if (tokens.size() == 0) {
+        if (line.empty()) {
             continue;
         }
+        
+        tokens = split(trim(line));
+        if (line.size() == 0) {
+            continue;
+        }
+        
+        
         prefix = tokens[0];
 
         if (prefix == "v") {
             x = tokens[1];
             y = tokens[2];
             z = tokens[3];
-            vertexes->push_back(
+            
+            _vertexes->push_back( // I curse you for 1 billion years
                 vec3(
                     std::stof(x),
                     std::stof(y),
@@ -120,7 +104,7 @@ mesh* mesh::from_obj(string file_path, shader* vertex_shader, shader* fragment_s
             x = tokens[1];
             y = tokens[2];
             z = tokens.size() == 4 ? tokens[3] : "0";// 4 cuz the prefix
-            uv_vertexes->push_back(
+            _uv_vertexes->push_back(
                 vec3(
                     std::stof(x),
                     std::stof(y),
@@ -132,7 +116,7 @@ mesh* mesh::from_obj(string file_path, shader* vertex_shader, shader* fragment_s
             x = tokens[1];
             y = tokens[2];
             z = tokens[3];
-            vertex_normals->push_back(
+            _vertex_normals->push_back(
                 vec3(
                     std::stof(x),
                     std::stof(y),
@@ -195,7 +179,7 @@ mesh* mesh::from_obj(string file_path, shader* vertex_shader, shader* fragment_s
         else if (prefix == "g") {
             current_group = tokens[1];
             if (!groups->count(current_group))
-                (*groups)[current_group] = meshgroup(vertexes, uv_vertexes, vertex_normals);
+                (*groups)[current_group] = meshgroup(_vertexes, _uv_vertexes, _vertex_normals);
             (*groups)[current_group].material_data = materials.end()->second;
         }
         else if (prefix == "usemtl") {
@@ -208,15 +192,13 @@ mesh* mesh::from_obj(string file_path, shader* vertex_shader, shader* fragment_s
             (*groups)["default"].material_data = materials.begin()->second;
         }
     }
-    //std::cout << "thing -> " << (*groups)["default"].material_data->name << " is the first material\n";
+    
     return new mesh(
         groups,
         materials,
-        vertexes,
-        uv_vertexes,
-        vertex_normals,
-        vertex_shader,
-        fragment_shader
+        _vertexes,
+        _uv_vertexes,
+        _vertex_normals
     );
 }
 
@@ -280,12 +262,12 @@ vector<tup<int, 3>> mesh::parse_face(vector<string> tokens) {
     return polygon;
 }
 
-map<std::string, material*> mesh::get_materials(string file_path) {
+map<std::string, obj_material*> mesh::get_materials(string file_path) {
     // RETURNS A HEAP ALLOCATED POINTER
     string r, g, b, line, prefix, fpath;
     vector<string> tokens;
     std::ifstream file(file_path);
-    map<std::string, material*> ret_mats;
+    map<std::string, obj_material*> ret_mats;
     string current_mat;
     while (std::getline(file, line)) {
         tokens = split(trim(line));
@@ -295,7 +277,7 @@ map<std::string, material*> mesh::get_materials(string file_path) {
         prefix = tokens[0];
         if (prefix == "newmtl") {
             current_mat = tokens[1];
-            ret_mats[current_mat] = new material();
+            ret_mats[current_mat] = new obj_material();
             ret_mats[current_mat]->name = tokens[1];
         }
         switch (prefix[0])
@@ -433,7 +415,6 @@ map<std::string, material*> mesh::get_materials(string file_path) {
             break;
         }
     }
-
     return ret_mats;
 }
 

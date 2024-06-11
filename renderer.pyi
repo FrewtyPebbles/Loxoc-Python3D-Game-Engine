@@ -16,7 +16,7 @@ class Mesh:
     """
 
     @staticmethod
-    def from_obj(file_path:str, vertex_shader:Shader = None, fragment_shader:Shader = None) -> Mesh:
+    def from_obj(file_path:str) -> Mesh:
         """
         Constructs a `Mesh` from a `.obj` file
         """
@@ -60,8 +60,20 @@ class V3Property:
 
     def cross(self, other:Vec3) -> Vec3:...
 
+class Material:
+    """
+    This is a shader program for an object.  It decides how to render an object.
+
+    A shader program includes both a Vertex and Fragment shader.
+    """
+    def __init__(self, vertex:Shader = None, fragment:Shader = None) -> None:...
+
+    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:...
+
 class Object:
-    def __init__(self, mesh_instance:Mesh, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0)) -> None:...
+    mesh:Mesh
+    material:Material
+    def __init__(self, mesh_instance:Mesh, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
 
 
     @property
@@ -87,6 +99,8 @@ class Object:
 
 class Shader:
     def __init__(self, source:str, shader_type:ShaderType) -> None:...
+
+    def from_file(cls, filepath:str, type:ShaderType) -> Shader:...
 
 class Vec3:
     def __init__(self, x:float, y:float, z:float) -> None:...

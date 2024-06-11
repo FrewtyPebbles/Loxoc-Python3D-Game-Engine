@@ -2,7 +2,7 @@
 from cython.parallel cimport prange
 
 
-        
+
 
 cdef class Camera:
     def __init__(self, Vec3 position, int view_width, int view_height, float focal_length, float fov) -> None:
@@ -31,17 +31,12 @@ cdef class Mesh:
         return ret
 
     @staticmethod
-    def from_obj(file_path:str, Shader vertex_shader = None, Shader fragment_shader = None) -> Mesh:
-        return mesh_from_obj(file_path, vertex_shader, fragment_shader)
+    def from_obj(file_path:str) -> Mesh:
+        return mesh_from_obj(file_path)
 
-cpdef Mesh mesh_from_obj(str file_path, Shader vertex_shader, Shader fragment_shader):
+cpdef Mesh mesh_from_obj(str file_path):
     cdef mesh* m
-    if vertex_shader and fragment_shader:
-        m = mesh.from_obj(file_path.encode(), vertex_shader.c_class, fragment_shader.c_class)
-    elif vertex_shader:
-        m = mesh.from_obj(file_path.encode(), vertex_shader.c_class)
-    else:
-        m = mesh.from_obj(file_path.encode())
+    m = mesh.from_obj(file_path.encode())
     return Mesh.from_cpp(m)
 
 
@@ -146,9 +141,17 @@ cdef class V3Property:
         return vec_from_cpp(self.c_class[0].cross(other.c_class))
 
 cdef class Object:
-    def __init__(self, Mesh mesh_instance, Vec3 position = Vec3(0.0,0.0,0.0), Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(0.0,0.0,0.0)) -> None:
+    def __init__(self, Mesh mesh_instance, Vec3 position = Vec3(0.0,0.0,0.0),
+    Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(0.0,0.0,0.0),
+    Material material = None) -> None:
         self.mesh = mesh_instance
-        self.c_class = new object3d(mesh_instance.c_class, position.c_class, rotation.c_class, scale.c_class)
+        
+        if material:
+            self.material = material
+            self.c_class = new object3d(mesh_instance.c_class, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
+        else:
+            self.material = Material()
+            self.c_class = new object3d(mesh_instance.c_class, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
 
     def __dealloc__(self):
         del self.c_class
@@ -221,10 +224,17 @@ cdef class Object:
 cdef class Shader:
     
     def __init__(self, str source, ShaderType shader_type) -> None:
-        self.c_class = new shader(source, shader_type)
+        self.c_class = new shader(source.encode(), shader_type)
 
     def __dealloc__(self):
         del self.c_class
+
+    @classmethod
+    def from_file(cls, str filepath, ShaderType type) -> Shader:
+        with open(filepath, 'r') as fp:
+            src = fp.read()
+        return cls(src, type)
+
 
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
@@ -319,6 +329,36 @@ cdef class Vec3:
 
 cdef Vec3 vec_from_cpp(vec3 cppinst):
     return Vec3(cppinst.axis.x, cppinst.axis.y, cppinst.axis.z)
+
+cdef class Material:
+    def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
+        if vertex and fragment:
+            self.c_class = new material(vertex.c_class, fragment.c_class)
+        elif vertex:
+            self.c_class = new material(vertex.c_class)
+        else:
+            self.c_class = new material()
+        
+    def __dealloc__(self):
+        del self.c_class
+    
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
+        cdef:
+            vector[float] uni_vec
+            uniform_type valu
+
+        if isinstance(value, float):
+            valu = <float>value
+            self.c_class.set_uniform(name, valu, type)
+        elif isinstance(value, int):
+            valu = <int>value
+            self.c_class.set_uniform(name, valu, type)
+        else:
+            for val in value:
+                uni_vec.push_back(val)
+            valu = uni_vec
+            self.c_class.set_uniform(name, valu, type)
+
 
 
 cdef class Window:

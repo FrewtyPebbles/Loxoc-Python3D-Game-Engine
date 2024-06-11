@@ -3,6 +3,9 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map
 
+
+
+
 cdef extern from "src/Shader.h":
     cpdef enum class ShaderType:
         FRAGMENT,
@@ -14,9 +17,42 @@ cdef extern from "src/Shader.h":
         const char * source
         ShaderType type
         unsigned int shader_handle
+        from_file(string filepath, ShaderType type)
  
 cdef class Shader:
     cdef shader* c_class
+    
+
+cdef extern from "<variant>" namespace "std" nogil:
+    cdef cppclass variant:
+        variant& operator=(variant&)
+
+        # value status
+        bint valueless_by_exception()
+        size_t index()
+
+    cdef struct monostate:
+        pass
+
+    cdef T* get_if[T](...)
+
+cdef extern from "src/Material.h":
+
+    ctypedef variant uniform_type
+        
+
+    cdef cppclass material:
+        material() except +
+        material(shader* vertex) except +
+        material(shader* vertex, shader* fragment) except +
+        void set_uniform(string name, uniform_type value, string type)
+        void register_uniforms()
+        void link_shaders()
+        void use_material()
+    
+cdef class Material:
+    cdef material* c_class
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 
 ctypedef unsigned char uint8
@@ -143,8 +179,8 @@ cdef extern from "src/Mesh.h":
         DIFFUSE,
         DIFFUSE_AND_SPECULAR
 
-    cdef cppclass material:
-        material() except +
+    cdef cppclass obj_material:
+        obj_material() except +
         tup3f ambient, diffuse, specular, emissive_coeficient
         float specular_exponent, optical_density, transparency
         illum_model illumination_model
@@ -158,22 +194,14 @@ cdef extern from "src/Mesh.h":
 
     cdef cppclass mesh:
         mesh() except +
-        mesh(map[string, meshgroup]* groups, map[string, material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals) except +
-        mesh(map[string, meshgroup]* groups, map[string, material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals, shader* vertex_shader) except +
-        mesh(map[string, meshgroup]* groups, map[string, material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals, shader* vertex_shader, shader* fragment_shader) except +
+        mesh(map[string, meshgroup]* groups, map[string, obj_material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals) except +
         @staticmethod
         mesh* from_obj(string file_path)
-        @staticmethod
-        mesh* from_obj(string file_path, shader* vertex_shader)
-        @staticmethod
-        mesh* from_obj(string file_path, shader* vertex_shader, shader* fragment_shader)
         map[string, meshgroup]* groups
-        map[string, material*] materials
+        map[string, obj_material*] materials
         vector[vec3]* vertexes
         vector[vec3]* uv_vertexes
         vector[vec3]* vertex_normals
-        shader* vertex_shader
-        shader* fragment_shader
 
     cdef cppclass meshgroup:
         meshgroup() except +
@@ -185,7 +213,7 @@ cdef extern from "src/Mesh.h":
         vector[face] faces
         vector[vec3]* uv_vertexes
         vector[vec3]* vertex_normals
-        material* materials
+        obj_material* materials
 
 cdef class Mesh:
     cdef mesh* c_class
@@ -193,17 +221,19 @@ cdef class Mesh:
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst)
     
-cpdef Mesh mesh_from_obj(str file_path, Shader vertex_shader, Shader fragment_shader)
+cpdef Mesh mesh_from_obj(str file_path)
 
 cdef extern from "src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
         object3d(mesh* mesh, vec3 position, vec3 rotation, vec3 scale) except +
+        object3d(mesh* mesh, vec3 position, vec3 rotation, vec3 scale, material* mat) except +
         mesh* mesh_data
         vec3 position
         vec3 rotation
         vec3 scale
+        material* mat
 
         void render(camera& camera)
         
@@ -215,6 +245,7 @@ cdef extern from "src/Object.h":
 cdef class Object:
     cdef object3d* c_class
     cdef Mesh mesh
+    cdef Material material
     
     cpdef void render(self, Camera camera)
         
