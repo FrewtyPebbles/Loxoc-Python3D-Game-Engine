@@ -12,7 +12,7 @@ ship_material = Material(
     Shader.from_file("./default_fragment.glsl", ShaderType.FRAGMENT)
 )
 
-ship = Object(Mesh.from_obj("meshes\pirate_ship\pirate_ship.obj"),
+ship = Object(Mesh.from_obj("meshes/pirate_ship/pirate_ship.obj"),
     Vec3(0.0,-70,-300), Vec3(0,0,0), material=ship_material)
 
 render_list = [
