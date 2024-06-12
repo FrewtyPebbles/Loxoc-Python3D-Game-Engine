@@ -7,6 +7,13 @@
 #include <map>
 #include "glad/gl.h"
 #include "Shader.h"
+#include "Vec3.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 using std::vector;
 using std::string;
@@ -29,8 +36,6 @@ struct mesh_material {
     cv::Mat ambient_texture, diffuse_texture, specular_highlight_texture;
 };
 
-class vec3;
-class polygon;
 
 class mesh {
 public:
@@ -40,13 +45,15 @@ public:
         vector<vec3>* vertexes,
         vector<vec3>* diffuse_coordinates,
         vector<vec3>* vertex_normals,
-        vector<tup<unsigned int, 3>>* faces
+        vector<tup<unsigned int, 3>>* faces,
+        vec3 transform
     ):
     materials(materials),
     vertexes(vertexes),
     diffuse_coordinates(diffuse_coordinates),
     vertex_normals(vertex_normals),
-    faces(faces)
+    faces(faces),
+    transform(transform)
     {
         this->create_VAO();
     }
@@ -69,6 +76,7 @@ public:
     vector<vec3>* diffuse_coordinates;
     vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
+    vec3 transform;
 
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
@@ -78,6 +86,7 @@ public:
     size_t verticies_size;
 private:
     // RETURNS A HEAP ALLOCATED POINTER
+    static void process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform);
     void create_VAO();
 };
 

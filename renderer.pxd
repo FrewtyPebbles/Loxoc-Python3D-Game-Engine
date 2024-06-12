@@ -195,7 +195,7 @@ cdef extern from "src/Mesh.h":
 
     cdef cppclass mesh:
         mesh() except +
-        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces) except +
+        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform) except +
         @staticmethod
         vector[mesh*] from_file(string file_path) except +
         vector[mesh_material*] materials
@@ -203,6 +203,7 @@ cdef extern from "src/Mesh.h":
         vector[vec3]* diffuse_coordinates
         vector[vec3]* vertex_normals
         vector[tup3ui]* faces
+        vec3 transform
 
 cdef class Mesh:
     cdef mesh* c_class

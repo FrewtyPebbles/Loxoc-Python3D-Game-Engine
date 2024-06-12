@@ -18,8 +18,6 @@ public:
     
     ~object(){
         delete mat;
-        for (auto m : mesh_data)
-            delete m;
     }
 
     vector<mesh*> mesh_data;

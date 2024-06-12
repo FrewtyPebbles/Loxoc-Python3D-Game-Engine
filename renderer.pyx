@@ -363,7 +363,7 @@ cdef class Material:
             self.c_class.set_uniform(name, valu, type)
         elif isinstance(value, int):
             valu = <int>value
-            self.c_class.set_uniform(name, valu, type)
+            self.c_class.set_uniform(name.encode(), valu, type.encode())
         else:
             for val in value:
                 uni_vec.push_back(val)

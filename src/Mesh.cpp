@@ -4,36 +4,27 @@
 #include <fstream>
 #include <iostream>
 #include "debug.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 
 
-
-vector<mesh*> mesh::from_file(string file_path) {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
-    if (!scene) {
-        throw std::runtime_error(std::format("Failed to import model at \"{}\"\nLOG:\n{}\n", file_path, importer.GetErrorString()));
+void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform) {
+    // traverse to deeper nodes
+    for (size_t c_n = 0; c_n < node->mNumChildren; c_n++) {
+        process_node(node->mChildren[c_n], scene, meshes, transform * node->mChildren[c_n]->mTransformation);
     }
-    vector<mesh*> meshes;
-
-    
-    for (size_t m_n = 0; m_n < scene->mNumMeshes; m_n++) {
-        auto msh = scene->mMeshes[m_n];
+    // itterate meshes for the node
+    auto t_aivec3 = transform * aiVector3D(1.0f, 1.0f, 1.0f);
+    for (size_t m_n = 0; m_n < node->mNumMeshes; m_n++) {
+        auto msh = scene->mMeshes[node->mMeshes[m_n]];
         vector<mesh_material*> materials;
         vector<vec3>* _vertexes = new vector<vec3>();
         vector<vec3>* _diffuse_coordinates = new vector<vec3>();
         vector<vec3>* _vertex_normals = new vector<vec3>();
         vector<tup<unsigned int, 3>>* faces = new vector<tup<unsigned int, 3>>();
-        
+        vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
+
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
-            auto vert = msh->mVertices[v_n];
+            auto vert = transform * msh->mVertices[v_n];
             _vertexes->push_back(vec3(vert.x, vert.y, vert.z));
         }
         for (size_t f_n = 0; f_n < msh->mNumFaces; f_n++) {
@@ -50,9 +41,23 @@ vector<mesh*> mesh::from_file(string file_path) {
             _vertexes,
             _diffuse_coordinates,
             _vertex_normals,
-            faces
+            faces,
+            _transform
         ));
     }
+}
+
+
+vector<mesh*> mesh::from_file(string file_path) {
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+    if (!scene) {
+        throw std::runtime_error(std::format("Failed to import model at \"{}\"\nLOG:\n{}\n", file_path, importer.GetErrorString()));
+    }
+    vector<mesh*> meshes;
+    
+    process_node(scene->mRootNode, scene, meshes, scene->mRootNode->mTransformation);
     
     return meshes;
 }

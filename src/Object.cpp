@@ -19,6 +19,7 @@ void object::render(camera& camera) {
     model = glm::rotate(model, this->rotation.axis.y, glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, this->rotation.axis.z, glm::vec3(0.0f, 0.0f, 1.0f));
     
+
     int model_loc = glGetUniformLocation(this->mat->shader_program, "model");
     int view_loc = glGetUniformLocation(this->mat->shader_program, "view");
     int projection_loc = glGetUniformLocation(this->mat->shader_program, "projection");
@@ -35,10 +36,12 @@ void object::render(camera& camera) {
         glBindVertexArray(_mesh->gl_VAO);
 
         glDrawElements(GL_TRIANGLES, _mesh->indicies_size, GL_UNSIGNED_INT, 0);
+        
+        glBindVertexArray(0);
     }
     
 
-    // glBindVertexArray(0);
+    
 }
 
 template<typename T>

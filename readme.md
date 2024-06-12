@@ -6,6 +6,11 @@ This 3D engine is made using proprietary c++ OpenGL and SDL code.
 
 # TODO:
 
+ - Add object level uniforms so uniforms can be applied to specific objects.
+
+ - Add Texture object/system.
+
+ - Add Sprite object and Object2D object for 2D games/HUD.
 
 # Future Plans:
 
