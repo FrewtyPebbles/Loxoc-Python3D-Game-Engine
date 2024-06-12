@@ -94,6 +94,11 @@ cdef extern from "src/Tup.h":
         tup3i(int[3] values) except +
         int[3] data
 
+    cdef cppclass tup3ui:
+        tup3ui() except +
+        tup3ui(unsigned int[3] values) except +
+        unsigned int[3] data
+
     cdef cppclass tup4i:
         tup4i() except +
         tup4i(int[4] values) except +
@@ -179,7 +184,7 @@ cdef extern from "src/Mesh.h":
         DIFFUSE,
         DIFFUSE_AND_SPECULAR
 
-    cdef cppclass obj_material:
+    cdef cppclass mesh_material:
         obj_material() except +
         tup3f ambient, diffuse, specular, emissive_coeficient
         float specular_exponent, optical_density, transparency
@@ -187,33 +192,17 @@ cdef extern from "src/Mesh.h":
         string ambient_tex_file, diffuse_tex_file, specular_highlight_file
         Mat ambient_texture, diffuse_texture, specular_highlight_texture
 
-    cdef cppclass face:
-        face() except +
-        face(tup3i vertex_indicies, tup3i vertex_tex_coord_indices, tup3i normal_indicies)
-        tup3i vertex_indicies, vertex_tex_coord_indices, normal_indicies
 
     cdef cppclass mesh:
         mesh() except +
-        mesh(map[string, meshgroup]* groups, map[string, obj_material*] materials, vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals) except +
+        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces) except +
         @staticmethod
-        mesh* from_obj(string file_path)
-        map[string, meshgroup]* groups
-        map[string, obj_material*] materials
+        vector[mesh*] from_file(string file_path) except +
+        vector[mesh_material*] materials
         vector[vec3]* vertexes
-        vector[vec3]* uv_vertexes
+        vector[vec3]* diffuse_coordinates
         vector[vec3]* vertex_normals
-
-    cdef cppclass meshgroup:
-        meshgroup() except +
-        meshgroup(vector[vec3]* vertexes, vector[vec3]* uv_vertexes, vector[vec3]* vertex_normals) except +
-        meshgroup(meshgroup& rhs) except +
-
-
-        vector[vec3]* vertexes
-        vector[face] faces
-        vector[vec3]* uv_vertexes
-        vector[vec3]* vertex_normals
-        obj_material* materials
+        vector[tup3ui]* faces
 
 cdef class Mesh:
     cdef mesh* c_class
@@ -221,15 +210,15 @@ cdef class Mesh:
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst)
     
-cpdef Mesh mesh_from_obj(str file_path)
+cpdef list[Mesh] mesh_from_file(str file_path)
 
 cdef extern from "src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
-        object3d(mesh* mesh, vec3 position, vec3 rotation, vec3 scale) except +
-        object3d(mesh* mesh, vec3 position, vec3 rotation, vec3 scale, material* mat) except +
-        mesh* mesh_data
+        object3d(vector[mesh*] mesh, vec3 position, vec3 rotation, vec3 scale) except +
+        object3d(vector[mesh*] mesh, vec3 position, vec3 rotation, vec3 scale, material* mat) except +
+        vector[mesh*] mesh_data
         vec3 position
         vec3 rotation
         vec3 scale
@@ -244,7 +233,7 @@ cdef extern from "src/Object.h":
 
 cdef class Object:
     cdef object3d* c_class
-    cdef Mesh mesh
+    cdef list[Mesh] meshes
     cdef Material material
     
     cpdef void render(self, Camera camera)

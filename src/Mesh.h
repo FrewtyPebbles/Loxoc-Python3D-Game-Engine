@@ -19,8 +19,8 @@ enum illum_model {
     DIFFUSE_AND_SPECULAR
 };
 
-struct obj_material {
-    obj_material(){};
+struct mesh_material {
+    mesh_material(){};
     string name;
     tup<float, 3> ambient, diffuse, specular, emissive_coeficient;
     float specular_exponent, optical_density, transparency;
@@ -32,65 +32,21 @@ struct obj_material {
 class vec3;
 class polygon;
 
-struct face {
-    face()=default;
-    face(
-        tup<int, 3> vertex_indicies,
-        tup<int, 3> vertex_tex_coord_indices,
-        tup<int, 3> normal_indicies
-    ) :
-        vertex_indicies(vertex_indicies),
-        vertex_tex_coord_indices(vertex_tex_coord_indices),
-        normal_indicies(normal_indicies)
-    {}
-    tup<int, 3> vertex_indicies, vertex_tex_coord_indices, normal_indicies;
-    friend std::ostream& operator<<(std::ostream& os, const face& self) {
-        os << "face< verts=" << self.vertex_indicies << ", uv=" << self.vertex_tex_coord_indices << ", norms=" << self.normal_indicies << " >";
-        return os;
-    }
-};
- 
-class meshgroup {
-public:
-    meshgroup() {} 
-    meshgroup(vector<vec3>* vertexes, vector<vec3>* uv_vertexes, vector<vec3>* vertex_normals):
-    vertexes(vertexes), 
-    uv_vertexes(uv_vertexes), 
-    vertex_normals(vertex_normals)
-    {}
-    meshgroup(const meshgroup& rhs): 
-    vertexes(rhs.vertexes), 
-    faces(rhs.faces), 
-    uv_vertexes(rhs.uv_vertexes), 
-    vertex_normals(rhs.vertex_normals),
-    material_data(rhs.material_data)
-    {}
-
-    void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
-    vector<polygon> get_polygons(vector<vec3> vertexes);
-
-    vector<vec3>* vertexes;
-    vector<vec3>* uv_vertexes;
-    vector<vec3>* vertex_normals;
-    obj_material* material_data;
-    vector<face> faces;
-};
-
 class mesh {
 public:
     mesh(){}
     mesh(
-        map<std::string, meshgroup>* groups,
-        map<std::string, obj_material*> materials,
+        vector<mesh_material*> materials,
         vector<vec3>* vertexes,
-        vector<vec3>* uv_vertexes,
-        vector<vec3>* vertex_normals
+        vector<vec3>* diffuse_coordinates,
+        vector<vec3>* vertex_normals,
+        vector<tup<unsigned int, 3>>* faces
     ):
-    groups(groups),
     materials(materials),
     vertexes(vertexes),
-    uv_vertexes(uv_vertexes),
-    vertex_normals(vertex_normals)
+    diffuse_coordinates(diffuse_coordinates),
+    vertex_normals(vertex_normals),
+    faces(faces)
     {
         this->create_VAO();
     }
@@ -99,30 +55,29 @@ public:
         glDeleteBuffers(1, &gl_VBO);
         glDeleteBuffers(1, &gl_EBO);
         delete vertexes;
-        delete uv_vertexes;
+        delete diffuse_coordinates;
         delete vertex_normals;
-        delete groups;
-        for (auto& [k,v] : materials) {
-            delete v;
+        delete faces;
+        for (auto mat : materials) {
+            delete mat;
         }
     }
-    static mesh* from_obj(string file_path);
-    map<std::string, meshgroup>* groups;
-    map<std::string, obj_material*> materials;
+    static vector<mesh*> from_file(string file_path);
+    vector<mesh_material*> materials;
     // VVV THESE SHOULD BE HEAP ALLOCATED
     vector<vec3>* vertexes;
-    vector<vec3>* uv_vertexes;
+    vector<vec3>* diffuse_coordinates;
     vector<vec3>* vertex_normals;
+    vector<tup<unsigned int, 3>>* faces;
 
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
+    void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
+
     unsigned int gl_VAO, gl_VBO, gl_EBO;
     size_t indicies_size;
     size_t verticies_size;
 private:
-    static vector<tup<int, 3>> parse_face(vector<string> tokens);
-
     // RETURNS A HEAP ALLOCATED POINTER
-    static map<std::string, obj_material*> get_materials(string file_path);
     void create_VAO();
 };
 

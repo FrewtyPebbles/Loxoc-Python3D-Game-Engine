@@ -31,13 +31,16 @@ cdef class Mesh:
         return ret
 
     @staticmethod
-    def from_obj(file_path:str) -> Mesh:
-        return mesh_from_obj(file_path)
+    def from_file(file_path:str) -> list[Mesh]:
+        return mesh_from_file(file_path)
 
-cpdef Mesh mesh_from_obj(str file_path):
-    cdef mesh* m
-    m = mesh.from_obj(file_path.encode())
-    return Mesh.from_cpp(m)
+cpdef list[Mesh] mesh_from_file(str file_path):
+    cdef:
+        mesh* m
+        list[Mesh] ret = []
+    for m in mesh.from_file(file_path.encode()):
+        ret.append(Mesh.from_cpp(m))
+    return ret
 
 
 cdef class V3Property:
@@ -141,17 +144,25 @@ cdef class V3Property:
         return vec_from_cpp(self.c_class[0].cross(other.c_class))
 
 cdef class Object:
-    def __init__(self, Mesh mesh_instance, Vec3 position = Vec3(0.0,0.0,0.0),
+    def __init__(self, list[Mesh] mesh_list, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(0.0,0.0,0.0),
     Material material = None) -> None:
-        self.mesh = mesh_instance
+        self.meshes = mesh_list
+        
+        # create the mesh vector for the cppclass
+        cdef:
+            vector[mesh*] mesh_vec
+            Mesh m
+
+        for m in mesh_list:
+            mesh_vec.push_back(m.c_class)
         
         if material:
             self.material = material
-            self.c_class = new object3d(mesh_instance.c_class, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_vec, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
         else:
             self.material = Material()
-            self.c_class = new object3d(mesh_instance.c_class, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_vec, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
 
     def __dealloc__(self):
         del self.c_class

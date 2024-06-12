@@ -16,9 +16,9 @@ class Mesh:
     """
 
     @staticmethod
-    def from_obj(file_path:str) -> Mesh:
+    def from_file(file_path:str) -> list[Mesh]:
         """
-        Constructs a `Mesh` from a `.obj` file
+        Returns all of the meshes from the supplied path to the 3d file.
         """
 
 class V3Property:
@@ -71,9 +71,9 @@ class Material:
     def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:...
 
 class Object:
-    mesh:Mesh
+    meshes:list[Mesh]
     material:Material
-    def __init__(self, mesh_instance:Mesh, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
+    def __init__(self, mesh_list:list[Mesh], position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
 
 
     @property

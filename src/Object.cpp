@@ -31,9 +31,12 @@ void object::render(camera& camera) {
     
     glUseProgram(this->mat->shader_program);
 
-    glBindVertexArray(this->mesh_data->gl_VAO);
+    for (auto _mesh : this->mesh_data) {
+        glBindVertexArray(_mesh->gl_VAO);
 
-    glDrawElements(GL_TRIANGLES, this->mesh_data->indicies_size, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, _mesh->indicies_size, GL_UNSIGNED_INT, 0);
+    }
+    
 
     // glBindVertexArray(0);
 }

@@ -12,15 +12,17 @@ class camera;
 class object {
 public:
     object(){};
-    object(mesh* mesh, vec3 position, vec3 rotation, vec3 scale, material* mat = nullptr) : mesh_data(mesh), position(position), rotation(rotation), scale(scale) {
+    object(vector<mesh*> mesh, vec3 position, vec3 rotation, vec3 scale, material* mat = nullptr) : mesh_data(mesh), position(position), rotation(rotation), scale(scale) {
         this->mat = (!mat) ? new material() : mat;
     }
     
     ~object(){
         delete mat;
+        for (auto m : mesh_data)
+            delete m;
     }
 
-    mesh* mesh_data;
+    vector<mesh*> mesh_data;
     vec3 position;
     vec3 rotation;
     vec3 scale;

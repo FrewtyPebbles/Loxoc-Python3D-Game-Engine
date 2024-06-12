@@ -66,3 +66,5 @@ typedef tup<int, 3> tup3i;
 typedef tup<int, 4> tup4i;
 
 typedef tup<uint8_t, 3> tup3ui8;
+
+typedef tup<unsigned int, 3> tup3ui;
