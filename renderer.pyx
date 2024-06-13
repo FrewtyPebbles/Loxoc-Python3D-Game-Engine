@@ -445,8 +445,8 @@ cdef class Material:
 
 cdef class Window:
 
-    def __init__(self, str title, Camera cam, int width, int height) -> None:
-        self.c_class = new window(title.encode(), cam.c_class, width, height)
+    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False) -> None:
+        self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen)
     
     @property
     def current_event(self):

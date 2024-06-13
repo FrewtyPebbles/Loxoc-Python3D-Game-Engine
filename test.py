@@ -6,7 +6,7 @@ dim = (1280, 720)
 focal_length = 2000
 
 camera = Camera(Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("FBX Car Test", camera, *dim)
+window = Window("FBX Car Test", camera, *dim, True)
 
 # Materials are equivalent to shader programs.
 default_material = Material(

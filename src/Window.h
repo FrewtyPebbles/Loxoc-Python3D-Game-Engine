@@ -33,7 +33,7 @@ enum class event {
 class window {
 public:
     window();
-    window(string title, camera* cam, int width, int height);
+    window(string title, camera* cam, int width, int height, bool fullscreen);
     ~window();
     camera* cam;
     string title;

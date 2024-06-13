@@ -168,7 +168,7 @@ class Window:
     An application window that can be used as a render medium.
     """
 
-    def __init__(self, title:str, cam:Camera, width:int, height:int) -> None:...
+    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False) -> None:...
     
     @property
     def current_event(self) -> event:

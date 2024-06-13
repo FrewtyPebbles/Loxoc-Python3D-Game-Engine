@@ -342,13 +342,14 @@ cdef extern from "src/Window.h":
 
     cdef cppclass window:
         window() except +
-        window(string title, camera* cam, int width, int height) except +
+        window(string title, camera* cam, int width, int height, bint fullscreen) except +
         camera* cam
         string title
         int width, height
         void update(vector[object3d*] objects)
         event current_event
         float deltatime
+        bint fullscreen
 
 cdef class Window:
     cdef window* c_class

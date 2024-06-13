@@ -17,7 +17,7 @@ window::window() {
     this->create_window();
 }
 
-window::window(string title, camera* cam, int width, int height) : cam(cam), title(title), width(width), height(height), current_event(event::NOTHING) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen) : cam(cam), title(title), width(width), height(height), current_event(event::NOTHING), fullscreen(fullscreen) {
     this->create_window();
 }
 
