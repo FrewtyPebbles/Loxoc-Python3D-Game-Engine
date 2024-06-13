@@ -20,7 +20,7 @@ default_material.set_uniform("focal_length", focal_length, "i")
 car_meshes = Mesh.from_file("meshes/fbx_car/svj_PACKED.fbx")
 
 car = Object(car_meshes,
-    Vec3(0.0,0,-500), Vec3(0,0,0), material=default_material)
+    Vec3(0.0,0,-500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
 
 car2 = Object(car_meshes,
     Vec3(300,0,-500), Vec3(10,3.57,23.2), material=default_material)

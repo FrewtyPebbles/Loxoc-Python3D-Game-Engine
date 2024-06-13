@@ -231,6 +231,8 @@ cdef extern from "src/Object.h":
 
         vector[vec3] get_rotation(vector[vec3] vertexes)
 
+        void set_uniform(string name, uniform_type value, string type)
+
 
 cdef class Object:
     cdef object3d* c_class
@@ -250,6 +252,8 @@ cdef class Object:
     cpdef void set_position_vec(self, Vec3 other)
 
     cpdef void set_position_prop(self, V3Property other)
+
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 cdef class V3Property:
     cdef vec3* c_class

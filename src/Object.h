@@ -23,8 +23,11 @@ public:
     vector<mesh*> mesh_data;
     vec3 position;
     vec3 rotation;
-    vec3 scale;
+    vec3 scale = vec3(1.0f, 1.0f, 1.0f);
     material* mat;
+    map<int, uniform_type> uniforms;
+    void set_uniform(string name, uniform_type value, string type);
+    void register_uniforms();
 
     void render(camera& camera);
 };

@@ -145,7 +145,7 @@ cdef class V3Property:
 
 cdef class Object:
     def __init__(self, list[Mesh] mesh_list, Vec3 position = Vec3(0.0,0.0,0.0),
-    Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(0.0,0.0,0.0),
+    Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Material material = None) -> None:
         self.meshes = mesh_list
         
@@ -228,6 +228,23 @@ cdef class Object:
 
     cpdef void render(self, Camera camera):
         self.c_class.render(camera.c_class[0])
+
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
+        cdef:
+            vector[float] uni_vec
+            uniform_type valu
+
+        if isinstance(value, float):
+            valu = <float>value
+            self.c_class.set_uniform(name, valu, type)
+        elif isinstance(value, int):
+            valu = <int>value
+            self.c_class.set_uniform(name.encode(), valu, type.encode())
+        else:
+            for val in value:
+                uni_vec.push_back(val)
+            valu = uni_vec
+            self.c_class.set_uniform(name, valu, type)
 
 
 

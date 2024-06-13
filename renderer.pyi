@@ -68,7 +68,10 @@ class Material:
     """
     def __init__(self, vertex:Shader = None, fragment:Shader = None) -> None:...
 
-    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:...
+    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:
+        """
+        Sets the value of a uniform for the shaders in the material.
+        """
 
 class Object:
     meshes:list[Mesh]
@@ -96,6 +99,11 @@ class Object:
 
 
     def render(self, camera:Camera):...
+
+    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:
+        """
+        Sets the value of a uniform for the shaders in the object's material.
+        """
 
 class Shader:
     def __init__(self, source:str, shader_type:ShaderType) -> None:...

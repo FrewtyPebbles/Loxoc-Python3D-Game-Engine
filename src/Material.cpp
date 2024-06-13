@@ -77,8 +77,6 @@ void material::set_uniform(string name, uniform_type value, string type) {
             ));
         }
     }
-    
-    
 }
 
 void material::use_material() {
