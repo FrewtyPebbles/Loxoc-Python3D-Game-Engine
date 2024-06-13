@@ -15,7 +15,6 @@ C_PATH = path.join(path.dirname(__file__), "src/")
 INCLUDE_DIRS = [
     getenv("INCLUDE_DIR"),
     path.join(path.dirname(__file__), "glad/include/"),
-    path.join(path.dirname(__file__), "stb_img/")
 ]
 LIBRARY_DIRS = [
     getenv("STATIC_LIB_DIR")

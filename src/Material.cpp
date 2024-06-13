@@ -3,7 +3,7 @@
 
 void material::set_uniform(string name, uniform_type value, string type) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
-    type = string_util::to_lowercase(type);
+    type = str_tool::to_lowercase(type);
     
     if (type == "f" || type == "float" || type == "i" || type == "int") {
         this->uniforms.insert_or_assign(loc, value);

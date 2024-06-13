@@ -32,13 +32,21 @@ inline T clamp(const T& value, const T& low, const T& high) {
   return value < low ? low : (value > high ? high : value); 
 }
 
-namespace string_util
+namespace str_tool
 {
     inline string to_lowercase(const std::string& str) {
-        string result;
-        for (char ch : str) {
-            result += std::tolower(ch);
-        }
-        return result;
+      string result;
+      for (char ch : str) {
+        result += std::tolower(ch);
+      }
+      return result;
+    }
+
+    inline std::string rem_path_from_file(std::string const & path) {
+      return path.substr(path.find_last_of("/\\") + 1);
+    }
+
+    inline std::string rem_file_from_path(std::string const & path) {
+      return path.substr(0, path.find_last_of("\\/"));
     }
 };

@@ -4,6 +4,22 @@ from cython.parallel cimport prange
 
 
 
+cdef class Texture:
+    @classmethod
+    def from_file(cls, str file_path, TextureWraping wrap = TextureWraping.REPEAT, TextureFiltering filtering = TextureFiltering.LINEAR) -> Texture:
+        return Texture_from_file(file_path, wrap, filtering)
+        
+
+
+    def __dealloc__(self):
+        del self.c_class
+
+cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering):
+    ret = Texture()
+    ret.c_class = new texture(file_path.encode(), wrap, filtering)
+
+    return ret
+
 cdef class Camera:
     def __init__(self, Vec3 position, int view_width, int view_height, float focal_length, float fov) -> None:
         self.c_class = new camera(&position.c_class, view_width, view_height, focal_length, fov)
@@ -26,8 +42,41 @@ cdef class Mesh:
 
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst):
-        cdef Mesh ret = Mesh()
+        cdef:
+            Mesh ret = Mesh()
+            texture* _tex
+            list[Texture] diffuse_textures = []
+            list[Texture] specular_textures = []
+            list[Texture] normals_textures = []
+        
         ret.c_class = cppinst
+
+        # register textures on the python heap so it can manage garbage collection for c++ memory
+        
+        # refcount diffuse
+        for _tex in ret.c_class.diffuse_textures:
+            tex = Texture()
+            tex.c_class = _tex
+            diffuse_textures.append(tex)
+        
+        ret.diffuse_textures = diffuse_textures
+
+        # refcount specular
+        for _tex in ret.c_class.specular_textures:
+            tex = Texture()
+            tex.c_class = _tex
+            specular_textures.append(tex)
+        
+        ret.specular_textures = specular_textures
+
+        # refcount normals
+        for _tex in ret.c_class.normals_textures:
+            tex = Texture()
+            tex.c_class = _tex
+            normals_textures.append(tex)
+        
+        ret.normals_textures = normals_textures
+
         return ret
 
     @staticmethod

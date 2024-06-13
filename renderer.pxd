@@ -4,7 +4,27 @@ from libcpp.string cimport string
 from libcpp.map cimport map
 
 
+cdef extern from "src/Texture.h":
+    cpdef enum class TextureFiltering:
+        NEAREST,
+        LINEAR
 
+    cpdef enum class TextureWraping:
+        REPEAT,
+        MIRRORED_REPEAT,
+        CLAMP_TO_EDGE,
+        CLAMP_TO_BORDER
+
+    cdef cppclass texture:
+        texture() except +
+        texture(string file_path, TextureWraping wrap, TextureFiltering filtering) except +
+        int width, height, number_of_channels
+        void bind()
+
+cdef class Texture:
+    cdef texture* c_class
+
+cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering)
 
 cdef extern from "src/Shader.h":
     cpdef enum class ShaderType:
@@ -192,11 +212,12 @@ cdef extern from "src/Mesh.h":
         illum_model illumination_model
         string ambient_tex_file, diffuse_tex_file, specular_highlight_file
         Mat ambient_texture, diffuse_texture, specular_highlight_texture
+        
 
 
     cdef cppclass mesh:
         mesh() except +
-        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform) except +
+        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[texture*] diffuse_textures, vector[texture*] specular_textures, vector[texture*] normals_textures) except +
         @staticmethod
         vector[mesh*] from_file(string file_path) except +
         vector[mesh_material*] materials
@@ -205,9 +226,15 @@ cdef extern from "src/Mesh.h":
         vector[vec3]* vertex_normals
         vector[tup3ui]* faces
         vec3 transform
+        vector[texture*] diffuse_textures
+        vector[texture*] specular_textures
+        vector[texture*] normals_textures
 
 cdef class Mesh:
     cdef mesh* c_class
+    cdef list[Texture] diffuse_textures
+    cdef list[Texture] specular_textures
+    cdef list[Texture] normals_textures
 
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst)

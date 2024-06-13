@@ -6,6 +6,7 @@
 #include "util.h"
 #include "glad/gl.h"
 #include <SDL2/SDL_opengl.h>
+#include "Texture.h"
 
 
 
@@ -38,6 +39,11 @@ void object::render(camera& camera) {
     glUseProgram(this->mat->shader_program);
 
     for (auto _mesh : this->mesh_data) {
+        for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
+            glActiveTexture(GL_TEX_N_ITTER[t_n]);
+            _mesh->diffuse_textures[t_n]->bind();
+        }
+
         glBindVertexArray(_mesh->gl_VAO);
 
         glDrawElements(GL_TRIANGLES, _mesh->indicies_size, GL_UNSIGNED_INT, 0);
@@ -48,7 +54,7 @@ void object::render(camera& camera) {
 
 void object::set_uniform(string name, uniform_type value, string type) {
     int loc = glGetUniformLocation(this->mat->shader_program, name.c_str());
-    type = string_util::to_lowercase(type);
+    type = str_tool::to_lowercase(type);
     
     if (type == "f" || type == "float" || type == "i" || type == "int") {
         this->uniforms.insert_or_assign(loc, value);

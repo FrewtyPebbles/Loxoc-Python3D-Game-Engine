@@ -1,10 +1,13 @@
 #version 330 core
 
 uniform int focal_length;
+uniform sampler2D ourTexture;
 
 in float depth;
-out vec3 color;
+in vec2 TexCoord;
+
+out vec4 FragColor;
 
 void main() {
-	color = vec3(1-1*abs(depth)/focal_length, 1-1*abs(depth)/focal_length, 1-1*abs(depth)/focal_length);
+	FragColor = texture(ourTexture, TexCoord) - depth/focal_length;
 }

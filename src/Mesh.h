@@ -14,6 +14,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Texture.h"
 
 using std::vector;
 using std::string;
@@ -46,14 +47,20 @@ public:
         vector<vec3>* diffuse_coordinates,
         vector<vec3>* vertex_normals,
         vector<tup<unsigned int, 3>>* faces,
-        vec3 transform
+        vec3 transform,
+        vector<texture*> diffuse_textures,
+        vector<texture*> specular_textures,
+        vector<texture*> normals_textures
     ):
     materials(materials),
     vertexes(vertexes),
     diffuse_coordinates(diffuse_coordinates),
     vertex_normals(vertex_normals),
     faces(faces),
-    transform(transform)
+    transform(transform),
+    diffuse_textures(diffuse_textures),
+    specular_textures(specular_textures),
+    normals_textures(normals_textures)
     {
         this->create_VAO();
     }
@@ -77,6 +84,9 @@ public:
     vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
     vec3 transform;
+    vector<texture*> diffuse_textures;
+    vector<texture*> specular_textures;
+    vector<texture*> normals_textures;
 
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
@@ -86,7 +96,7 @@ public:
     size_t verticies_size;
 private:
     // RETURNS A HEAP ALLOCATED POINTER
-    static void process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform);
+    static void process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform, string file_path);
     void create_VAO();
 };
 
