@@ -360,12 +360,17 @@ cdef Vec3 vec_from_cpp(vec3 cppinst):
 
 cdef class Material:
     def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
-        if vertex and fragment:
-            self.c_class = new material(vertex.c_class, fragment.c_class)
-        elif vertex:
-            self.c_class = new material(vertex.c_class)
+        if vertex:
+            self.vertex_shader = vertex
         else:
-            self.c_class = new material()
+            self.vertex_shader = Shader.from_file("./default_vertex.glsl", ShaderType.VERTEX)
+
+        if fragment:
+            self.fragment_shader = fragment
+        else:
+            self.fragment_shader = Shader.from_file("./default_fragment.glsl", ShaderType.FRAGMENT)
+
+        self.c_class = new material(self.vertex_shader.c_class, self.fragment_shader.c_class)
         
     def __dealloc__(self):
         del self.c_class

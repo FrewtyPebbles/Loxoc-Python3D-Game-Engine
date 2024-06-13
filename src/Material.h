@@ -33,17 +33,12 @@ typedef std::variant<
 
 class material {
 public:
-    material(shader* vertex = nullptr, shader* fragment = nullptr)
+    material(shader* vertex, shader* fragment)
     : vertex(vertex), fragment(fragment)
     {
-        this->vertex = (!vertex) ? shader::from_file("./default_vertex.glsl", ShaderType::VERTEX) : vertex;
-        this->fragment = (!fragment) ? shader::from_file("./default_fragment.glsl", ShaderType::FRAGMENT) : fragment;
         this->link_shaders();
     }
-    ~material(){
-        delete vertex;
-        delete fragment;
-    }
+    ~material(){}
     void set_uniform(string name, uniform_type value, string type);
     void register_uniforms();
     void link_shaders();

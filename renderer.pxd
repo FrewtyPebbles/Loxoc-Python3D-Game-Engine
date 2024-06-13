@@ -52,6 +52,7 @@ cdef extern from "src/Material.h":
     
 cdef class Material:
     cdef material* c_class
+    cdef Shader vertex_shader, fragment_shader
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 
