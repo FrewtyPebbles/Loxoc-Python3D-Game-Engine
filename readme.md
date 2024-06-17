@@ -1,4 +1,4 @@
-# Python 3D Game Engine
+# Runespoor Python 3D Game Engine
 
 This is the a third refactor of my 3d engine, this time with opengl.
 
@@ -14,11 +14,7 @@ Texture mapping:
 
  - Figure out better solution for multimesh assimp imports.  (Current solution groups all meshes from the scene in a python list.)
 
- - Add transform and rotate to camera.
-
  - Refactor SDL-based event system (to include more events).
-
- - Think of a name for the engine.
 
  - Add mouse events.
 

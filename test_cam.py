@@ -5,7 +5,7 @@ import math
 dim = (1280, 720)
 focal_length = 2000
 
-camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
+camera = Camera(Vec3(0.0,100.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
 window = Window("FBX Car Test", camera, *dim, False)
 
 # Materials are equivalent to shader programs.
@@ -38,31 +38,19 @@ render_list = [
     pirate_ship
 ]
 
-vel_yaw = 0.0
-vel = 0.0
-frict = 0.1
-accel = 5
 while window.current_event != event.QUIT:
     if window.current_event == event.KEY_RIGHT:
-        vel_yaw -= 0.3
+        camera.rotation.y -= 10 * window.dt
+        
     if window.current_event == event.KEY_LEFT:
-        vel_yaw += 0.3
+        camera.rotation.y += 10 * window.dt
 
-    vel_yaw = min(max(vel_yaw, -100), 100)
-
-    car.rotation.y += vel_yaw * window.dt
-
-    vel_yaw -= math.copysign(frict, vel_yaw)
 
     if window.current_event == event.KEY_DOWN:
-        vel -= accel
+        camera.rotation.x += 10 * window.dt
     if window.current_event == event.KEY_UP:
-        vel += accel
+        camera.rotation.x -= 10 * window.dt
 
-    vel = min(max(vel, -1000), 1000)
 
-    car.position += -car.rotation.forward * vel * window.dt
-
-    vel -= math.copysign(frict, vel)
 
     window.update(render_list)

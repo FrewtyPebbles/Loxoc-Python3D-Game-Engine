@@ -15,24 +15,22 @@ void object::render(camera& camera) {
     // opengl renderer
     glm::mat4 projection = glm::perspective(camera.fov, static_cast<float>(camera.view_width)/static_cast<float>(camera.view_height), 0.1f, static_cast<float>(camera.focal_length));
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, this->position->axis);
     view = glm::translate(view, (-*camera.position).axis);
-    glm::mat4 scale = glm::mat4(1.0f);
-    scale = glm::scale(scale, this->scale->axis);
+    view *= glm::lookAt(camera.position->axis, camera.position->axis + camera.rotation->get_forward().axis, camera.rotation->get_up().axis);
     glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, this->position->axis);
     model = glm::rotate(model, this->rotation->axis.x, glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, this->rotation->axis.y, glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, this->rotation->axis.z, glm::vec3(0.0f, 0.0f, 1.0f));
-    
+    model = glm::scale(model, this->scale->axis);
+
 
     int model_loc = glGetUniformLocation(this->mat->shader_program, "model");
     int view_loc = glGetUniformLocation(this->mat->shader_program, "view");
-    int scale_loc = glGetUniformLocation(this->mat->shader_program, "scale");
     int projection_loc = glGetUniformLocation(this->mat->shader_program, "projection");
 
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(scale_loc, 1, GL_FALSE, glm::value_ptr(scale));
     glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
     this->mat->register_uniforms();
