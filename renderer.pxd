@@ -72,7 +72,7 @@ cdef extern from "src/Material.h":
     
 cdef class Material:
     cdef material* c_class
-    cdef Shader vertex_shader, fragment_shader
+    cdef public Shader vertex_shader, fragment_shader
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 
@@ -146,9 +146,14 @@ cdef extern from "src/Vec3.h":
         void set_y(float other)
         void set_z(float other)
 
+        vec3 get_up()
+        vec3 get_right()
+        vec3 get_forward()
+
         # operators
         vec3 operator+(vec3& other)
         vec3 operator+(float& other)
+        vec3 operator-()
         vec3 operator-(vec3& other)
         vec3 operator-(float& other)
         vec3 operator*(vec3& other)
@@ -161,7 +166,7 @@ cdef extern from "src/Vec3.h":
         vec3 get_normalized()
 
 cdef class Vec3:
-    cdef vec3 c_class
+    cdef vec3* c_class
 
 
     cpdef Vec3 vecadd(self, Vec3 other)
@@ -232,9 +237,9 @@ cdef extern from "src/Mesh.h":
 
 cdef class Mesh:
     cdef mesh* c_class
-    cdef list[Texture] diffuse_textures
-    cdef list[Texture] specular_textures
-    cdef list[Texture] normals_textures
+    cdef public list[Texture] diffuse_textures
+    cdef public list[Texture] specular_textures
+    cdef public list[Texture] normals_textures
 
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst)
@@ -245,12 +250,12 @@ cdef extern from "src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
-        object3d(vector[mesh*] mesh, vec3 position, vec3 rotation, vec3 scale) except +
-        object3d(vector[mesh*] mesh, vec3 position, vec3 rotation, vec3 scale, material* mat) except +
+        object3d(vector[mesh*] mesh, vec3* position, vec3* rotation, vec3* scale) except +
+        object3d(vector[mesh*] mesh, vec3* position, vec3* rotation, vec3* scale, material* mat) except +
         vector[mesh*] mesh_data
-        vec3 position
-        vec3 rotation
-        vec3 scale
+        vec3* position
+        vec3* rotation
+        vec3* scale
         material* mat
 
         void render(camera& camera)
@@ -264,58 +269,22 @@ cdef extern from "src/Object.h":
 
 cdef class Object:
     cdef object3d* c_class
-    cdef list[Mesh] meshes
-    cdef Material material
+    cdef public list[Mesh] meshes
+    cdef public Material material
+    cdef Vec3 _position, _rotation, _scale
     
     cpdef void render(self, Camera camera)
-        
-    cpdef void set_scale_prop(self, V3Property other)
-
-    cpdef void set_scale_vec(self, Vec3 other)
-
-    cpdef void set_rotation_vec(self, Vec3 other)
-
-    cpdef void set_rotation_prop(self, V3Property other)
-
-    cpdef void set_position_vec(self, Vec3 other)
-
-    cpdef void set_position_prop(self, V3Property other)
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
-
-cdef class V3Property:
-    cdef vec3* c_class
-
-    @staticmethod
-    cdef V3Property init(vec3* ptr)
-
-    cpdef float get_magnitude(self)
-
-    cpdef Vec3 get_normalized(self)
-
-    cpdef Vec3 vecadd(self, Vec3 other)
-
-    cpdef Vec3 floatadd(self, float other)
-
-    cpdef Vec3 vecsub(self, Vec3 other)
-
-    cpdef Vec3 floatsub(self, float other)
-
-    cpdef Vec3 vecmul(self, Vec3 other)
-
-    cpdef Vec3 floatmul(self, float other)
-
-    cpdef Vec3 vecdiv(self, Vec3 other)
-
-    cpdef Vec3 floatdiv(self, float other)
 
 cdef extern from "src/Camera.h":
 
     cdef cppclass camera:
         camera() except +
-        camera(vec3* position, int view_width, int view_height, float focal_length, float fov) except +
+        camera(vec3* position, vec3* rotation, int view_width, int view_height, float focal_length, float fov) except +
         void render(vector[object3d*] objects)
-        vec3 position
+        vec3* position
+        vec3* rotation
         int view_width, view_height
         float focal_length
         float fov
@@ -324,6 +293,7 @@ cdef extern from "src/Camera.h":
 
 cdef class Camera:
     cdef camera* c_class
+    cdef Vec3 _position, _rotation
 
     cpdef void render(self, list[Object] objects)
 

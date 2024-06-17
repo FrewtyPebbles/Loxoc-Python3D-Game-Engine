@@ -5,8 +5,8 @@ import math
 dim = (1280, 720)
 focal_length = 2000
 
-camera = Camera(Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("FBX Car Test", camera, *dim, True)
+camera = Camera(Vec3(0.0,100.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
+window = Window("FBX Car Test", camera, *dim, False)
 
 # Materials are equivalent to shader programs.
 default_material = Material(
@@ -20,7 +20,7 @@ default_material.set_uniform("focal_length", focal_length, "i")
 car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
 
 car = Object(car_meshes,
-    Vec3(0.0,0,-500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+    Vec3(0.0,-100.0,-500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
 
 car2 = Object(car_meshes,
     Vec3(300,0,-500), Vec3(10,3.57,23.2), material=default_material)
@@ -39,8 +39,9 @@ render_list = [
 ]
 
 vel_yaw = 0.0
-vel_pitch = 0.0
+vel = 0.0
 frict = 0.1
+accel = 5
 while window.current_event != event.QUIT:
     if window.current_event == event.KEY_RIGHT:
         vel_yaw -= 0.3
@@ -54,14 +55,14 @@ while window.current_event != event.QUIT:
     vel_yaw -= math.copysign(frict, vel_yaw)
 
     if window.current_event == event.KEY_DOWN:
-        vel_pitch -= 0.3
+        vel -= accel
     if window.current_event == event.KEY_UP:
-        vel_pitch += 0.3
+        vel += accel
 
-    vel_pitch = min(max(vel_pitch, -100), 100)
+    vel = min(max(vel, -1000), 1000)
 
-    car.rotation.x += vel_pitch * window.dt
+    car.position += -car.rotation.forward * vel * window.dt
 
-    vel_pitch -= math.copysign(frict, vel_pitch)
+    vel -= math.copysign(frict, vel)
 
     window.update(render_list)

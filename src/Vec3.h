@@ -34,8 +34,46 @@ public:
     void set_y(float other) {axis.y = other;}
     void set_z(float other) {axis.z = other;}
 
+    inline vec3 get_up() {
+        float pitch = axis.x;
+        float yaw = axis.y;
+        float roll = axis.z;
+        return vec3(
+            sin(pitch) * sin(yaw),
+            cos(pitch),
+            sin(pitch) * cos(yaw)
+        );
+    }
+
+    inline vec3 get_right() {
+        float pitch = axis.x;
+        float yaw = axis.y;
+        float roll = axis.z;
+        return vec3(
+            cos(yaw),
+            0,
+            -sin(yaw)
+        );
+    }
+
+    inline vec3 get_forward() {
+        float pitch = axis.x;
+        float yaw = axis.y;
+        float roll = axis.z;
+        return vec3(
+            cos(pitch) * sin(yaw),
+            -sin(pitch),
+            cos(pitch) * cos(yaw)
+        );
+    }
+
+
 
     // Operators
+
+    inline vec3 operator-() {
+        return vec3(-axis.x, -axis.y, -axis.z);
+    }
 
     inline vec3 operator+(vec3 const& other)
     {

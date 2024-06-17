@@ -8,7 +8,9 @@ class Camera:
     """
     This class is the 3d perspective for a `Window`.
     """
-    def __init__(self, position:Vec3, view_width:int, view_height:int, focal_length:float, fov:float) -> None:...
+    position:Vec3
+    rotation:Vec3
+    def __init__(self, position:Vec3, rotation:Vec3, view_width:int, view_height:int, focal_length:float, fov:float) -> None:...
 
 class Mesh:
     """
@@ -20,45 +22,6 @@ class Mesh:
         """
         Returns all of the meshes from the supplied path to the 3d file.
         """
-
-class V3Property:
-    """
-    This is functionally equivalent to a Vec3.
-    """
-
-    def get_magnitude(self) -> float:...
-
-    def get_normalized(self) -> Vec3:...
-
-    @property
-    def x(self)->float:...
-    
-    @property
-    def y(self)->float:...
-
-    @property
-    def z(self)->float:...
-
-    @x.setter
-    def x(self, value:float):...
-    
-    @y.setter
-    def y(self, value:float):...
-
-    @z.setter
-    def z(self, value:float):...
-
-    def __add__(self, other:Vec3 | float) -> Vec3:...
-
-    def __sub__(self, other:Vec3 | float) -> Vec3:...
-
-    def __mul__(self, other:Vec3 | float) -> Vec3:...
-
-    def __truediv__(self, other:Vec3 | float) -> Vec3:...
-
-    def dot(self, other:Vec3) -> float:...
-
-    def cross(self, other:Vec3) -> Vec3:...
 
 class Material:
     """
@@ -74,28 +37,17 @@ class Material:
         """
 
 class Object:
+    """
+    This class is your game object.
+    """
     meshes:list[Mesh]
     material:Material
+    position:Vec3
+    rotation:Vec3
+    scale:Vec3
     def __init__(self, mesh_list:list[Mesh], position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
 
 
-    @property
-    def position(self) -> V3Property:...
-
-    @position.setter
-    def position(self, other:Vec3 | V3Property):...
-
-    @property
-    def rotation(self) -> V3Property:...
-
-    @rotation.setter
-    def rotation(self, other:Vec3 | V3Property):...
-
-    @property
-    def scale(self) -> V3Property:...
-
-    @scale.setter
-    def scale(self, other:Vec3 | V3Property):...
 
 
     def render(self, camera:Camera):...
@@ -131,8 +83,28 @@ class Vec3:
     @z.setter
     def z(self, value:float):...
 
+    @property
+    def up(self) -> Vec3:
+        """
+        The up directional vector.
+        """
+
+    @property
+    def right(self) -> Vec3:
+        """
+        The right directional vector.
+        """
+
+    @property
+    def forward(self) -> Vec3:
+        """
+        The forward directional vector.
+        """
+
 
     # OPERATORS
+
+    def __neg__(self) -> Vec3:...
 
     def __add__(self, other:Vec3 | float) -> Vec3:...
 

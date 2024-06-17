@@ -12,14 +12,14 @@ class camera;
 class object {
 public:
     object(){};
-    object(vector<mesh*> mesh, vec3 position, vec3 rotation, vec3 scale, material* mat) : mesh_data(mesh), position(position), rotation(rotation), scale(scale), mat(mat) {}
+    object(vector<mesh*> mesh, vec3* position, vec3* rotation, vec3* scale, material* mat) : mesh_data(mesh), position(position), rotation(rotation), scale(scale), mat(mat) {}
     
     ~object(){}
 
     vector<mesh*> mesh_data;
-    vec3 position;
-    vec3 rotation;
-    vec3 scale = vec3(1.0f, 1.0f, 1.0f);
+    vec3* position;
+    vec3* rotation;
+    vec3* scale;
     material* mat;
     map<int, uniform_type> uniforms;
     void set_uniform(string name, uniform_type value, string type);

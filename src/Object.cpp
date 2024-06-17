@@ -7,6 +7,7 @@
 #include "glad/gl.h"
 #include <SDL2/SDL_opengl.h>
 #include "Texture.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 
 
@@ -14,13 +15,14 @@ void object::render(camera& camera) {
     // opengl renderer
     glm::mat4 projection = glm::perspective(camera.fov, static_cast<float>(camera.view_width)/static_cast<float>(camera.view_height), 0.1f, static_cast<float>(camera.focal_length));
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, this->position.axis);  // Move right
+    view = glm::translate(view, this->position->axis);
+    view = glm::translate(view, (-*camera.position).axis);
     glm::mat4 scale = glm::mat4(1.0f);
-    scale = glm::scale(scale, this->scale.axis);
+    scale = glm::scale(scale, this->scale->axis);
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, this->rotation.axis.x, glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, this->rotation.axis.y, glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, this->rotation.axis.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, this->rotation->axis.x, glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, this->rotation->axis.y, glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, this->rotation->axis.z, glm::vec3(0.0f, 0.0f, 1.0f));
     
 
     int model_loc = glGetUniformLocation(this->mat->shader_program, "model");

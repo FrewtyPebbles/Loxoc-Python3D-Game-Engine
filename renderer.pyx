@@ -21,8 +21,28 @@ cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFilte
     return ret
 
 cdef class Camera:
-    def __init__(self, Vec3 position, int view_width, int view_height, float focal_length, float fov) -> None:
-        self.c_class = new camera(&position.c_class, view_width, view_height, focal_length, fov)
+    def __init__(self, Vec3 position, Vec3 rotation, int view_width, int view_height, float focal_length, float fov) -> None:
+        self._position = position
+        self._rotation = rotation
+        self.c_class = new camera(position.c_class, rotation.c_class, view_width, view_height, focal_length, fov)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, Vec3 value):
+        self._position = value
+        self.c_class.position = value.c_class
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, Vec3 value):
+        self._rotation = value
+        self.c_class.rotation = value.c_class
 
     def __dealloc__(self):
         del self.c_class
@@ -91,111 +111,13 @@ cpdef list[Mesh] mesh_from_file(str file_path):
         ret.append(Mesh.from_cpp(m))
     return ret
 
-
-cdef class V3Property:
-    # THIS NEEDS TO HAVE ALL OF THE SAME METHODS AND PROPERTIES AS Vec3
-    @staticmethod
-    cdef V3Property init(vec3* ptr):
-        ret = V3Property()
-        ret.c_class = ptr
-        return ret
-
-    cpdef float get_magnitude(self):
-        return self.c_class.get_magnitude()
-
-    cpdef Vec3 get_normalized(self):
-        return vec_from_cpp(self.c_class.get_normalized())
-
-    @property
-    def x(self):
-        return self.c_class[0].axis.x
-    
-    @property
-    def y(self):
-        return self.c_class[0].axis.y
-
-    @property
-    def z(self):
-        return self.c_class[0].axis.z
-
-    @x.setter
-    def x(self, float value):
-        self.c_class[0].axis.x = value
-    
-    @y.setter
-    def y(self, float value):
-        self.c_class[0].axis.y = value
-
-    @z.setter
-    def z(self, float value):
-        self.c_class[0].axis.z = value
-
-    def __add__(self, other:Vec3 | float) -> Vec3:
-        if isinstance(other, Vec3):
-            return self.vecadd(other)
-        else:
-            return self.floatadd(other)
-
-    cpdef Vec3 vecadd(self, Vec3 other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s + other.c_class)
-
-    cpdef Vec3 floatadd(self, float other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s + other)
-
-    def __sub__(self, other:Vec3 | float) -> Vec3:
-        if isinstance(other, Vec3):
-            return self.vecsub(other)
-        else:
-            return self.floatsub(other)
-
-    cpdef Vec3 vecsub(self, Vec3 other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s - other.c_class)
-
-    cpdef Vec3 floatsub(self, float other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s - other)
-
-    def __mul__(self, other:Vec3 | float) -> Vec3:
-        if isinstance(other, Vec3):
-            return self.vecmul(other)
-        else:
-            return self.floatmul(other)
-        
-    cpdef Vec3 vecmul(self, Vec3 other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s * other.c_class)
-
-    cpdef Vec3 floatmul(self, float other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s * other)
-
-    def __truediv__(self, other:Vec3 | float) -> Vec3:
-        if isinstance(other, Vec3):
-            return self.vecdiv(other)
-        else:
-            return self.floatdiv(other)
-        
-    cpdef Vec3 vecdiv(self, Vec3 other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s / other.c_class)
-
-    cpdef Vec3 floatdiv(self, float other):
-        cdef vec3 s = self.c_class[0]
-        return vec_from_cpp(s / other)
-
-    def dot(self, Vec3 other) -> float:
-        return self.c_class[0].dot(other.c_class)
-
-    def cross(self, Vec3 other) -> Vec3:
-        return vec_from_cpp(self.c_class[0].cross(other.c_class))
-
 cdef class Object:
     def __init__(self, list[Mesh] mesh_list, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Material material = None) -> None:
+        self._position = position
+        self._rotation = rotation
+        self._scale = scale
         self.meshes = mesh_list
         
         # create the mesh vector for the cppclass
@@ -213,66 +135,35 @@ cdef class Object:
             self.material = Material()
             self.c_class = new object3d(mesh_vec, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
 
-    def __dealloc__(self):
-        del self.c_class
-
-
     @property
-    def position(self) -> V3Property:
-        return V3Property.init(&self.c_class.position)
+    def position(self):
+        return self._position
 
     @position.setter
-    def position(self, other:Vec3 | V3Property):
-        if isinstance(other, Vec3):
-            self.set_position_vec(other)
-        elif isinstance(other, V3Property):
-            self.set_position_prop(other)
-
-    cpdef void set_position_vec(self, Vec3 other):
-        cdef vec3 o = other.c_class
-        self.c_class.position = o
-
-    cpdef void set_position_prop(self, V3Property other):
-        cdef vec3 o = other.c_class[0]
-        self.c_class.position = o
+    def position(self, Vec3 value):
+        self._position = value
+        self.c_class.position = value.c_class
 
     @property
-    def rotation(self) -> V3Property:
-        return V3Property.init(&self.c_class.rotation)
+    def rotation(self):
+        return self._rotation
 
     @rotation.setter
-    def rotation(self, other:Vec3 | V3Property):
-        if isinstance(other, Vec3):
-            self.set_rotation_vec(other)
-        elif isinstance(other, V3Property):
-            self.set_rotation_prop(other)
-
-    cpdef void set_rotation_vec(self, Vec3 other):
-        cdef vec3 o = other.c_class
-        self.c_class.rotation = o
-
-    cpdef void set_rotation_prop(self, V3Property other):
-        cdef vec3 o = other.c_class[0]
-        self.c_class.rotation = o
+    def rotation(self, Vec3 value):
+        self._rotation = value
+        self.c_class.rotation = value.c_class
 
     @property
-    def scale(self) -> V3Property:
-        return V3Property.init(&self.c_class.scale)
+    def scale(self):
+        return self._scale
 
     @scale.setter
-    def scale(self, other:Vec3 | V3Property):
-        if isinstance(other, Vec3):
-            self.set_scale_vec(other)
-        elif isinstance(other, V3Property):
-            self.set_scale_prop(other)
+    def scale(self, Vec3 value):
+        self._scale = value
+        self.c_class.scale = value.c_class
 
-    cpdef void set_scale_vec(self, Vec3 other):
-        cdef vec3 o = other.c_class
-        self.c_class.scale = o
-
-    cpdef void set_scale_prop(self, V3Property other):
-        cdef vec3 o = other.c_class[0]
-        self.c_class.scale = o
+    def __dealloc__(self):
+        del self.c_class
 
 
     cpdef void render(self, Camera camera):
@@ -315,31 +206,52 @@ cdef class Shader:
 
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
-        self.c_class = vec3(x,y,z)
+        self.c_class = new vec3(x,y,z)
+
+    def __repr__(self) -> str:
+        return f"<{self.x}, {self.y}, {self.z}>"
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __neg__(self) -> Vec3:
+        return vec_from_cpp(-self.c_class[0])
 
     @property
     def x(self):
-        return self.c_class.get_x()
+        return self.c_class[0].get_x()
 
     @x.setter
     def x(self, float value):
-        self.c_class.set_x(value)
+        self.c_class[0].set_x(value)
 
     @property
     def y(self):
-        return self.c_class.get_y()
+        return self.c_class[0].get_y()
 
     @y.setter
     def y(self, float value):
-        self.c_class.set_y(value)
+        self.c_class[0].set_y(value)
 
     @property
     def z(self):
-        return self.c_class.get_z()
+        return self.c_class[0].get_z()
 
     @z.setter
     def z(self, float value):
-        self.c_class.set_z(value)
+        self.c_class[0].set_z(value)
+
+    @property
+    def up(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_up())
+
+    @property
+    def right(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_right())
+
+    @property
+    def forward(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_forward())
 
 
     # OPERATORS
@@ -351,10 +263,10 @@ cdef class Vec3:
             return self.floatadd(other)
 
     cpdef Vec3 vecadd(self, Vec3 other):
-        return vec_from_cpp(self.c_class + other.c_class)
+        return vec_from_cpp(self.c_class[0] + other.c_class[0])
 
     cpdef Vec3 floatadd(self, float other):
-        return vec_from_cpp(self.c_class + other)
+        return vec_from_cpp(self.c_class[0] + other)
 
     def __sub__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
@@ -363,10 +275,10 @@ cdef class Vec3:
             return self.floatsub(other)
 
     cpdef Vec3 vecsub(self, Vec3 other):
-        return vec_from_cpp(self.c_class - other.c_class)
+        return vec_from_cpp(self.c_class[0] - other.c_class[0])
 
     cpdef Vec3 floatsub(self, float other):
-        return vec_from_cpp(self.c_class - other)
+        return vec_from_cpp(self.c_class[0] - other)
 
     def __mul__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
@@ -375,10 +287,10 @@ cdef class Vec3:
             return self.floatmul(other)
         
     cpdef Vec3 vecmul(self, Vec3 other):
-        return vec_from_cpp(self.c_class * other.c_class)
+        return vec_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Vec3 floatmul(self, float other):
-        return vec_from_cpp(self.c_class * other)
+        return vec_from_cpp(self.c_class[0] * other)
 
     def __truediv__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
@@ -387,22 +299,22 @@ cdef class Vec3:
             return self.floatdiv(other)
         
     cpdef Vec3 vecdiv(self, Vec3 other):
-        return vec_from_cpp(self.c_class / other.c_class)
+        return vec_from_cpp(self.c_class[0] / other.c_class[0])
 
     cpdef Vec3 floatdiv(self, float other):
-        return vec_from_cpp(self.c_class / other)
+        return vec_from_cpp(self.c_class[0] / other)
 
     def dot(self, Vec3 other) -> float:
-        return self.c_class.dot(other.c_class)
+        return self.c_class[0].dot(other.c_class[0])
 
     cpdef Vec3 cross(self, Vec3 other):
-        return vec_from_cpp(self.c_class.cross(other.c_class))
+        return vec_from_cpp(self.c_class[0].cross(other.c_class[0]))
 
     cpdef float get_magnitude(self):
-        return self.c_class.get_magnitude()
+        return self.c_class[0].get_magnitude()
 
     cpdef Vec3 get_normalized(self):
-        return vec_from_cpp(self.c_class.get_normalized())
+        return vec_from_cpp(self.c_class[0].get_normalized())
 
 cdef Vec3 vec_from_cpp(vec3 cppinst):
     return Vec3(cppinst.axis.x, cppinst.axis.y, cppinst.axis.z)
