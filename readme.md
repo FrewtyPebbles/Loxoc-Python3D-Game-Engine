@@ -14,6 +14,18 @@ Texture mapping:
 
  - Figure out better solution for multimesh assimp imports.  (Current solution groups all meshes from the scene in a python list.)
 
+ - Add transform and rotate to camera.
+
+ - Refactor SDL-based event system (to include more events.
+
+ - Think of a name for the engine.
+
+ - Add mouse events.
+
+ - Add `from_raw` constructor to mesh to make procedural meshes possible.
+
+ - Make render list managed by Window object.
+
  - Add Sprite object and Object2D object for 2D games/HUD.
 
 # Future Plans:
