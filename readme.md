@@ -16,7 +16,7 @@ Texture mapping:
 
  - Add transform and rotate to camera.
 
- - Refactor SDL-based event system (to include more events.
+ - Refactor SDL-based event system (to include more events).
 
  - Think of a name for the engine.
 
