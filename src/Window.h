@@ -10,6 +10,8 @@
 #include <vector>
 #include "Event.h"
 
+#define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
+
 using std::string;
 using std::vector;
 class camera;
@@ -27,6 +29,9 @@ public:
     bool fullscreen = false;
     void update(vector<object*> objects);
     float deltatime;
+    inline void lock_mouse(bool lock) {
+        SDL_SetRelativeMouseMode(SDLBOOL(lock));
+    }
 private:
     void create_window();
     SDL_Window* app_window = NULL;

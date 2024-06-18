@@ -1,13 +1,111 @@
 #include "Event.h"
 
-void event::handle_events() {
+void event::handle_events(window* _window) {
     SDL_Event event;
+    mouse_device* mouse;
     while (SDL_PollEvent(&event)) {
         /* this is where we will record sdl events */
         switch (event.type) {
             case SDL_QUIT:
                 this->set_event_flag(EVENT_FLAG::QUIT, EVENT_STATE::PRESSED);
                 break;
+
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+                if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    this->set_event_flag(EVENT_FLAG::MOUSE_BUTTON_DOWN, EVENT_STATE::PRESSED);
+                } else {
+                    this->set_event_flag(EVENT_FLAG::MOUSE_BUTTON_UP, EVENT_STATE::RELEASED);
+                }
+                mouse = this->get_mouse_ptr(event.button.which + 1); // add + 1 to avoid -1 index
+                this->current_mouse_id = mouse->id = event.button.which + 1;
+            
+                mouse->clicks = event.button.clicks;
+                mouse->x = event.button.x;
+                mouse->y = event.button.y;
+                mouse->timestamp = event.button.timestamp;
+                mouse->window = _window;
+                // button
+                switch (event.button.button)
+                {
+                    case SDL_BUTTON_LEFT:
+                        mouse->button = MOUSE_BUTTON::LEFT;
+                        break;
+
+                    case SDL_BUTTON_RIGHT:
+                        mouse->button = MOUSE_BUTTON::RIGHT;
+                        break;
+
+                    case SDL_BUTTON_MIDDLE:
+                        mouse->button = MOUSE_BUTTON::MIDDLE;
+                        break;
+                }
+
+                // state
+                switch (event.button.state)
+                {
+                    case SDL_PRESSED:
+                        mouse->state = EVENT_STATE::PRESSED;
+                        break;
+
+                    case SDL_RELEASED:
+                        mouse->state = EVENT_STATE::RELEASED;
+                        break;
+                }
+
+                // type
+                switch (event.button.type)
+                {
+                    case SDL_MOUSEBUTTONDOWN:
+                        mouse->type = MOUSE_EVENT_TYPE::BUTTON_DOWN;
+                        break;
+
+                    case SDL_MOUSEBUTTONUP:
+                        mouse->type = MOUSE_EVENT_TYPE::BUTTON_UP;
+                        break;
+                }
+                break;
+            case SDL_MOUSEWHEEL:
+                this->set_event_flag(EVENT_FLAG::MOUSE_WHEEL, EVENT_STATE::PRESSED);
+
+                mouse = this->get_mouse_ptr(event.wheel.which + 1); // add + 1 to avoid -1 index
+                this->current_mouse_id = mouse->id = event.wheel.which + 1;
+
+                mouse->wheel.int_x = event.wheel.x;
+                mouse->wheel.int_y = event.wheel.y;
+                mouse->wheel.x = event.wheel.preciseX;
+                mouse->wheel.y = event.wheel.preciseY;
+                mouse->x = event.wheel.mouseX;
+                mouse->y = event.wheel.mouseY;
+                mouse->window = _window;
+                
+                // MWheel direction
+                switch (event.wheel.direction)
+                {
+                    case SDL_MOUSEWHEEL_NORMAL:
+                        mouse->wheel.direction = MOUSE_WHEEL_DIRECTION::NORMAL;
+                        break;
+
+                    case SDL_MOUSEWHEEL_FLIPPED:
+                        mouse->wheel.direction = MOUSE_WHEEL_DIRECTION::FLIPPED;
+                        break;
+                }
+                break;
+            case SDL_MOUSEMOTION: // move mouse
+                this->set_event_flag(EVENT_FLAG::MOUSE_MOTION, EVENT_STATE::PRESSED);
+                
+                mouse = this->get_mouse_ptr(event.motion.which + 1); // add + 1 to avoid -1 index
+                this->current_mouse_id = mouse->id = event.motion.which + 1;
+
+                mouse->x = event.motion.x;
+                mouse->y = event.motion.y;
+                mouse->rel_x = event.motion.xrel;
+                mouse->rel_y = event.motion.yrel;
+                mouse->timestamp = event.motion.timestamp;
+                mouse->window = _window;
+                
+                break;
+
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
                     kb_sdl_evt(UP, PRESSED);

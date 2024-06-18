@@ -2,8 +2,14 @@
 #include <string>
 #include <SDL2/SDL.h>
 #include <stdexcept>
+#include <map>
+#include <format>
+#include <iostream>
 
 #define TOTAL_EVENT_FLAGS 100
+
+
+class window;
 
 typedef size_t EVENT_FLAG_T;
 
@@ -76,13 +82,58 @@ enum class EVENT_FLAG {
     KEY_9 = (EVENT_FLAG_T)61,
     KEY_0 = (EVENT_FLAG_T)62,
     KEY_RCTRL = (EVENT_FLAG_T)63,
-    KEY_RALT = (EVENT_FLAG_T)64
+    KEY_RALT = (EVENT_FLAG_T)64,
+
+    // Mouse
+    MOUSE_BUTTON_DOWN = (EVENT_FLAG_T)65,
+    MOUSE_BUTTON_UP = (EVENT_FLAG_T)66,
+    MOUSE_WHEEL = (EVENT_FLAG_T)67,
+    MOUSE_MOTION = (EVENT_FLAG_T)68
 };
 
 enum class EVENT_STATE {
     NONE = 0,
     PRESSED = 1,
     RELEASED = 2
+};
+
+enum class MOUSE_EVENT_TYPE {
+    BUTTON_DOWN = 0,
+    BUTTON_UP = 1,
+    NONE = 2
+};
+
+enum class MOUSE_BUTTON {
+    LEFT = 0,
+    RIGHT = 1,
+    MIDDLE = 2,
+    NONE = 3
+};
+
+enum class MOUSE_WHEEL_DIRECTION {
+    FLIPPED = 0,
+    NORMAL = 1,
+    NONE = 2
+};
+
+struct mouse_wheel {
+    mouse_wheel(){};
+    int32_t int_x, int_y = 0;
+    float x, y = 0.0f;
+    MOUSE_WHEEL_DIRECTION direction = MOUSE_WHEEL_DIRECTION::NONE;
+};
+
+struct mouse_device {
+    mouse_device(){};
+    uint32_t id = 0; // this is like the which parameter in sdl mouse events + 1
+    uint32_t timestamp = 0;
+    int32_t x, y, rel_x, rel_y = 0;
+    uint8_t clicks = 0;
+    MOUSE_EVENT_TYPE type = MOUSE_EVENT_TYPE::NONE; 
+    window* window = nullptr;
+    EVENT_STATE state = EVENT_STATE::NONE;
+    MOUSE_BUTTON button = MOUSE_BUTTON::NONE;
+    mouse_wheel wheel = mouse_wheel();
 };
 
 class event {
@@ -101,10 +152,27 @@ public:
     inline EVENT_STATE get_flag(EVENT_FLAG _event) {
         return flags[static_cast<EVENT_FLAG_T>(_event)];
     };
-    bool check_flag(EVENT_FLAG _event) {
+    inline bool check_flag(EVENT_FLAG _event) {
         return flags[static_cast<EVENT_FLAG_T>(_event)] != EVENT_STATE::NONE;
     }
-    void handle_events();
+    void handle_events(window* _window);
+    inline mouse_device get_mouse() {
+        if (!this->mice.contains(this->current_mouse_id))
+            this->mice[this->current_mouse_id] = mouse_device();
+        return this->mice[this->current_mouse_id];
+    }
+    inline mouse_device get_mouse(unsigned char id) {
+        if (!this->mice.contains(id))
+            this->mice[id] = mouse_device();
+        return this->mice[id];
+    }
+    inline mouse_device* get_mouse_ptr(unsigned char id) {
+        if (!this->mice.contains(id))
+            this->mice[id] = mouse_device();
+        return &this->mice[id];
+    }
+    std::map<size_t, mouse_device> mice; // ordered by device number
+    unsigned char current_mouse_id;
 private:    
     EVENT_STATE flags[TOTAL_EVENT_FLAGS];
 };

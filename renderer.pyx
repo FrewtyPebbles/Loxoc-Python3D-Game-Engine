@@ -361,7 +361,7 @@ cdef class Window:
         self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen)
     
     @property
-    def current_event(self) -> Event:
+    def event(self) -> Event:
         ret = Event()
         ret.c_class = self.c_class.current_event
         return ret
@@ -385,6 +385,15 @@ cdef class Window:
             vec.push_back(obj.c_class)
         self.c_class.update(vec)
 
+    cpdef void lock_mouse(self, bint lock):
+        self.c_class.lock_mouse(lock)
+
+cdef class MouseDevice:
+    pass
+
+cdef class MouseWheel:
+    pass
+
 
 cdef class Event:
     cpdef EVENT_STATE get_flag(self, EVENT_FLAG _event):
@@ -392,3 +401,29 @@ cdef class Event:
 
     cpdef bint check_flag(self, EVENT_FLAG _event):
         return self.c_class.check_flag(_event)
+
+    @property
+    def mouse(self) -> MouseDevice:
+        return self.get_mouse(self.c_class.current_mouse_id)
+
+    cpdef MouseDevice get_mouse(self, int id):
+        cdef mouse_device cmdev = self.c_class.get_mouse(id)
+        cdef MouseDevice mdev = MouseDevice()
+        mdev.button = cmdev.button
+        mdev.clicks = cmdev.clicks
+        mdev.id = cmdev.id
+        mdev.timestamp = cmdev.timestamp
+        mdev.x = cmdev.x
+        mdev.rel_x = cmdev.rel_x
+        mdev.rel_y = cmdev.rel_y
+        mdev.type = cmdev.type
+        mdev.state = cmdev.state
+        mdev.wheel = MouseWheel()
+        mdev.wheel.direction = cmdev.wheel.direction
+        mdev.wheel.x = cmdev.wheel.x
+        mdev.wheel.y = cmdev.wheel.y
+        mdev.wheel.int_x = cmdev.wheel.int_x
+        mdev.wheel.int_y = cmdev.wheel.int_y
+        return mdev
+
+

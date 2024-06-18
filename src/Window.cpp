@@ -83,7 +83,8 @@ void window::update(vector<object*> objects) {
     this->new_time = SDL_GetTicks();
     this->deltatime = (this->new_time - this->old_time)/1000.0f;
     glViewport(0, 0, this->width, this->height);
-    this->current_event.handle_events();
+    this->current_event.handle_events(this);
+
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

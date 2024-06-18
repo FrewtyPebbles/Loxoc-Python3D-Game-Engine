@@ -131,7 +131,7 @@ class Window:
     def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False) -> None:...
     
     @property
-    def current_event(self) -> Event:
+    def event(self) -> Event:
         """
         This is the most recent event that the window recieved durring `Window.update(self, objects)`
         """
@@ -151,6 +151,11 @@ class Window:
     def update(self, objects:list[Object]):
         """
         Re-renders and refreshes the current_event on the application window.
+        """
+
+    def lock_mouse(self, lock:bool):
+        """
+        Locks the mouse in the center of the window.
         """
 
 
@@ -224,11 +229,56 @@ class EVENT_FLAG(Enum):
     KEY_0: 'EVENT_FLAG'
     KEY_RCTRL: 'EVENT_FLAG'
     KEY_RALT: 'EVENT_FLAG'
+    
+    # Mouse Events
+    MOUSE_BUTTON_DOWN: 'EVENT_FLAG'
+    MOUSE_BUTTON_UP: 'EVENT_FLAG'
+    MOUSE_WHEEL: 'EVENT_FLAG'
+    MOUSE_MOTION: 'EVENT_FLAG'
 
 class EVENT_STATE(Enum):
     NONE: 'EVENT_STATE'
     PRESSED: 'EVENT_STATE'
     RELEASED: 'EVENT_STATE'
+
+class EVENT_STATE(Enum):
+    NONE: 'EVENT_STATE'
+    PRESSED: 'EVENT_STATE'
+    RELEASED: 'EVENT_STATE'
+
+class MOUSE_EVENT_TYPE(Enum):
+    BUTTON_DOWN: 'MOUSE_EVENT_TYPE'
+    BUTTON_UP: 'MOUSE_EVENT_TYPE'
+    NONE: 'MOUSE_EVENT_TYPE'
+
+class MOUSE_BUTTON(Enum):
+    LEFT: 'MOUSE_BUTTON'
+    RIGHT: 'MOUSE_BUTTON'
+    MIDDLE: 'MOUSE_BUTTON'
+
+class MOUSE_WHEEL_DIRECTION(Enum):
+    FLIPPED: 'MOUSE_WHEEL_DIRECTION'
+    NORMAL: 'MOUSE_WHEEL_DIRECTION'
+
+class MouseWheel:
+    int_x:int
+    int_y:int
+    x:float
+    y:float
+    direction:MOUSE_WHEEL_DIRECTION
+
+class MouseDevice:
+    id:int
+    timestamp:int
+    x:int
+    y:int
+    rel_x:int
+    rel_y:int
+    clicks:int
+    type:MOUSE_EVENT_TYPE
+    state:EVENT_STATE
+    button:MOUSE_BUTTON
+    wheel:MouseWheel
 
 class Event:
     """
@@ -242,4 +292,15 @@ class Event:
     def check_flag(self, _event: EVENT_FLAG) -> bool:
         """
         Checks if the provided event flag is occuring.
+        """
+
+    @property
+    def mouse(self) -> MouseDevice:
+        """
+        Gets the current mouse device. Contains current mouse events.
+        """
+
+    def get_mouse(self, id:int) -> MouseDevice:
+        """
+        Gets the mouse device with the provided id.  Contains current mouse events.
         """

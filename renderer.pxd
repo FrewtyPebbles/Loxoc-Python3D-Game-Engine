@@ -307,6 +307,7 @@ cdef extern from "src/Window.h":
         string title
         int width, height
         void update(vector[object3d*] objects)
+        void lock_mouse(bint lock)
         event current_event
         float deltatime
         bint fullscreen
@@ -315,6 +316,8 @@ cdef class Window:
     cdef window* c_class
 
     cpdef void update(self, list[Object] objects)
+
+    cpdef void lock_mouse(self, bint lock)
 
 
 cdef extern from "src/Event.h":
@@ -387,17 +390,61 @@ cdef extern from "src/Event.h":
         KEY_9,
         KEY_0,
         KEY_RCTRL,
-        KEY_RALT
+        KEY_RALT,
+        
+        # Mouse events
+        MOUSE_BUTTON_DOWN,
+        MOUSE_BUTTON_UP,
+        MOUSE_WHEEL,
+        MOUSE_MOTION
 
     cpdef enum class EVENT_STATE:
         NONE,
         PRESSED,
         RELEASED
 
+    cpdef enum class MOUSE_EVENT_TYPE:
+        BUTTON_DOWN,
+        BUTTON_UP,
+        NONE
+
+    cpdef enum class MOUSE_BUTTON:
+        LEFT,
+        RIGHT,
+        MIDDLE
+
+    cpdef enum class MOUSE_WHEEL_DIRECTION:
+        FLIPPED,
+        NORMAL
+
+    cdef cppclass mouse_wheel:
+        mouse_wheel() except +
+        int int_x, int_y
+        float x, y
+        MOUSE_WHEEL_DIRECTION direction
+
+    cdef cppclass mouse_device:
+        mouse_device() except +
+        unsigned int id
+        unsigned int timestamp
+        unsigned int x, y, rel_x, rel_y
+        unsigned int clicks
+        MOUSE_EVENT_TYPE type
+        window* window
+        EVENT_STATE state
+        MOUSE_BUTTON button
+        mouse_wheel wheel
+
     cdef cppclass event:
         event() except +
         EVENT_STATE get_flag(EVENT_FLAG _event)
         bint check_flag(EVENT_FLAG _event)
+        mouse_device get_mouse() except +
+        mouse_device get_mouse(unsigned char id) except +
+        vector[mouse_device] mice
+        unsigned char current_mouse_id
+
+
 
 cdef class Event:
     cdef event c_class
@@ -405,3 +452,22 @@ cdef class Event:
     cpdef EVENT_STATE get_flag(self, EVENT_FLAG _event)
 
     cpdef bint check_flag(self, EVENT_FLAG _event)
+
+    cpdef MouseDevice get_mouse(self, int id)
+
+cdef class MouseDevice:
+    cdef:
+        public unsigned int id
+        public unsigned int timestamp
+        public int x, y, rel_x, rel_y
+        public unsigned int clicks
+        public MOUSE_EVENT_TYPE type
+        public EVENT_STATE state
+        public MOUSE_BUTTON button
+        public MouseWheel wheel
+
+cdef class MouseWheel:
+    cdef:
+        public int int_x, int_y
+        public float x, y
+        public MOUSE_WHEEL_DIRECTION direction
