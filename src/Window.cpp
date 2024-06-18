@@ -17,7 +17,7 @@ window::window() {
     this->create_window();
 }
 
-window::window(string title, camera* cam, int width, int height, bool fullscreen) : cam(cam), title(title), width(width), height(height), current_event(event::NOTHING), fullscreen(fullscreen) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen) {
     this->create_window();
 }
 
@@ -83,56 +83,7 @@ void window::update(vector<object*> objects) {
     this->new_time = SDL_GetTicks();
     this->deltatime = (this->new_time - this->old_time)/1000.0f;
     glViewport(0, 0, this->width, this->height);
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        /* this is where we will record sdl events */
-        switch (event.type) {
-            case SDL_QUIT:
-                this->current_event = event::QUIT;
-                break;
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    case SDLK_UP:
-                        this->current_event = event::KEY_UP;
-                        break;
-
-                    case SDLK_DOWN:
-                        this->current_event = event::KEY_DOWN;
-                        break;
-
-                    case SDLK_LEFT:
-                        this->current_event = event::KEY_LEFT;
-                        break;
-
-                    case SDLK_RIGHT:
-                        this->current_event = event::KEY_RIGHT;
-                        break;
-
-                    case SDLK_SPACE:
-                        this->current_event = event::KEY_SPACE;
-                        break;
-                    default:
-                        this->current_event = event::NOTHING;
-                }
-                break;
-
-            case SDL_WINDOWEVENT:
-
-                switch (event.window.event) {
-
-                    case SDL_WINDOWEVENT_CLOSE:   // exit game
-                        this->current_event = event::WINDOW_CLOSE;
-                        break;
-
-                    default:
-                        this->current_event = event::NOTHING;
-                }
-                break;
-
-            default:
-                this->current_event = event::NOTHING;
-        }
-    }
+    this->current_event.handle_events();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

@@ -8,27 +8,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <vector>
-
+#include "Event.h"
 
 using std::string;
 using std::vector;
 class camera;
 class object;
-
-enum class event {
-    NOTHING,
-
-    // WINDOW MANAGEMENT
-    WINDOW_CLOSE,
-    QUIT,
-
-    // KEYS
-    KEY_UP,
-    KEY_DOWN,
-    KEY_RIGHT,
-    KEY_LEFT,
-    KEY_SPACE
-};
 
 class window {
 public:

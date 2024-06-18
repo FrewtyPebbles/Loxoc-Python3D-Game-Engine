@@ -361,8 +361,10 @@ cdef class Window:
         self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen)
     
     @property
-    def current_event(self):
-        return self.c_class.current_event
+    def current_event(self) -> Event:
+        ret = Event()
+        ret.c_class = self.c_class.current_event
+        return ret
 
     @property
     def deltatime(self) -> float:
@@ -382,3 +384,11 @@ cdef class Window:
         for obj in objects:
             vec.push_back(obj.c_class)
         self.c_class.update(vec)
+
+
+cdef class Event:
+    cpdef EVENT_STATE get_flag(self, EVENT_FLAG _event):
+        return self.c_class.get_flag(_event)
+
+    cpdef bint check_flag(self, EVENT_FLAG _event):
+        return self.c_class.check_flag(_event)

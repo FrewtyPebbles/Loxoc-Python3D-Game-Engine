@@ -15,7 +15,6 @@ void object::render(camera& camera) {
     // opengl renderer
     glm::mat4 projection = glm::perspective(camera.fov, static_cast<float>(camera.view_width)/static_cast<float>(camera.view_height), 0.1f, static_cast<float>(camera.focal_length));
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, (-*camera.position).axis);
     view *= glm::lookAt(camera.position->axis, camera.position->axis + camera.rotation->get_forward().axis, camera.rotation->get_up().axis);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, this->position->axis);

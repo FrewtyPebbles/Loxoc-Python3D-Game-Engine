@@ -122,18 +122,6 @@ class Vec3:
 
     def get_normalized(self)->Vec3:...
 
-class event(Enum):
-    """
-    Events recieved by the window.
-    """
-    NOTHING: 'event'
-    WINDOW_CLOSE: 'event'
-    QUIT: 'event'
-    KEY_UP: 'event'
-    KEY_DOWN: 'event'
-    KEY_RIGHT: 'event'
-    KEY_LEFT: 'event'
-    KEY_SPACE: 'event'
 
 class Window:
     """
@@ -143,7 +131,7 @@ class Window:
     def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False) -> None:...
     
     @property
-    def current_event(self) -> event:
+    def current_event(self) -> Event:
         """
         This is the most recent event that the window recieved durring `Window.update(self, objects)`
         """
@@ -163,4 +151,95 @@ class Window:
     def update(self, objects:list[Object]):
         """
         Re-renders and refreshes the current_event on the application window.
+        """
+
+
+class EVENT_FLAG(Enum):
+
+    # WINDOW MANAGEMENT
+    WINDOW_MINIMIZE: 'EVENT_FLAG'
+    WINDOW_CLOSE: 'EVENT_FLAG'
+    QUIT: 'EVENT_FLAG'
+
+    # KEYS
+    KEY_UP: 'EVENT_FLAG'
+    KEY_DOWN: 'EVENT_FLAG'
+    KEY_RIGHT: 'EVENT_FLAG'
+    KEY_LEFT: 'EVENT_FLAG'
+    KEY_SPACE: 'EVENT_FLAG'
+    KEY_a: 'EVENT_FLAG'
+    KEY_b: 'EVENT_FLAG'
+    KEY_c: 'EVENT_FLAG'
+    KEY_d: 'EVENT_FLAG'
+    KEY_e: 'EVENT_FLAG'
+    KEY_f: 'EVENT_FLAG'
+    KEY_g: 'EVENT_FLAG'
+    KEY_h: 'EVENT_FLAG'
+    KEY_i: 'EVENT_FLAG'
+    KEY_j: 'EVENT_FLAG'
+    KEY_k: 'EVENT_FLAG'
+    KEY_l: 'EVENT_FLAG'
+    KEY_m: 'EVENT_FLAG'
+    KEY_n: 'EVENT_FLAG'
+    KEY_o: 'EVENT_FLAG'
+    KEY_p: 'EVENT_FLAG'
+    KEY_q: 'EVENT_FLAG'
+    KEY_r: 'EVENT_FLAG'
+    KEY_s: 'EVENT_FLAG'
+    KEY_t: 'EVENT_FLAG'
+    KEY_u: 'EVENT_FLAG'
+    KEY_v: 'EVENT_FLAG'
+    KEY_w: 'EVENT_FLAG'
+    KEY_x: 'EVENT_FLAG'
+    KEY_y: 'EVENT_FLAG'
+    KEY_z: 'EVENT_FLAG'
+    KEY_LSHIFT: 'EVENT_FLAG'
+    KEY_RSHIFT: 'EVENT_FLAG'
+    KEY_LCTRL: 'EVENT_FLAG'
+    KEY_LALT: 'EVENT_FLAG'
+    KEY_ESCAPE: 'EVENT_FLAG'
+    KEY_COMMA: 'EVENT_FLAG'
+    KEY_PERIOD: 'EVENT_FLAG'
+    KEY_FORWARDSLASH: 'EVENT_FLAG'
+    KEY_BACKSLASH: 'EVENT_FLAG'
+    KEY_OPEN_BRACKET: 'EVENT_FLAG'
+    KEY_CLOSE_BRACKET: 'EVENT_FLAG'
+    KEY_SEMICOLON: 'EVENT_FLAG'
+    KEY_QUOTE: 'EVENT_FLAG'
+    KEY_ENTER: 'EVENT_FLAG'
+    KEY_BACKSPACE: 'EVENT_FLAG'
+    KEY_TAB: 'EVENT_FLAG'
+    KEY_BACKTICK: 'EVENT_FLAG'
+    KEY_DASH: 'EVENT_FLAG'
+    KEY_EQUALS: 'EVENT_FLAG'
+    KEY_1: 'EVENT_FLAG'
+    KEY_2: 'EVENT_FLAG'
+    KEY_3: 'EVENT_FLAG'
+    KEY_4: 'EVENT_FLAG'
+    KEY_5: 'EVENT_FLAG'
+    KEY_6: 'EVENT_FLAG'
+    KEY_7: 'EVENT_FLAG'
+    KEY_8: 'EVENT_FLAG'
+    KEY_9: 'EVENT_FLAG'
+    KEY_0: 'EVENT_FLAG'
+    KEY_RCTRL: 'EVENT_FLAG'
+    KEY_RALT: 'EVENT_FLAG'
+
+class EVENT_STATE(Enum):
+    NONE: 'EVENT_STATE'
+    PRESSED: 'EVENT_STATE'
+    RELEASED: 'EVENT_STATE'
+
+class Event:
+    """
+    This class contains all information pertaining to the window events.
+    """
+    def get_flag(self, _event: EVENT_FLAG) -> EVENT_STATE:
+        """
+        Checks if the provided event flag is occuring.
+        """
+
+    def check_flag(self, _event: EVENT_FLAG) -> bool:
+        """
+        Checks if the provided event flag is occuring.
         """

@@ -300,16 +300,6 @@ cdef class Camera:
 
 
 cdef extern from "src/Window.h":
-    cpdef enum class event:
-        NOTHING,
-        WINDOW_CLOSE,
-        QUIT,
-        KEY_UP,
-        KEY_DOWN,
-        KEY_RIGHT,
-        KEY_LEFT,
-        KEY_SPACE
-
     cdef cppclass window:
         window() except +
         window(string title, camera* cam, int width, int height, bint fullscreen) except +
@@ -325,3 +315,93 @@ cdef class Window:
     cdef window* c_class
 
     cpdef void update(self, list[Object] objects)
+
+
+cdef extern from "src/Event.h":
+    cpdef enum class EVENT_FLAG:
+
+        # WINDOW MANAGEMENT
+        WINDOW_MINIMIZE,
+        WINDOW_CLOSE,
+        QUIT,
+
+        # KEYS
+        KEY_UP,
+        KEY_DOWN,
+        KEY_RIGHT,
+        KEY_LEFT,
+        KEY_SPACE,
+        KEY_a,
+        KEY_b,
+        KEY_c,
+        KEY_d,
+        KEY_e,
+        KEY_f,
+        KEY_g,
+        KEY_h,
+        KEY_i,
+        KEY_j,
+        KEY_k,
+        KEY_l,
+        KEY_m,
+        KEY_n,
+        KEY_o,
+        KEY_p,
+        KEY_q,
+        KEY_r,
+        KEY_s,
+        KEY_t,
+        KEY_u,
+        KEY_v,
+        KEY_w,
+        KEY_x,
+        KEY_y,
+        KEY_z,
+        KEY_LSHIFT,
+        KEY_RSHIFT,
+        KEY_LCTRL,
+        KEY_LALT,
+        KEY_ESCAPE,
+        KEY_COMMA,
+        KEY_PERIOD,
+        KEY_FORWARDSLASH,
+        KEY_BACKSLASH,
+        KEY_OPEN_BRACKET,
+        KEY_CLOSE_BRACKET,
+        KEY_SEMICOLON,
+        KEY_QUOTE,
+        KEY_ENTER,
+        KEY_BACKSPACE,
+        KEY_TAB,
+        KEY_BACKTICK,
+        KEY_DASH,
+        KEY_EQUALS,
+        KEY_1,
+        KEY_2,
+        KEY_3,
+        KEY_4,
+        KEY_5,
+        KEY_6,
+        KEY_7,
+        KEY_8,
+        KEY_9,
+        KEY_0,
+        KEY_RCTRL,
+        KEY_RALT
+
+    cpdef enum class EVENT_STATE:
+        NONE,
+        PRESSED,
+        RELEASED
+
+    cdef cppclass event:
+        event() except +
+        EVENT_STATE get_flag(EVENT_FLAG _event)
+        bint check_flag(EVENT_FLAG _event)
+
+cdef class Event:
+    cdef event c_class
+
+    cpdef EVENT_STATE get_flag(self, EVENT_FLAG _event)
+
+    cpdef bint check_flag(self, EVENT_FLAG _event)

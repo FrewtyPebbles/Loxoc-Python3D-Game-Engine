@@ -1,9 +1,11 @@
-from renderer import Vec3, Camera, Mesh, Object, Window, event,\
-    Material, Shader, ShaderType
+from renderer import Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,\
+    Material, Shader, ShaderType, EVENT_STATE
 import math
 
+# The meshes used in this testfile are not provided with the library or source files.
+
 dim = (1280, 720)
-focal_length = 2000
+focal_length = 5000
 
 camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
 window = Window("FBX Car Test", camera, *dim, False)
@@ -42,27 +44,36 @@ vel_yaw = 0.0
 vel = 0.0
 frict = 0.1
 accel = 5
-while window.current_event != event.QUIT:
-    if window.current_event == event.KEY_RIGHT:
-        vel_yaw -= 0.3
-    if window.current_event == event.KEY_LEFT:
-        vel_yaw += 0.3
-
-    vel_yaw = min(max(vel_yaw, -100), 100)
-
-    car.rotation.y += vel_yaw * window.dt
-
-    vel_yaw -= math.copysign(frict, vel_yaw)
-
-    if window.current_event == event.KEY_DOWN:
+while not window.current_event.check_flag(EVENT_FLAG.QUIT) and window.current_event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
+    # Use WASD keys.
+    if window.current_event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
+        # ROTATE RIGHT
+        vel_yaw -= 0.2
+    if window.current_event.get_flag(EVENT_FLAG.KEY_a) == EVENT_STATE.PRESSED:
+        # ROTATE LEFT
+        vel_yaw += 0.2
+    if window.current_event.get_flag(EVENT_FLAG.KEY_s) == EVENT_STATE.PRESSED:
+        # BACKWARDS
         vel -= accel
-    if window.current_event == event.KEY_UP:
+    if window.current_event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
+        # FORWARD
         vel += accel
 
+    # Clamp and rotate, then apply friction.
+    vel_yaw = min(max(vel_yaw, -100), 100)
+    car.rotation.y += vel_yaw * window.dt
+    vel_yaw -= math.copysign(frict, vel_yaw)
+    
+    # Clamp the velocity.
     vel = min(max(vel, -1000), 1000)
-
-    car.position += -car.rotation.forward * vel * window.dt
-
+    # Move the car forwards with its forwards vector with a magnitude of `vel`
+    car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
+    # Apply friction.
     vel -= math.copysign(frict, vel)
 
+    # Position the camera
+    camera.position = car.position + Vec3(0, 250, -800) # vec3 is offset
+    
+    # Re-render the scene.
     window.update(render_list)
+    # This also refreshes window.current_event.
