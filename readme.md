@@ -92,7 +92,7 @@ while not window.current_event.check_flag(EVENT_FLAG.QUIT) and window.current_ev
 
 Then when we run it, it looks something like this:
 
-![](tests\car_vroom.gif)
+![](https://github.com/FrewtyPebbles/Python3D-Game-Engine/blob/main/tests/car_vroom.gif)
 
 # TODO:
 
