@@ -108,6 +108,8 @@ Then when we run it, it looks something like this:
 
  - Add Quaternions.
 
+ - Add window/fullscreen scaling.
+
 # Future Plans:
 
  - Switch to Vulkan.
