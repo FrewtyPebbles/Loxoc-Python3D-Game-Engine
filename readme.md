@@ -1,6 +1,6 @@
 # Runespoor Python 3D Game Engine
 
-> A python 3D game engine written in c++ using SDL, OpenGL(GLAD), and GLM.
+> A python 3D game engine written in c++ using SDL, Assimp, OpenGL(GLAD), and GLM.
 
 ## About:
 
