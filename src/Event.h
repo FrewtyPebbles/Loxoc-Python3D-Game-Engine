@@ -179,15 +179,21 @@ private:
 
 //MACROS
 
-#define _CONCAT(a, b) a##b
-#define CONCAT(a, b) _CONCAT(a, b)
+#define CONCAT(a, b) a##b
 
 #define kb_sdl_evt(prt, state) \
     case CONCAT(SDLK_, prt): \
-        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt), EVENT_STATE::state); \
+        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt), state == SDL_PRESSED ? EVENT_STATE::PRESSED : EVENT_STATE::RELEASED); \
         break;
 
 #define kb_sdl_evt2(prt1, prt2, state) \
     case CONCAT(SDLK_, prt1): \
-        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt2), EVENT_STATE::state); \
+        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt2), state == SDL_PRESSED ? EVENT_STATE::PRESSED : EVENT_STATE::RELEASED); \
         break;
+
+#define kb_state(prt, state) \
+    if (currentKeyStates[CONCAT(SDL_SCANCODE_, state)]) \
+        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt), EVENT_STATE::PRESSED); \
+    else \
+        this->set_event_flag(EVENT_FLAG::CONCAT(KEY_, prt), EVENT_STATE::RELEASED);
+    

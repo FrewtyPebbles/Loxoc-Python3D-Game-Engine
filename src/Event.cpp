@@ -1,8 +1,16 @@
 #include "Event.h"
 
+const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+
 void event::handle_events(window* _window) {
     SDL_Event event;
     mouse_device* mouse;
+    // reset nessicary events
+    this->set_event_flag(EVENT_FLAG::MOUSE_BUTTON_UP, EVENT_STATE::NONE);
+    this->set_event_flag(EVENT_FLAG::MOUSE_BUTTON_DOWN, EVENT_STATE::NONE);
+    this->set_event_flag(EVENT_FLAG::MOUSE_MOTION, EVENT_STATE::NONE);
+    this->set_event_flag(EVENT_FLAG::MOUSE_WHEEL, EVENT_STATE::NONE);
+
     while (SDL_PollEvent(&event)) {
         /* this is where we will record sdl events */
         switch (event.type) {
@@ -106,132 +114,68 @@ void event::handle_events(window* _window) {
                 
                 break;
 
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    kb_sdl_evt(UP, PRESSED);
-                    kb_sdl_evt(DOWN, PRESSED);
-                    kb_sdl_evt(LEFT, PRESSED);
-                    kb_sdl_evt(RIGHT, PRESSED);
-                    kb_sdl_evt(SPACE, PRESSED);
-                    kb_sdl_evt(LSHIFT, PRESSED);
-                    kb_sdl_evt(RSHIFT, PRESSED);
-                    kb_sdl_evt(LCTRL, PRESSED);
-                    kb_sdl_evt(RCTRL, PRESSED);
-                    kb_sdl_evt(LALT, PRESSED);
-                    kb_sdl_evt(RALT, PRESSED);
-                    kb_sdl_evt(a, PRESSED);
-                    kb_sdl_evt(b, PRESSED);
-                    kb_sdl_evt(c, PRESSED);
-                    kb_sdl_evt(d, PRESSED);
-                    kb_sdl_evt(e, PRESSED);
-                    kb_sdl_evt(f, PRESSED);
-                    kb_sdl_evt(g, PRESSED);
-                    kb_sdl_evt(h, PRESSED);
-                    kb_sdl_evt(i, PRESSED);
-                    kb_sdl_evt(j, PRESSED);
-                    kb_sdl_evt(k, PRESSED);
-                    kb_sdl_evt(l, PRESSED);
-                    kb_sdl_evt(m, PRESSED);
-                    kb_sdl_evt(n, PRESSED);
-                    kb_sdl_evt(o, PRESSED);
-                    kb_sdl_evt(p, PRESSED);
-                    kb_sdl_evt(q, PRESSED);
-                    kb_sdl_evt(r, PRESSED);
-                    kb_sdl_evt(s, PRESSED);
-                    kb_sdl_evt(t, PRESSED);
-                    kb_sdl_evt(u, PRESSED);
-                    kb_sdl_evt(v, PRESSED);
-                    kb_sdl_evt(w, PRESSED);
-                    kb_sdl_evt(x, PRESSED);
-                    kb_sdl_evt(y, PRESSED);
-                    kb_sdl_evt(z, PRESSED);
-                    kb_sdl_evt(0, PRESSED);
-                    kb_sdl_evt(1, PRESSED);
-                    kb_sdl_evt(2, PRESSED);
-                    kb_sdl_evt(3, PRESSED);
-                    kb_sdl_evt(4, PRESSED);
-                    kb_sdl_evt(5, PRESSED);
-                    kb_sdl_evt(6, PRESSED);
-                    kb_sdl_evt(7, PRESSED);
-                    kb_sdl_evt(8, PRESSED);
-                    kb_sdl_evt(9, PRESSED);
-                    kb_sdl_evt(PERIOD, PRESSED);
-                    kb_sdl_evt(COMMA, PRESSED);
-                    kb_sdl_evt(QUOTE, PRESSED);
-                    kb_sdl_evt(SEMICOLON, PRESSED);
-                    kb_sdl_evt2(LEFTBRACKET, OPEN_BRACKET, PRESSED);
-                    kb_sdl_evt2(RIGHTBRACKET, CLOSE_BRACKET, PRESSED);
-                    kb_sdl_evt2(BACKQUOTE, BACKTICK, PRESSED);
-                    kb_sdl_evt2(MINUS, DASH, PRESSED);
-                    kb_sdl_evt(EQUALS, PRESSED);
-                    kb_sdl_evt(BACKSLASH, PRESSED);
-                    kb_sdl_evt2(SLASH, FORWARDSLASH, PRESSED);
-                    kb_sdl_evt(ESCAPE, PRESSED);
-                }
-                break;
-            
             case SDL_KEYUP:
-                switch (event.key.keysym.sym) {
-                    kb_sdl_evt(UP, RELEASED);
-                    kb_sdl_evt(DOWN, RELEASED);
-                    kb_sdl_evt(LEFT, RELEASED);
-                    kb_sdl_evt(RIGHT, RELEASED);
-                    kb_sdl_evt(SPACE, RELEASED);
-                    kb_sdl_evt(LSHIFT, RELEASED);
-                    kb_sdl_evt(RSHIFT, RELEASED);
-                    kb_sdl_evt(LCTRL, RELEASED);
-                    kb_sdl_evt(RCTRL, RELEASED);
-                    kb_sdl_evt(LALT, RELEASED);
-                    kb_sdl_evt(RALT, RELEASED);
-                    kb_sdl_evt(a, RELEASED);
-                    kb_sdl_evt(b, RELEASED);
-                    kb_sdl_evt(c, RELEASED);
-                    kb_sdl_evt(d, RELEASED);
-                    kb_sdl_evt(e, RELEASED);
-                    kb_sdl_evt(f, RELEASED);
-                    kb_sdl_evt(g, RELEASED);
-                    kb_sdl_evt(h, RELEASED);
-                    kb_sdl_evt(i, RELEASED);
-                    kb_sdl_evt(j, RELEASED);
-                    kb_sdl_evt(k, RELEASED);
-                    kb_sdl_evt(l, RELEASED);
-                    kb_sdl_evt(m, RELEASED);
-                    kb_sdl_evt(n, RELEASED);
-                    kb_sdl_evt(o, RELEASED);
-                    kb_sdl_evt(p, RELEASED);
-                    kb_sdl_evt(q, RELEASED);
-                    kb_sdl_evt(r, RELEASED);
-                    kb_sdl_evt(s, RELEASED);
-                    kb_sdl_evt(t, RELEASED);
-                    kb_sdl_evt(u, RELEASED);
-                    kb_sdl_evt(v, RELEASED);
-                    kb_sdl_evt(w, RELEASED);
-                    kb_sdl_evt(x, RELEASED);
-                    kb_sdl_evt(y, RELEASED);
-                    kb_sdl_evt(z, RELEASED);
-                    kb_sdl_evt(0, RELEASED);
-                    kb_sdl_evt(1, RELEASED);
-                    kb_sdl_evt(2, RELEASED);
-                    kb_sdl_evt(3, RELEASED);
-                    kb_sdl_evt(4, RELEASED);
-                    kb_sdl_evt(5, RELEASED);
-                    kb_sdl_evt(6, RELEASED);
-                    kb_sdl_evt(7, RELEASED);
-                    kb_sdl_evt(8, RELEASED);
-                    kb_sdl_evt(9, RELEASED);
-                    kb_sdl_evt(PERIOD, RELEASED);
-                    kb_sdl_evt(COMMA, RELEASED);
-                    kb_sdl_evt(QUOTE, RELEASED);
-                    kb_sdl_evt(SEMICOLON, RELEASED);
-                    kb_sdl_evt2(LEFTBRACKET, OPEN_BRACKET, RELEASED);
-                    kb_sdl_evt2(RIGHTBRACKET, CLOSE_BRACKET, RELEASED);
-                    kb_sdl_evt2(BACKQUOTE, BACKTICK, RELEASED);
-                    kb_sdl_evt2(MINUS, DASH, RELEASED);
-                    kb_sdl_evt(EQUALS, RELEASED);
-                    kb_sdl_evt(BACKSLASH, RELEASED);
-                    kb_sdl_evt2(SLASH, FORWARDSLASH, RELEASED);
-                    kb_sdl_evt(ESCAPE, RELEASED);
-                }
+            case SDL_KEYDOWN:
+                kb_state(UP, UP);
+                kb_state(DOWN, DOWN);
+                kb_state(LEFT, LEFT);
+                kb_state(RIGHT, RIGHT);
+                kb_state(SPACE, SPACE);
+                kb_state(LSHIFT, LSHIFT);
+                kb_state(RSHIFT, RSHIFT);
+                kb_state(LCTRL, LCTRL);
+                kb_state(RCTRL, RCTRL);
+                kb_state(LALT, LALT);
+                kb_state(RALT, RALT);
+                kb_state(a, A);
+                kb_state(b, B);
+                kb_state(c, C);
+                kb_state(d, D);
+                kb_state(e, E);
+                kb_state(f, F);
+                kb_state(g, G);
+                kb_state(h, H);
+                kb_state(i, I);
+                kb_state(j, J);
+                kb_state(k, K);
+                kb_state(l, L);
+                kb_state(m, M);
+                kb_state(n, N);
+                kb_state(o, O);
+                kb_state(p, P);
+                kb_state(q, Q);
+                kb_state(r, R);
+                kb_state(s, S);
+                kb_state(t, T);
+                kb_state(u, U);
+                kb_state(v, V);
+                kb_state(w, W);
+                kb_state(x, X);
+                kb_state(y, Y);
+                kb_state(z, Z);
+                kb_state(0, 0);
+                kb_state(1, 1);
+                kb_state(2, 2);
+                kb_state(3, 3);
+                kb_state(4, 4);
+                kb_state(5, 5);
+                kb_state(6, 6);
+                kb_state(7, 7);
+                kb_state(8, 8);
+                kb_state(9, 9);
+                kb_state(PERIOD, PERIOD);
+                kb_state(COMMA, COMMA);
+                kb_state(QUOTE, APOSTROPHE);
+                kb_state(SEMICOLON, SEMICOLON);
+                kb_state(OPEN_BRACKET, LEFTBRACKET);
+                kb_state(CLOSE_BRACKET, RIGHTBRACKET);
+                kb_state(BACKTICK, GRAVE);
+                kb_state(DASH, MINUS);
+                kb_state(EQUALS, EQUALS);
+                kb_state(BACKSLASH, BACKSLASH);
+                kb_state(FORWARDSLASH, SLASH);
+                kb_state(ESCAPE, ESCAPE);
+                
                 break;
 
             case SDL_WINDOWEVENT:

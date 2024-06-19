@@ -219,27 +219,27 @@ cdef class Vec3:
 
     @property
     def x(self):
-        return self.c_class[0].get_x()
+        return self.c_class.get_x()
 
     @x.setter
     def x(self, float value):
-        self.c_class[0].set_x(value)
+        self.c_class.set_x(value)
 
     @property
     def y(self):
-        return self.c_class[0].get_y()
+        return self.c_class.get_y()
 
     @y.setter
     def y(self, float value):
-        self.c_class[0].set_y(value)
+        self.c_class.set_y(value)
 
     @property
     def z(self):
-        return self.c_class[0].get_z()
+        return self.c_class.get_z()
 
     @z.setter
     def z(self, float value):
-        self.c_class[0].set_z(value)
+        self.c_class.set_z(value)
 
     @property
     def up(self) -> Vec3:

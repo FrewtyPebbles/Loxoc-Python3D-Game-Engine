@@ -1,3 +1,4 @@
+import time
 from renderer import Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,\
     Material, Shader, ShaderType, EVENT_STATE
 import math
@@ -45,21 +46,17 @@ window.lock_mouse(True)
 
 # helper functions
 
-def vec2_angle(xy1:tuple[float, float], xy2:tuple[float, float]):
-    y = xy2[1] - xy1[1]
-    x = xy2[0] - xy1[0]
-    return math.atan2(y,x)
-
-def circle(x:float, radius:float, x_orig:float, y_orig:float):
-    inner_sqrt = radius**2-(x-x_orig)**2
-
-    return y_orig + math.sqrt(inner_sqrt)
+def vec3x2_angle(v1:Vec3, v2:Vec3) -> list[float, float]:
+    new_v = (v2-v1).get_normalized()
+    yaw = math.atan2(new_v.z, new_v.x)
+    pitch = math.asin(-new_v.y)
+    return [pitch, yaw]
 
 vel_yaw = 0.0
 vel = 0.0
-frict = 0.1
+frict = 0.05
 accel = 5
-cam_dist = 10.0
+cam_dist = 300.0
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
@@ -76,29 +73,31 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         vel += accel
 
     # Clamp and rotate, then apply friction.
-    vel_yaw = min(max(vel_yaw, -100), 100)
+    vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > 0.05 else 0
     car.rotation.y += vel_yaw * window.dt
     vel_yaw -= math.copysign(frict, vel_yaw)
     
     # Clamp the velocity.
-    vel = min(max(vel, -1000), 1000)
+    vel = min(max(vel, -1000), 1000) if abs(vel) > 0.05 else 0
     # Move the car forwards with its forwards vector with a magnitude of `vel`
     car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
-    # Apply friction.
-    vel -= math.copysign(frict, vel)
+    
 
     # Position the camera
-    camera.position = car.position + car.rotation.forward * 300 + Vec3(0, 250, 0) # vec3 is offset
-
-    if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        print(window.event.mouse.rel_x, window.event.mouse.rel_y)
-        camera.rotation.x += math.radians(window.event.mouse.rel_y) if abs(window.event.mouse.rel_y) > 1 else 0
-        mxdelta = math.radians(window.event.mouse.rel_x) if abs(window.event.mouse.rel_x) > 1 else 0
-        camera.position.x = circle(car.position.x + mxdelta, cam_dist, car.position.x, car.position.y)
-        
     
-    camera.rotation.y = vec2_angle((camera.position.z, camera.position.x), (car.position.z, car.position.x))
+    print()
+    cam_angle = vec3x2_angle(camera.position, car.position)
+    camera.rotation.x = cam_angle[0]
+    camera.rotation.y = cam_angle[1]
+    if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
+        camera.rotation.y += math.radians(window.event.mouse.rel_x*5)
 
+        camera.rotation.x -= math.radians(window.event.mouse.rel_y*5)
+    
+    if window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL):
+        cam_dist -= window.event.mouse.wheel.y * 10
+
+    camera.position = car.position - (camera.rotation.forward * cam_dist)
     # Re-render the scene.
     window.update(render_list)
     # This also refreshes window.current_event.

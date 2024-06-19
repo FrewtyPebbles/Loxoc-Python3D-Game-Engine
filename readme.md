@@ -98,8 +98,6 @@ Then when we run it, it looks something like this:
 
  - Figure out better solution for multimesh assimp imports.  (Current solution groups all meshes from the scene in a python list.)
 
- - Add mouse events.
-
  - Add `from_raw` constructor to mesh to make procedural meshes possible.
 
  - Make render list managed by Window object.
@@ -109,6 +107,8 @@ Then when we run it, it looks something like this:
  - Add Quaternions.
 
  - Add window/fullscreen scaling.
+
+ - Add Matrix datastructures for GLM.
 
 # Future Plans:
 
