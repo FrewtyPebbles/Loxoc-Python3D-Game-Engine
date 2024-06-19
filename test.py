@@ -1,6 +1,8 @@
 import time
-from renderer import Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,\
-    Material, Shader, ShaderType, EVENT_STATE
+from renderer import (
+    Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
+    Material, Shader, ShaderType, EVENT_STATE, Quaternion
+)
 import math
 
 # The meshes used in this testfile are not provided with the library or source files.
@@ -66,8 +68,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     if window.event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
         # FORWARD
         vel += accel
-
-    teapot.rotation += math.radians(counter) * window.dt
+    print(Quaternion.from_axis_angle(Vec3(1,1,1).get_normalized(), math.radians(counter) * window.deltatime))
+    teapot.rotation *= Quaternion.from_axis_angle(Vec3(1,1,1).get_normalized(), math.radians(counter))
+    print(teapot.rotation)
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.y += vel_yaw/magic_turn_dampener * window.dt

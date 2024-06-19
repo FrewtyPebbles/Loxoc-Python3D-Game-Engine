@@ -203,6 +203,145 @@ cdef class Shader:
             src = fp.read()
         return cls(src, type)
 
+cdef class Quaternion:
+    def __init__(self, float w, float x, float y, float z) -> None:
+        self.c_class = new quaternion(w,x,y,z)
+
+    def __repr__(self) -> str:
+        return f"<{{{self.w}, {self.x}, {self.y}, {self.z}}}>"
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __neg__(self) -> Quaternion:
+        return quat_from_cpp(-self.c_class[0])
+
+    @property
+    def w(self) -> float:
+        return self.c_class.get_w()
+
+    @w.setter
+    def w(self, float value):
+        self.c_class.set_w(value)
+
+    @property
+    def x(self) -> float:
+        return self.c_class.get_x()
+
+    @x.setter
+    def x(self, float value):
+        self.c_class.set_x(value)
+
+    @property
+    def y(self) -> float:
+        return self.c_class.get_y()
+
+    @y.setter
+    def y(self, float value):
+        self.c_class.set_y(value)
+
+    @property
+    def z(self) -> float:
+        return self.c_class.get_z()
+
+    @z.setter
+    def z(self, float value):
+        self.c_class.set_z(value)
+
+
+    # OPERATORS
+
+    def __add__(self, other:Quaternion | float) -> Quaternion:
+        if isinstance(other, Quaternion):
+            return self.quatadd(other)
+        else:
+            return self.floatadd(other)
+
+    cpdef Quaternion quatadd(self, Quaternion other):
+        return quat_from_cpp(self.c_class[0] + other.c_class[0])
+
+    cpdef Quaternion floatadd(self, float other):
+        return quat_from_cpp(self.c_class[0] + other)
+
+    def __sub__(self, other:Quaternion | float) -> Quaternion:
+        if isinstance(other, Quaternion):
+            return self.quatsub(other)
+        else:
+            return self.floatsub(other)
+
+    cpdef Quaternion quatsub(self, Quaternion other):
+        return quat_from_cpp(self.c_class[0] - other.c_class[0])
+
+    cpdef Quaternion floatsub(self, float other):
+        return quat_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:
+        if isinstance(other, Quaternion):
+            return self.quatmul(other)
+        if isinstance(other, Quaternion):
+            return self.vecmul(other)
+        else:
+            return self.floatmul(other)
+        
+    cpdef Quaternion quatmul(self, Quaternion other):
+        return quat_from_cpp(self.c_class[0] * other.c_class[0])
+
+    cpdef Vec3 vecmul(self, Vec3 other):
+        return vec_from_cpp(self.c_class[0] * other.c_class[0])
+
+    cpdef Quaternion floatmul(self, float other):
+        return quat_from_cpp(self.c_class[0] * other)
+
+    def __truediv__(self, other:Quaternion | float) -> Quaternion:
+        if isinstance(other, Quaternion):
+            return self.quatdiv(other)
+        else:
+            return self.floatdiv(other)
+        
+    cpdef Quaternion quatdiv(self, Quaternion other):
+        return quat_from_cpp(self.c_class[0] / other.c_class[0])
+
+    cpdef Quaternion floatdiv(self, float other):
+        return quat_from_cpp(self.c_class[0] / other)
+
+    def dot(self, Quaternion other) -> float:
+        return self.c_class.dot(other.c_class[0])
+
+    def cross(self, other:Quaternion | Vec3) -> float:
+        if isinstance(other, Quaternion):
+            return self.quat_cross(other)
+        elif isinstance(other, Vec3):
+            return self.vec_cross(other)
+
+    cpdef Quaternion quat_cross(self, Quaternion other):
+        return quat_from_cpp(self.c_class.cross(other.c_class[0]))
+
+    cpdef Vec3 vec_cross(self, Vec3 other):
+        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
+
+    cpdef float get_magnitude(self):
+        return self.c_class[0].get_magnitude()
+
+    cpdef Quaternion get_normalized(self):
+        return quat_from_cpp(self.c_class.get_normalized())
+
+
+    cpdef Vec3 to_euler(self):
+        return vec_from_cpp(self.c_class.to_euler())
+
+    @staticmethod
+    def from_euler(Vec3 euler_vec) -> Quaternion:
+        return quat_from_cpp(quaternion.from_euler(euler_vec.c_class[0]))
+
+    @staticmethod
+    def from_axis_angle(Vec3 axis, float angle) -> Quaternion:
+        return quat_from_cpp(quaternion.from_axis_angle(axis.c_class[0], angle))
+
+    cpdef void rotate(self, Vec3 axis, float angle):
+        self.c_class.rotate(axis.c_class[0], angle)
+
+cdef Quaternion quat_from_cpp(quaternion cppinst):
+    return Quaternion(cppinst.quat.w, cppinst.quat.x, cppinst.quat.y, cppinst.quat.z) 
 
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
@@ -283,10 +422,15 @@ cdef class Vec3:
     def __mul__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
             return self.vecmul(other)
+        if isinstance(other, Quaternion):
+            return self.quatmul(other)
         else:
             return self.floatmul(other)
         
     cpdef Vec3 vecmul(self, Vec3 other):
+        return vec_from_cpp(self.c_class[0] * other.c_class[0])
+
+    cpdef Vec3 quatmul(self, Quaternion other):
         return vec_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Vec3 floatmul(self, float other):
@@ -307,8 +451,17 @@ cdef class Vec3:
     def dot(self, Vec3 other) -> float:
         return self.c_class[0].dot(other.c_class[0])
 
-    cpdef Vec3 cross(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0].cross(other.c_class[0]))
+    def cross(self, other:Quaternion | Vec3) -> float:
+        if isinstance(other, Quaternion):
+            return self.quat_cross(other)
+        elif isinstance(other, Vec3):
+            return self.vec_cross(other)
+
+    cpdef Quaternion quat_cross(self, Quaternion other):
+        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
+
+    cpdef Vec3 vec_cross(self, Vec3 other):
+        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef float get_magnitude(self):
         return self.c_class[0].get_magnitude()
@@ -318,6 +471,8 @@ cdef class Vec3:
 
 cdef Vec3 vec_from_cpp(vec3 cppinst):
     return Vec3(cppinst.axis.x, cppinst.axis.y, cppinst.axis.z)
+    
+
 
 cdef class Material:
     def __init__(self, Shader vertex = None, Shader fragment = None) -> None:

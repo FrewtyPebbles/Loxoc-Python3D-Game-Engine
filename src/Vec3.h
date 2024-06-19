@@ -8,11 +8,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
+#include "Quaternion.h"
 
 // cpp class names are camelcase, python class names are title case
 typedef glm::vec3 glmvec3;
 
 class camera;
+class quaternion;
 
 class vec3 {
 public:
@@ -27,12 +29,12 @@ public:
         return os;
     }
 
-    float get_x() {return axis.x;}
-    float get_y() {return axis.y;}
-    float get_z() {return axis.z;}
-    void set_x(float other) {axis.x = other;}
-    void set_y(float other) {axis.y = other;}
-    void set_z(float other) {axis.z = other;}
+    inline float get_x() {return axis.x;}
+    inline float get_y() {return axis.y;}
+    inline float get_z() {return axis.z;}
+    inline void set_x(float other) {axis.x = other;}
+    inline void set_y(float other) {axis.y = other;}
+    inline void set_z(float other) {axis.z = other;}
 
     inline vec3 get_up() {
         float pitch = axis.x;
@@ -68,6 +70,7 @@ public:
     }
 
 
+    quaternion to_quaternion();
 
     // Operators
 
@@ -125,10 +128,10 @@ public:
     {
         return vec3(glm::cross(this->axis, other.axis));
     }
+
     inline float get_magnitude() {
         return glm::length2(this->axis);
     }
-        
     
     inline vec3 get_normalized() {
         float mag = this->get_magnitude();
@@ -136,6 +139,11 @@ public:
             return vec3(this->axis.x, this->axis.y, this->axis.z);
         return vec3(this->axis.x/mag, this->axis.y/mag, this->axis.z/mag);
     }
+
+    // Quaternion operations:
+    vec3 cross(quaternion const& other);
+
+    vec3 operator*(quaternion const& other);
         
 };
 

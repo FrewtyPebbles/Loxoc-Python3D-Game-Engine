@@ -304,3 +304,81 @@ class Event:
         """
         Gets the mouse device with the provided id.  Contains current mouse events.
         """
+
+class Quaternion:
+    def __init__(self, w:float, x:float, y:float, z:float) -> None:
+        """
+        For all of your 4-dimensional rotation needs
+        """
+
+    def __repr__(self) -> str:
+        ...
+
+    def __neg__(self) -> Quaternion:
+        ...
+
+    @property
+    def w(self) -> float:...
+
+    @w.setter
+    def w(self, value:float):...
+
+    @property
+    def x(self) -> float:...
+
+    @x.setter
+    def x(self, value:float):...
+
+    @property
+    def y(self) -> float:...
+
+    @y.setter
+    def y(self, value:float):...
+
+    @property
+    def z(self) -> float:...
+
+    @z.setter
+    def z(self, value:float):...
+
+    # OPERATORS
+
+    def __add__(self, other:Quaternion | float) -> Quaternion:...
+
+    def __sub__(self, other:Quaternion | float) -> Quaternion:...
+
+    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:...
+
+    def __truediv__(self, other:Quaternion | float) -> Quaternion:...
+
+    def dot(self, other:Quaternion) -> float:...
+
+    def cross(self, other:Quaternion | Vec3) -> float:...
+
+    def get_magnitude(self) -> float:...
+
+    def get_normalized(self) -> Quaternion:...
+
+    def to_euler(self) -> Vec3:
+        """
+        Converts the Quaternion to a Euler Angle Vec3 (in radians).
+        """
+
+    @staticmethod
+    def from_euler(euler_vec: Vec3) -> Quaternion:
+        """
+        Converts the provided Euler Angle Vec3 (in radians) to a Quaternion.
+        """
+
+    @staticmethod
+    def from_axis_angle(axis:Vec3, angle:float) -> Quaternion:
+        """
+        Constructs a Quaternion with a rotation of `angle` arround `axis`. 
+        `axis` is a Euler Angle Vec3 (in radians).
+        """
+
+    def rotate(self, axis:Vec3, angle:float):
+        """
+        Mutably rotates the Quaternion by `angle` arround `axis`.
+        `axis` is a Euler Angle Vec3 (in radians).
+        """

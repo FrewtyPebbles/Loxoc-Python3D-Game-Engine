@@ -131,13 +131,98 @@ cdef extern from "src/Tup.h":
         uint8[3] data
 
 cdef extern from "src/Vec3.h":
+    cdef cppclass glmquat:
+        float w,x,y,z
+
+    cdef cppclass quaternion:
+        quaternion() except +
+        quaternion(float w, float x, float y, float z) except +
+        quaternion(const glmquat& quat) except +
+        quaternion(const quaternion& quat) except +
+        glmquat quat
+
+        #conversions/alternate constructors:
+        vec3 to_euler()
+        @staticmethod
+        quaternion from_euler(const vec3& euler_vec)
+        @staticmethod
+        quaternion from_axis_angle(vec3 axis, float angle)
+
+        void rotate(vec3 axis, float angle)
+
+        # getters/setters
+        float get_w()
+        float get_x()
+        float get_y()
+        float get_z()
+        void set_w(float other)
+        void set_x(float other)
+        void set_y(float other)
+        void set_z(float other)
+
+        # operators
+        quaternion operator+(quaternion& quaternion)
+        quaternion operator+(float& quaternion)
+        quaternion operator-()
+        quaternion operator-(quaternion& other)
+        quaternion operator-(float& other)
+        quaternion operator*(quaternion& other)
+        quaternion operator*(float& other)
+        quaternion operator/(quaternion& other)
+        quaternion operator/(float& other)
+        float dot(quaternion& other)
+        quaternion cross(quaternion& other)
+        float get_magnitude()
+        quaternion get_normalized()
+
+        vec3 cross(vec3& other)
+
+        vec3 operator*(vec3& other)
+
+cdef class Quaternion:
+    cdef quaternion* c_class
+
+
+    cpdef Quaternion quatadd(self, Quaternion other)
+
+    cpdef Quaternion floatadd(self, float other)
+
+    cpdef Quaternion quatsub(self, Quaternion other)
+
+    cpdef Quaternion floatsub(self, float other)
+
+    cpdef Quaternion quatmul(self, Quaternion other)
+
+    cpdef Quaternion floatmul(self, float other)
+
+    cpdef Quaternion quatdiv(self, Quaternion other)
+
+    cpdef Quaternion floatdiv(self, float other)
+    
+    cpdef float get_magnitude(self)
+
+    cpdef Quaternion get_normalized(self)
+
+    cpdef Quaternion quat_cross(self, Quaternion other)
+
+    cpdef Vec3 vec_cross(self, Vec3 other)
+
+    cpdef Vec3 vecmul(self, Vec3 other)
+
+    cpdef Vec3 to_euler(self)
+
+    cpdef void rotate(self, Vec3 axis, float angle)
+    
+cdef Quaternion quat_from_cpp(quaternion cppinst)
+
+cdef extern from "src/Vec3.h":
     cdef cppclass glmvec3:
         float x,y,z
 
     cdef cppclass vec3:
         vec3() except +
         vec3(float x, float y, float z) except +
-        vec3(glmvec3& axis) except +
+        vec3(const glmvec3& axis) except +
         glmvec3 axis
         float get_x()
         float get_y()
@@ -165,6 +250,10 @@ cdef extern from "src/Vec3.h":
         float get_magnitude()
         vec3 get_normalized()
 
+        vec3 cross(quaternion& other)
+
+        vec3 operator*(quaternion& other)
+
 cdef class Vec3:
     cdef vec3* c_class
 
@@ -189,7 +278,11 @@ cdef class Vec3:
 
     cpdef Vec3 get_normalized(self)
 
-    cpdef Vec3 cross(self, Vec3 other)
+    cpdef Quaternion quat_cross(self, Quaternion other)
+
+    cpdef Vec3 vec_cross(self, Vec3 other)
+
+    cpdef Vec3 quatmul(self, Quaternion other)
     
 cdef Vec3 vec_from_cpp(vec3 cppinst)
 

@@ -126,8 +126,6 @@ Then when we run it, it looks something like this:
 
  - Add Sprite object and Object2D object for 2D games/HUD.
 
- - Add Quaternions.
-
  - Add window/fullscreen scaling.
 
  - Add Matrix datastructures for GLM.
