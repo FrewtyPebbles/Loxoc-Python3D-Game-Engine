@@ -6,7 +6,7 @@ import math
 # The meshes used in this testfile are not provided with the library or source files.
 
 dim = (1280, 720)
-focal_length = 5000
+focal_length = 10000
 
 camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
 window = Window("FBX Car Test", camera, *dim, False)
@@ -44,27 +44,22 @@ render_list = [
 window.lock_mouse(True)
 
 
-# helper functions
-
-def vec3x2_angle(v1:Vec3, v2:Vec3) -> list[float, float]:
-    new_v = (v2-v1).get_normalized()
-    yaw = math.atan2(new_v.z, new_v.x)
-    pitch = math.asin(-new_v.y)
-    return [pitch, yaw]
-
 vel_yaw = 0.0
 vel = 0.0
-frict = 0.05
+frict = 0.1
 accel = 5
 cam_dist = 300.0
+magic_turn_dampener = 4
+mouse_sensitivity = 10
+counter = 0.0
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT
-        vel_yaw -= 0.2
+        vel_yaw -= 0.3
     if window.event.get_flag(EVENT_FLAG.KEY_a) == EVENT_STATE.PRESSED:
         # ROTATE LEFT
-        vel_yaw += 0.2
+        vel_yaw += 0.3
     if window.event.get_flag(EVENT_FLAG.KEY_s) == EVENT_STATE.PRESSED:
         # BACKWARDS
         vel -= accel
@@ -72,32 +67,35 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         # FORWARD
         vel += accel
 
+    teapot.rotation += math.radians(counter) * window.dt
     # Clamp and rotate, then apply friction.
-    vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > 0.05 else 0
-    car.rotation.y += vel_yaw * window.dt
+    vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
+    car.rotation.y += vel_yaw/magic_turn_dampener * window.dt
     vel_yaw -= math.copysign(frict, vel_yaw)
     
     # Clamp the velocity.
-    vel = min(max(vel, -1000), 1000) if abs(vel) > 0.05 else 0
-    # Move the car forwards with its forwards vector with a magnitude of `vel`
+    vel = min(max(vel, -1000), 1000) if abs(vel) > frict else 0
+    # Move the car forwards with its forwards vector with a magnitude of `vel` and apply friction
     car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
+    vel -= math.copysign(frict, vel)
     
-
-    # Position the camera
-    
-    print()
-    cam_angle = vec3x2_angle(camera.position, car.position)
-    camera.rotation.x = cam_angle[0]
-    camera.rotation.y = cam_angle[1]
+    # Rotate the camera
     if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        camera.rotation.y += math.radians(window.event.mouse.rel_x*5)
+        camera.rotation.y += math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt)
 
-        camera.rotation.x -= math.radians(window.event.mouse.rel_y*5)
+        camera.rotation.x -= math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt)
     
+    # zoom in and out
     if window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL):
         cam_dist -= window.event.mouse.wheel.y * 10
 
+    # Position the camera behind the car based on its forward vector
     camera.position = car.position - (camera.rotation.forward * cam_dist)
+
+    # Attract camera to car direction:
+    camera.rotation.y += vel_yaw/magic_turn_dampener * window.dt
+
     # Re-render the scene.
     window.update(render_list)
     # This also refreshes window.current_event.
+    counter += 0.5

@@ -218,7 +218,7 @@ cdef class Vec3:
         return vec_from_cpp(-self.c_class[0])
 
     @property
-    def x(self):
+    def x(self) -> float:
         return self.c_class.get_x()
 
     @x.setter
@@ -226,7 +226,7 @@ cdef class Vec3:
         self.c_class.set_x(value)
 
     @property
-    def y(self):
+    def y(self) -> float:
         return self.c_class.get_y()
 
     @y.setter
@@ -234,7 +234,7 @@ cdef class Vec3:
         self.c_class.set_y(value)
 
     @property
-    def z(self):
+    def z(self) -> float:
         return self.c_class.get_z()
 
     @z.setter
