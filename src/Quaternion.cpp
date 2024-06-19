@@ -3,7 +3,7 @@
 
 quaternion quaternion::from_axis_angle(vec3 axis, float angle) {
     return quaternion(glm::angleAxis(angle, axis.axis));
-}
+}  
 
 void quaternion::rotate(vec3 axis, float angle) {
     quat *= glm::angleAxis(angle, axis.axis);

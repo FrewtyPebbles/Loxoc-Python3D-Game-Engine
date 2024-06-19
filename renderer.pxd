@@ -223,6 +223,7 @@ cdef extern from "src/Vec3.h":
         vec3() except +
         vec3(float x, float y, float z) except +
         vec3(const glmvec3& axis) except +
+        vec3(const vec3& rhs) except +
         glmvec3 axis
         float get_x()
         float get_y()
@@ -249,6 +250,8 @@ cdef extern from "src/Vec3.h":
         vec3 cross(vec3& other)
         float get_magnitude()
         vec3 get_normalized()
+
+        quaternion to_quaternion()
 
         vec3 cross(quaternion& other)
 
@@ -283,6 +286,8 @@ cdef class Vec3:
     cpdef Vec3 vec_cross(self, Vec3 other)
 
     cpdef Vec3 quatmul(self, Quaternion other)
+
+    cpdef Quaternion to_quaternion(self)
     
 cdef Vec3 vec_from_cpp(vec3 cppinst)
 

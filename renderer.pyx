@@ -22,9 +22,12 @@ cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFilte
 
 cdef class Camera:
     def __init__(self, Vec3 position, Vec3 rotation, int view_width, int view_height, float focal_length, float fov) -> None:
-        self._position = position
-        self._rotation = rotation
         self.c_class = new camera(position.c_class, rotation.c_class, view_width, view_height, focal_length, fov)
+        self.position = position
+        self.rotation = rotation
+
+    def __dealloc__(self):
+        del self.c_class
 
     @property
     def position(self):
@@ -43,9 +46,6 @@ cdef class Camera:
     def rotation(self, Vec3 value):
         self._rotation = value
         self.c_class.rotation = value.c_class
-
-    def __dealloc__(self):
-        del self.c_class
 
     cpdef void render(self, list[Object] objects):
         cdef:
@@ -341,7 +341,9 @@ cdef class Quaternion:
         self.c_class.rotate(axis.c_class[0], angle)
 
 cdef Quaternion quat_from_cpp(quaternion cppinst):
-    return Quaternion(cppinst.quat.w, cppinst.quat.x, cppinst.quat.y, cppinst.quat.z) 
+    cdef Quaternion ret = Quaternion.__new__(Quaternion)
+    ret.c_class = new quaternion(cppinst)
+    return ret
 
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
@@ -464,13 +466,18 @@ cdef class Vec3:
         return vec_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef float get_magnitude(self):
-        return self.c_class[0].get_magnitude()
+        return self.c_class.get_magnitude()
 
     cpdef Vec3 get_normalized(self):
-        return vec_from_cpp(self.c_class[0].get_normalized())
+        return vec_from_cpp(self.c_class.get_normalized())
+
+    cpdef Quaternion to_quaternion(self):
+        return quat_from_cpp(self.c_class.to_quaternion())
 
 cdef Vec3 vec_from_cpp(vec3 cppinst):
-    return Vec3(cppinst.axis.x, cppinst.axis.y, cppinst.axis.z)
+    cdef Vec3 ret = Vec3.__new__(Vec3)
+    ret.c_class = new vec3(cppinst)
+    return ret
     
 
 

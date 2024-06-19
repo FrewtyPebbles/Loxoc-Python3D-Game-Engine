@@ -31,7 +31,7 @@ car2 = Object(car_meshes,
     Vec3(300,0,500), Vec3(10,3.57,23.2), material=default_material)
 
 teapot = Object(Mesh.from_file("./meshes/teapot/teapot.obj"),
-    Vec3(-100,0,200), Vec3(10,3.57,23.2), material=default_material)
+    Vec3(-100,0,200), Vec3(0,0,0), material=default_material)
 
 pirate_ship = Object(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,-100,300), Vec3(0,10,0), material=default_material)
@@ -45,7 +45,6 @@ render_list = [
 
 window.lock_mouse(True)
 
-
 vel_yaw = 0.0
 vel = 0.0
 frict = 0.1
@@ -53,8 +52,11 @@ accel = 5
 cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
-counter = 0.0
+counter = 0
+counter_speed = 20
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
+    if counter > 80:
+        counter = 0
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT
@@ -68,9 +70,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     if window.event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
         # FORWARD
         vel += accel
-    print(Quaternion.from_axis_angle(Vec3(1,1,1).get_normalized(), math.radians(counter) * window.deltatime))
-    teapot.rotation *= Quaternion.from_axis_angle(Vec3(1,1,1).get_normalized(), math.radians(counter))
-    print(teapot.rotation)
+    teapot.rotation += Quaternion.from_axis_angle(Vec3(1,0,0).get_normalized(), math.radians(counter * window.dt)).to_euler()
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.y += vel_yaw/magic_turn_dampener * window.dt
@@ -101,4 +101,4 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # Re-render the scene.
     window.update(render_list)
     # This also refreshes window.current_event.
-    counter += 0.5
+    counter += counter_speed

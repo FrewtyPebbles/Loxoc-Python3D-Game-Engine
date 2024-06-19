@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "Quaternion.h"
 
 // cpp class names are camelcase, python class names are title case
@@ -29,48 +30,24 @@ public:
         return os;
     }
 
-    inline float get_x() {return axis.x;}
-    inline float get_y() {return axis.y;}
-    inline float get_z() {return axis.z;}
-    inline void set_x(float other) {axis.x = other;}
-    inline void set_y(float other) {axis.y = other;}
-    inline void set_z(float other) {axis.z = other;}
+    float get_x() {return axis.x;}
+    float get_y() {return axis.y;}
+    float get_z() {return axis.z;}
+    void set_x(float other) {axis.x = other;}
+    void set_y(float other) {axis.y = other;}
+    void set_z(float other) {axis.z = other;}
 
     inline vec3 get_up() {
-        float pitch = axis.x;
-        float yaw = axis.y;
-        float roll = axis.z;
-        return vec3(
-            sin(pitch) * sin(yaw),
-            cos(pitch),
-            sin(pitch) * cos(yaw)
-        );
+        return glm::quat(axis) * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     inline vec3 get_right() {
-        float pitch = axis.x;
-        float yaw = axis.y;
-        float roll = axis.z;
-        return vec3(
-            cos(yaw),
-            0,
-            -sin(yaw)
-        );
+        return glm::quat(axis) * glm::vec3(1.0f, 0.0f, 0.0f);
     }
 
     inline vec3 get_forward() {
-        float pitch = axis.x;
-        float yaw = axis.y;
-        float roll = axis.z;
-        return vec3(
-            cos(pitch) * sin(yaw),
-            -sin(pitch),
-            cos(pitch) * cos(yaw)
-        );
+        return glm::quat(axis) * glm::vec3(0.0f, 0.0f, 1.0f);
     }
-
-
-    quaternion to_quaternion();
 
     // Operators
 
@@ -141,6 +118,9 @@ public:
     }
 
     // Quaternion operations:
+
+    quaternion to_quaternion();
+
     vec3 cross(quaternion const& other);
 
     vec3 operator*(quaternion const& other);

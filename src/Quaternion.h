@@ -1,8 +1,10 @@
 #pragma once
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
-
+#include <iostream>
+ 
 class vec3;
 
 typedef glm::quat glmquat;
@@ -25,14 +27,19 @@ public:
 
     glm::quat quat;
 
-    inline float get_w() {return quat.w;}
-    inline float get_x() {return quat.x;}
-    inline float get_y() {return quat.y;}
-    inline float get_z() {return quat.z;}
-    inline void set_w(float other) {quat.w = other;}
-    inline void set_x(float other) {quat.x = other;}
-    inline void set_y(float other) {quat.y = other;}
-    inline void set_z(float other) {quat.z = other;}
+    float get_w() {return quat.w;}
+    float get_x() {return quat.x;}
+    float get_y() {return quat.y;}
+    float get_z() {return quat.z;}
+    void set_w(float other) {quat.w = other;}
+    void set_x(float other) {quat.x = other;}
+    void set_y(float other) {quat.y = other;}
+    void set_z(float other) {quat.z = other;}
+
+    friend inline std::ostream& operator<<(std::ostream& os, const quaternion& self){
+        os << "quat<" << self.quat.w << ", " << self.quat.x << ", " << self.quat.y << ", " << self.quat.z << '>';
+        return os;
+    }
 
     // Operators
 

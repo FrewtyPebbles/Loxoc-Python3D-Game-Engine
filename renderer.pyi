@@ -122,6 +122,11 @@ class Vec3:
 
     def get_normalized(self)->Vec3:...
 
+    def to_quaternion(self) -> Quaternion:
+        """
+        Constructs a Quaternion from the given Euler Angle Vec3 (in radians).
+        """
+
 
 class Window:
     """
