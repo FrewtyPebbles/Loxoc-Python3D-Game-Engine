@@ -1,17 +1,18 @@
 #include "Quaternion.h"
 #include "Vec3.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 quaternion quaternion::from_axis_angle(vec3 axis, float angle) {
-    return quaternion(glm::angleAxis(angle, axis.axis));
+    return glm::angleAxis(angle, axis.axis);
 }  
  
 void quaternion::rotate(vec3 axis, float angle) {
-    std::cout << axis << std::endl;
     quat *= glm::angleAxis(angle, axis.axis);
 }
 
 vec3 quaternion::to_euler() {
-    return vec3(glm::eulerAngles(this->quat));
+    return glm::eulerAngles(quat);
 }
 
 quaternion quaternion::from_euler(const vec3& euler_vec) {
@@ -25,17 +26,20 @@ vec3 quaternion::operator*(vec3 const& other)
 
 vec3 quaternion::cross(vec3 const& other)
 {
-    return vec3(glm::cross(other.axis, quat));
+    return glm::cross(other.axis, quat);
 }
 
 vec3 quaternion::get_up() {
-    return quat * glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::mat4 rotMatrix = glm::toMat4(quat);
+    return glm::vec3(rotMatrix[0][1], rotMatrix[1][1], rotMatrix[2][1]);
 }
 
 vec3 quaternion::get_right() {
-    return quat * glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::mat4 rotMatrix = glm::toMat4(quat);
+    return glm::vec3(rotMatrix[0][0], rotMatrix[1][0], rotMatrix[2][0]);;
 }
 
 vec3 quaternion::get_forward() {
-    return quat * glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::mat4 rotMatrix = glm::toMat4(quat);
+    return glm::vec3(rotMatrix[0][2], rotMatrix[1][2], rotMatrix[2][2]);
 }

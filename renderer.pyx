@@ -283,34 +283,25 @@ cdef class Quaternion:
         self.c_class[0] = value.c_class.to_quaternion()
 
     @property
-    def pitch(self) -> float:
+    def euler_pitch(self) -> float:
         return self.to_euler().x
 
-    @pitch.setter
-    def pitch(self, float value):
-        cdef Vec3 euler = self.to_euler()
-        euler.x = value
-        self.c_class[0] = euler.c_class.to_quaternion()
+    def rotate_pitch(self, float value):
+        self.c_class.rotate(vec3(1.0,0.0,0.0), value)
 
     @property
-    def yaw(self) -> float:
+    def euler_yaw(self) -> float:
         return self.to_euler().y
 
-    @yaw.setter
-    def yaw(self, float value):
-        cdef Vec3 euler = self.to_euler()
-        euler.y = value
-        self.c_class[0] = euler.c_class.to_quaternion()
+    def rotate_yaw(self, float value):
+        self.c_class.rotate(vec3(0.0,1.0,0.0), value)
 
     @property
-    def roll(self) -> float:
+    def euler_roll(self) -> float:
         return self.to_euler().z
 
-    @roll.setter
-    def roll(self, float value):
-        cdef Vec3 euler = self.to_euler()
-        euler.z = value
-        self.c_class[0] = euler.c_class.to_quaternion()
+    def rotate_roll(self, float value):
+        self.c_class.rotate(vec3(0.0,0.0,1.0), value)
 
     # OPERATORS
 
@@ -402,6 +393,12 @@ cdef class Quaternion:
 
     cpdef void rotate(self, Vec3 axis, float angle):
         self.c_class.rotate(axis.c_class[0], angle)
+
+    @staticmethod
+    def from_quat(Quaternion quat) -> Quaternion: # copy method
+        cdef Quaternion q = Quaternion.__new__(Quaternion)
+        q.c_class = new quaternion(quat.c_class[0])
+        return q
 
 cdef Quaternion quat_from_cpp(quaternion cppinst):
     cdef Quaternion ret = Quaternion.__new__(Quaternion)

@@ -3,6 +3,7 @@ from renderer import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion
 )
 import math
+from copy import copy
 
 # The meshes used in this testfile are not provided with the library or source files.
 
@@ -67,7 +68,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     if window.event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
         # FORWARD
         vel += accel
-    teapot.rotation = Quaternion.from_axis_angle(teapot.rotation.up.get_normalized(), math.radians(counter)).to_euler()
+    teapot.rotation = Quaternion.from_axis_angle(teapot.rotation.up, math.radians(counter)).to_euler()
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.y += vel_yaw/magic_turn_dampener * window.dt
@@ -79,22 +80,31 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
     vel -= math.copysign(frict, vel)
     
-    # Rotate the camera
-    if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        camera.rotation.yaw += math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt)
 
-        camera.rotation.pitch -= math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt)
+    # Rotate the camera
+    cam_rot = Quaternion.from_quat(camera.rotation)
+    yaw_rot = 0 # capture the yaw rot so we can apply it to the quat later in the case where the camera is clamped
+
+    if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
+        cam_rot.rotate_yaw( yaw_rot := -math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt))
+
+        cam_rot.rotate(cam_rot.right, math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt))
     
     # zoom in and out
     if window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL):
         cam_dist -= window.event.mouse.wheel.y * 10
 
-    # Position the camera behind the car based on its forward vector
-    camera.position = car.position - (camera.rotation.euler_angles.forward * cam_dist)
 
-    # Attract camera to car direction:
-    camera.rotation.yaw += vel_yaw/magic_turn_dampener * window.dt if vel_yaw/magic_turn_dampener * window.dt > 1 else 0
-    print(camera.rotation)
+    # apply/clamp, position, and camera rotation
+    if cam_rot.up.y >= 0.7:
+        # Position the camera behind the car based on its forward vector
+        camera.position = car.position - (cam_rot.forward * cam_dist)
+
+        camera.rotation = cam_rot
+    else:
+        camera.rotation.rotate_yaw(yaw_rot)
+        # Position the camera behind the car based on its forward vector
+        camera.position = car.position - (camera.rotation.forward * cam_dist)
     # Re-render the scene.
     window.update(render_list)
     # This also refreshes window.current_event.

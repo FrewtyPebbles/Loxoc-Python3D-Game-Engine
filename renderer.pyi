@@ -376,40 +376,53 @@ class Quaternion:
     @property
     def euler_angles(self) -> Vec3:
         """
+        ### Read:
+
         Get the Euler Angle Vec3 form of the Quaternion.  Can also be assigned to, but not mutated.
         
         Use `pitch`, `yaw`, and `roll` for mutating rotation.
         """
 
     @euler_angles.setter
-    def euler_angles(self, value:Vec3 | Quaternion):...
+    def euler_angles(self, value:Vec3 | Quaternion):
+        """
+        ### Write:
+        
+        Set the rotation to a Euler angle Vec3 in radians.  This is also not mutable.
+        """
     
     @property
-    def pitch(self) -> float:
+    def euler_pitch(self) -> float:
         """
         Rotation about the x axis.
         """
 
-    @pitch.setter
-    def pitch(self, value:float):...
+    def rotate_pitch(self, value:float):
+        """
+        Rotates the Euler pitch (x) axis by the provided value.
+        """
 
     @property
-    def yaw(self) -> float:
+    def euler_yaw(self) -> float:
         """
         Rotation about the y axis.
         """
 
-    @yaw.setter
-    def yaw(self, value:float):...
+    def rotate_yaw(self, value:float):
+        """
+        Rotates the Euler yaw (y) axis by the provided value.
+        """
 
     @property
-    def roll(self) -> float:
+    def euler_roll(self) -> float:
         """
         Rotation about the z axis.
         """
 
-    @roll.setter
-    def roll(self, value:float):...
+    def rotate_roll(self, value:float):
+        """
+        Rotates the Euler roll (z) axis by the provided value.
+        """
 
     # OPERATORS
 
@@ -451,4 +464,10 @@ class Quaternion:
         """
         Mutably rotates the Quaternion by `angle` arround `axis`.
         `axis` is a Euler Angle Vec3 (in radians).
+        """
+
+    @staticmethod
+    def from_quat(quat:Quaternion) -> Quaternion:
+        """
+        Used to construct a copy of a Quaternion.
         """
