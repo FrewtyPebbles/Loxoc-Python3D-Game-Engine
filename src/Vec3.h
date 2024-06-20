@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include "Quaternion.h"
 
 // cpp class names are camelcase, python class names are title case
@@ -111,10 +112,7 @@ public:
     }
     
     inline vec3 get_normalized() {
-        float mag = this->get_magnitude();
-        if (mag == 0.0)
-            return vec3(this->axis.x, this->axis.y, this->axis.z);
-        return vec3(this->axis.x/mag, this->axis.y/mag, this->axis.z/mag);
+        return vec3(glm::normalize(this->axis));
     }
 
     // Quaternion operations:

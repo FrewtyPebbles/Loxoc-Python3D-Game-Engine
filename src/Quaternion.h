@@ -2,7 +2,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <iostream>
  
 class vec3;
@@ -113,10 +115,7 @@ public:
     }
 
     inline quaternion get_normalized() {
-        float mag = this->get_magnitude();
-        if (mag == 0.0)
-            return quaternion(this->quat.w, this->quat.x, this->quat.y, this->quat.z);
-        return quaternion(this->quat.w/mag, this->quat.x/mag, this->quat.y/mag, this->quat.z/mag);
+        return quaternion(glm::normalize(this->quat));
     }
 
     // Vector operations:

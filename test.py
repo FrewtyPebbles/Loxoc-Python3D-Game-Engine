@@ -53,10 +53,8 @@ cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
 counter = 0
-counter_speed = 20
+counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
-    if counter > 80:
-        counter = 0
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT
@@ -70,7 +68,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     if window.event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
         # FORWARD
         vel += accel
-    teapot.rotation += Quaternion.from_axis_angle(Vec3(1,0,0).get_normalized(), math.radians(counter * window.dt)).to_euler()
+    teapot.rotation = Quaternion.from_axis_angle(teapot.rotation.up.get_normalized(), math.radians(counter)).to_euler()
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.y += vel_yaw/magic_turn_dampener * window.dt
@@ -96,7 +94,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     camera.position = car.position - (camera.rotation.forward * cam_dist)
 
     # Attract camera to car direction:
-    camera.rotation.y += vel_yaw/magic_turn_dampener * window.dt
+    camera.rotation.y += vel_yaw/magic_turn_dampener * window.dt if vel_yaw/magic_turn_dampener * window.dt > 1 else 0
 
     # Re-render the scene.
     window.update(render_list)

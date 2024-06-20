@@ -278,7 +278,7 @@ cdef class Quaternion:
     def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:
         if isinstance(other, Quaternion):
             return self.quatmul(other)
-        if isinstance(other, Quaternion):
+        if isinstance(other, Vec3):
             return self.vecmul(other)
         else:
             return self.floatmul(other)
@@ -421,7 +421,7 @@ cdef class Vec3:
     cpdef Vec3 floatsub(self, float other):
         return vec_from_cpp(self.c_class[0] - other)
 
-    def __mul__(self, other:Vec3 | float) -> Vec3:
+    def __mul__(self, other:Vec3 | float | Quaternion) -> Vec3:
         if isinstance(other, Vec3):
             return self.vecmul(other)
         if isinstance(other, Quaternion):

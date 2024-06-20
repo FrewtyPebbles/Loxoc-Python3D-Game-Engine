@@ -14,5 +14,5 @@ vec3 vec3::cross(quaternion const& other) {
 }
 
 vec3 vec3::operator*(quaternion const& other) {
-    return vec3(axis*other.quat);
+    return vec3(axis * other.quat);
 }
