@@ -118,6 +118,8 @@ Then when we run it, it looks something like this:
 
 # TODO:
 
+ - Refactor MVP matrix into their respective entities.
+
  - Figure out better solution for multimesh assimp imports.  (Current solution groups all meshes from the scene in a python list.)
 
  - Add `from_raw` constructor to mesh to make procedural meshes possible.

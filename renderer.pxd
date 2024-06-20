@@ -160,6 +160,10 @@ cdef extern from "src/Vec3.h":
         void set_y(float other)
         void set_z(float other)
 
+        vec3 get_up()
+        vec3 get_right()
+        vec3 get_forward()
+
         # operators
         quaternion operator+(quaternion& quaternion)
         quaternion operator+(float& quaternion)
@@ -182,6 +186,9 @@ cdef extern from "src/Vec3.h":
 cdef class Quaternion:
     cdef quaternion* c_class
 
+    cpdef void set_euler_quat(self, Quaternion value)
+
+    cpdef void set_euler_vec(self, Vec3 value)
 
     cpdef Quaternion quatadd(self, Quaternion other)
 
@@ -260,6 +267,9 @@ cdef extern from "src/Vec3.h":
 cdef class Vec3:
     cdef vec3* c_class
 
+    cpdef void set_quat_quat(self, Quaternion value)
+
+    cpdef void set_quat_vec(self, Vec3 value)
 
     cpdef Vec3 vecadd(self, Vec3 other)
 
@@ -379,10 +389,10 @@ cdef extern from "src/Camera.h":
 
     cdef cppclass camera:
         camera() except +
-        camera(vec3* position, vec3* rotation, int view_width, int view_height, float focal_length, float fov) except +
+        camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov) except +
         void render(vector[object3d*] objects)
         vec3* position
-        vec3* rotation
+        quaternion* rotation
         int view_width, view_height
         float focal_length
         float fov
@@ -390,8 +400,10 @@ cdef extern from "src/Camera.h":
 
 
 cdef class Camera:
-    cdef camera* c_class
-    cdef Vec3 _position, _rotation
+    cdef:
+        camera* c_class
+        Vec3 _position
+        Quaternion _rotation
 
     cpdef void render(self, list[Object] objects)
 

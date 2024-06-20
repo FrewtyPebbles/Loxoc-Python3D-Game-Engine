@@ -9,7 +9,7 @@ class Camera:
     This class is the 3d perspective for a `Window`.
     """
     position:Vec3
-    rotation:Vec3
+    rotation:Quaternion
     def __init__(self, position:Vec3, rotation:Vec3, view_width:int, view_height:int, focal_length:float, fov:float) -> None:...
 
 class Mesh:
@@ -64,6 +64,15 @@ class Shader:
 
 class Vec3:
     def __init__(self, x:float, y:float, z:float) -> None:...
+
+    @property
+    def quaternion(self) -> Quaternion:
+        """
+        Get the quaternion form of the vector.  Can also be assigned to, but not mutated.
+        """
+
+    @quaternion.setter
+    def quaternion(self, value: Vec3 | Quaternion):...
 
     @property
     def x(self)->float:...
@@ -313,7 +322,7 @@ class Event:
 class Quaternion:
     def __init__(self, w:float, x:float, y:float, z:float) -> None:
         """
-        For all of your 4-dimensional rotation needs
+        For all of your 4-dimensional rotation needs.
         """
 
     def __repr__(self) -> str:
@@ -345,6 +354,62 @@ class Quaternion:
 
     @z.setter
     def z(self, value:float):...
+
+    @property
+    def up(self) -> Vec3:
+        """
+        The up directional vector.
+        """
+
+    @property
+    def right(self) -> Vec3:
+        """
+        The right directional vector.
+        """
+
+    @property
+    def forward(self) -> Vec3:
+        """
+        The forward directional vector.
+        """
+
+    @property
+    def euler_angles(self) -> Vec3:
+        """
+        Get the Euler Angle Vec3 form of the Quaternion.  Can also be assigned to, but not mutated.
+        
+        Use `pitch`, `yaw`, and `roll` for mutating rotation.
+        """
+
+    @euler_angles.setter
+    def euler_angles(self, value:Vec3 | Quaternion):...
+    
+    @property
+    def pitch(self) -> float:
+        """
+        Rotation about the x axis.
+        """
+
+    @pitch.setter
+    def pitch(self, value:float):...
+
+    @property
+    def yaw(self) -> float:
+        """
+        Rotation about the y axis.
+        """
+
+    @yaw.setter
+    def yaw(self, value:float):...
+
+    @property
+    def roll(self) -> float:
+        """
+        Rotation about the z axis.
+        """
+
+    @roll.setter
+    def roll(self, value:float):...
 
     # OPERATORS
 

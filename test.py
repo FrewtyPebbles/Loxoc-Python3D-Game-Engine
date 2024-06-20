@@ -1,4 +1,3 @@
-import time
 from renderer import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion
@@ -82,20 +81,20 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     
     # Rotate the camera
     if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        camera.rotation.y += math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt)
+        camera.rotation.yaw += math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt)
 
-        camera.rotation.x -= math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt)
+        camera.rotation.pitch -= math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt)
     
     # zoom in and out
     if window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL):
         cam_dist -= window.event.mouse.wheel.y * 10
 
     # Position the camera behind the car based on its forward vector
-    camera.position = car.position - (camera.rotation.forward * cam_dist)
+    camera.position = car.position - (camera.rotation.euler_angles.forward * cam_dist)
 
     # Attract camera to car direction:
-    camera.rotation.y += vel_yaw/magic_turn_dampener * window.dt if vel_yaw/magic_turn_dampener * window.dt > 1 else 0
-
+    camera.rotation.yaw += vel_yaw/magic_turn_dampener * window.dt if vel_yaw/magic_turn_dampener * window.dt > 1 else 0
+    print(camera.rotation)
     # Re-render the scene.
     window.update(render_list)
     # This also refreshes window.current_event.

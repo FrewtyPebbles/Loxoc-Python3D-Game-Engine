@@ -1,6 +1,6 @@
 # distutils: language = c++
 from cython.parallel cimport prange
-
+from libc.math cimport M_PI
 
 
 
@@ -22,9 +22,11 @@ cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFilte
 
 cdef class Camera:
     def __init__(self, Vec3 position, Vec3 rotation, int view_width, int view_height, float focal_length, float fov) -> None:
-        self.c_class = new camera(position.c_class, rotation.c_class, view_width, view_height, focal_length, fov)
-        self.position = position
-        self.rotation = rotation
+        self._position = position
+        self._rotation = rotation.to_quaternion()
+        self.c_class = new camera(position.c_class, self._rotation.c_class, view_width, view_height, focal_length, fov)
+        
+        
 
     def __dealloc__(self):
         del self.c_class
@@ -43,9 +45,12 @@ cdef class Camera:
         return self._rotation
 
     @rotation.setter
-    def rotation(self, Vec3 value):
-        self._rotation = value
-        self.c_class.rotation = value.c_class
+    def rotation(self, value: Vec3 | Quaternion):
+        if isinstance(value, Vec3):
+            self._rotation = value.to_quaternion()
+        elif isinstance(value, Quaternion):
+            self._rotation = value
+        self.c_class.rotation = self._rotation.c_class
 
     cpdef void render(self, list[Object] objects):
         cdef:
@@ -217,6 +222,18 @@ cdef class Quaternion:
         return quat_from_cpp(-self.c_class[0])
 
     @property
+    def up(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_up())
+
+    @property
+    def right(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_right())
+
+    @property
+    def forward(self) -> Vec3:
+        return vec_from_cpp(self.c_class.get_forward())
+
+    @property
     def w(self) -> float:
         return self.c_class.get_w()
 
@@ -248,6 +265,52 @@ cdef class Quaternion:
     def z(self, float value):
         self.c_class.set_z(value)
 
+    @property
+    def euler_angles(self) -> Vec3:
+        return self.to_euler()
+
+    @euler_angles.setter
+    def euler_angles(self, value: Vec3 | Quaternion):
+        if isinstance(value, Quaternion):
+            self.set_euler_quat(value)
+        elif isinstance(value, Vec3):
+            self.set_euler_vec(value)
+    
+    cpdef void set_euler_quat(self, Quaternion value):
+        self.c_class[0] = value.c_class[0]
+
+    cpdef void set_euler_vec(self, Vec3 value):
+        self.c_class[0] = value.c_class.to_quaternion()
+
+    @property
+    def pitch(self) -> float:
+        return self.to_euler().x
+
+    @pitch.setter
+    def pitch(self, float value):
+        cdef Vec3 euler = self.to_euler()
+        euler.x = value
+        self.c_class[0] = euler.c_class.to_quaternion()
+
+    @property
+    def yaw(self) -> float:
+        return self.to_euler().y
+
+    @yaw.setter
+    def yaw(self, float value):
+        cdef Vec3 euler = self.to_euler()
+        euler.y = value
+        self.c_class[0] = euler.c_class.to_quaternion()
+
+    @property
+    def roll(self) -> float:
+        return self.to_euler().z
+
+    @roll.setter
+    def roll(self, float value):
+        cdef Vec3 euler = self.to_euler()
+        euler.z = value
+        self.c_class[0] = euler.c_class.to_quaternion()
 
     # OPERATORS
 
@@ -357,6 +420,23 @@ cdef class Vec3:
 
     def __neg__(self) -> Vec3:
         return vec_from_cpp(-self.c_class[0])
+
+    @property
+    def quaternion(self) -> Quaternion:
+        return self.to_quaternion()
+
+    @quaternion.setter
+    def quaternion(self, value: Vec3 | Quaternion):
+        if isinstance(value, Quaternion):
+            self.set_quat_quat(value)
+        elif isinstance(value, Vec3):
+            self.set_quat_vec(value)
+
+    cpdef void set_quat_quat(self, Quaternion value):
+        self.c_class[0] = value.c_class.to_euler()
+
+    cpdef void set_quat_vec(self, Vec3 value):
+        self.c_class[0] = value.c_class[0]
 
     @property
     def x(self) -> float:

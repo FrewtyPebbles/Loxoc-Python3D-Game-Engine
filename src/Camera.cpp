@@ -15,7 +15,7 @@ camera::camera() {}
 camera::~camera() {}
 
 
-camera::camera(vec3* position, vec3* rotation, int view_width, int view_height, float focal_length, float fov) {
+camera::camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov) {
     this->position = position;
     this->rotation = rotation;
     this->view_width = view_width;

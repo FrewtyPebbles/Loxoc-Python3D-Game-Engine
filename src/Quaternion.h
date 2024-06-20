@@ -43,6 +43,12 @@ public:
         return os;
     }
 
+    vec3 get_up();
+
+    vec3 get_right();
+
+    vec3 get_forward();
+
     // Operators
 
     inline quaternion operator-() {
