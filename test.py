@@ -1,4 +1,4 @@
-from renderer import (
+from Runespoor import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion
 )

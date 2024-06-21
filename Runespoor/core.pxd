@@ -4,7 +4,7 @@ from libcpp.string cimport string
 from libcpp.map cimport map
 
 
-cdef extern from "src/Texture.h":
+cdef extern from "../src/Texture.h":
     cpdef enum class TextureFiltering:
         NEAREST,
         LINEAR
@@ -26,7 +26,7 @@ cdef class Texture:
 
 cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering)
 
-cdef extern from "src/Shader.h":
+cdef extern from "../src/Shader.h":
     cpdef enum class ShaderType:
         FRAGMENT,
         VERTEX
@@ -56,7 +56,7 @@ cdef extern from "<variant>" namespace "std" nogil:
 
     cdef T* get_if[T](...)
 
-cdef extern from "src/Material.h":
+cdef extern from "../src/Material.h":
 
     ctypedef variant uniform_type
         
@@ -78,7 +78,7 @@ cdef class Material:
 
 ctypedef unsigned char uint8
 
-cdef extern from "src/Tup.h":
+cdef extern from "../src/Tup.h":
     cdef cppclass tup2f:
         tup2f() except +
         tup2f(float[2] values) except +
@@ -130,7 +130,7 @@ cdef extern from "src/Tup.h":
         tup3i(uint8[3] values) except +
         uint8[3] data
 
-cdef extern from "src/Vec3.h":
+cdef extern from "../src/Vec3.h":
     cdef cppclass glmquat:
         float w,x,y,z
 
@@ -221,7 +221,7 @@ cdef class Quaternion:
     
 cdef Quaternion quat_from_cpp(quaternion cppinst)
 
-cdef extern from "src/Vec3.h":
+cdef extern from "../src/Vec3.h":
     cdef cppclass glmvec3:
         float x,y,z
 
@@ -311,7 +311,7 @@ cdef extern from "opencv2/core.hpp" namespace "cv":
 
  
 
-cdef extern from "src/Mesh.h":
+cdef extern from "../src/Mesh.h":
     cdef enum illum_model:
         CONSTANT_COLOR, 
         DIFFUSE,
@@ -353,7 +353,7 @@ cdef class Mesh:
     
 cpdef list[Mesh] mesh_from_file(str file_path)
 
-cdef extern from "src/Object.h":
+cdef extern from "../src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
@@ -385,7 +385,7 @@ cdef class Object:
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
-cdef extern from "src/Camera.h":
+cdef extern from "../src/Camera.h":
 
     cdef cppclass camera:
         camera() except +
@@ -409,7 +409,7 @@ cdef class Camera:
 
 
 
-cdef extern from "src/Window.h":
+cdef extern from "../src/Window.h":
     cdef cppclass window:
         window() except +
         window(string title, camera* cam, int width, int height, bint fullscreen) except +
@@ -430,7 +430,7 @@ cdef class Window:
     cpdef void lock_mouse(self, bint lock)
 
 
-cdef extern from "src/Event.h":
+cdef extern from "../src/Event.h":
     cpdef enum class EVENT_FLAG:
 
         # WINDOW MANAGEMENT

@@ -10,3 +10,6 @@ test.png
 *.pdb
 __pycache__/
 meshes/
+*.egg-info
+dist/
+.eggs/

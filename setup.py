@@ -4,11 +4,9 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 from dotenv import load_dotenv
 
-# TODO: ADD ASSIMP DEPENDENCY
-
 load_dotenv()
 
-MODULE_NAME = "renderer"
+MODULE_NAME = "Runespoor"
 
 C_PATH = path.join(path.dirname(__file__), "src/")
 
@@ -28,8 +26,8 @@ c_deps = [
 ]
 
 EXTENSIONS = [
-    Extension(MODULE_NAME,
-              sources=[path.join(path.dirname(__file__), MODULE_NAME + ".pyx"), *c_deps],
+    Extension(f"{MODULE_NAME}.core",
+              sources=[path.join(path.dirname(__file__), MODULE_NAME, "core" + ".pyx"), *c_deps],
               language="c++",
               include_dirs=INCLUDE_DIRS,
               libraries=LIBRARIES + [
@@ -43,13 +41,39 @@ EXTENSIONS = [
               )
 ]
 
+readme_src = (fp:=open(path.join(path.dirname(__file__), "readme.md"), "r")).read()
+fp.close()
 
 setup(
     name=MODULE_NAME,
+    version="1.0.0-dev0",
+    author="William Lim",
+    description = """
+    Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.
+    Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like.
+    """,
+    long_description=readme_src,
+    license="MIT",
+    keywords="game engine sdl opengl 3d quaternion glm vec3 vector3",
+    url="https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine",
     ext_modules = cythonize(EXTENSIONS,
         compiler_directives={
             "language_level": 3,
             "profile": False
         }
     ),
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "License :: OSI Approved :: MIT License",
+        "Intended Audience :: Developers",
+        "Topic :: Games/Entertainment"
+    ],
+    setup_requires=['wheel'],
+    package_data={
+        '': [
+            'LICENSE',
+            path.join(path.dirname(__file__), MODULE_NAME, "core" + ".pyi")
+        ]
+    },
+    include_package_data=True,
 )
