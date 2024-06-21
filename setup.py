@@ -1,18 +1,24 @@
 from __future__ import annotations
 from os import getenv, listdir, path
 import sys, os
+from typing import Generic, TypeVar
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
+from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install as st_install
+from setuptools.command.sdist import sdist
+from setuptools import Command
+from wheel.bdist_wheel import bdist_wheel
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 11
+DEV_VERSION = 13
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
 print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
-    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory, make sure pkg-config is installed and include the flag `--RUNEcompiler=<clang|gcc|msvc>` with your default compiler.  Otherwise the build will fail."
+    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory, make sure pkg-config is installed and include the flag `--RUNEcompiler=<clang|gcc|msvc>` or `--config-settings=\"--RUNEcompiler=<clang|gcc|msvc>\"` with your default compiler.  Otherwise the build will fail."
 "")
 
 C_PATH = "src"
@@ -67,14 +73,34 @@ flags = {
     ],
 }
 
-compiler = "msvc"
+def command_factory(command:type[Command]) -> type:
+    class st_CLIARGS(command):
+        user_options = [
+            ('RUNEcompiler=', None, "Set this to your default compiler if building from source.")
+        ]
 
-if  len([arg:=a for a in sys.argv if a.startswith("--RUNEcompiler=")]) == 1:
-    compiler = arg.split("=")[1]
-    sys.argv.remove(arg)
+        def initialize_options(self):
+            self.RUNEcompiler = "msvc"
+            super().initialize_options()
 
-if not compiler in ['clang', 'gcc', 'msvc']:
-    raise RuntimeError(f"`{compiler}` is not a valid compiler option for the flag `--RUNEcompiler=<clang|gcc|msvc>`")
+        def set_undefined_options(self, src_cmd: str, *option_pairs: tuple[str, str]) -> None:
+            self.RUNEcompiler = "msvc"
+            super().set_undefined_options(src_cmd, *option_pairs)
+
+        def finalize_options(self):
+            assert self.RUNEcompiler in flags.keys(), f"'{self.RUNEcompiler}' is not a valid compiler option for `--RUNEcompiler=<clang|gcc|msvc>`"
+            super().finalize_options()
+    
+    return st_CLIARGS
+
+class build_ext_custom(command_factory(build_ext)):
+    def run(self):
+        if self.RUNEcompiler:
+            ext:Extension = self.extensions[0]
+            ext.extra_compile_args = flags[self.RUNEcompiler]
+        super().run()
+
+    
 
 EXTENSIONS = [
     Extension(f"{MODULE_NAME}.core",
@@ -83,11 +109,11 @@ EXTENSIONS = [
             include_dirs=INCLUDE_DIRS,
             libraries=LIBRARIES,
             library_dirs=LIBRARY_DIRS,
-            extra_compile_args=flags[compiler]
             )
 ]
 
 setup(
+    cmdclass={'build_ext':build_ext_custom, 'install':command_factory(st_install), 'sdist':command_factory(sdist), 'bdist_wheel':command_factory(bdist_wheel)},
     name=MODULE_NAME,
     version=VERSION,
     author="William Lim",

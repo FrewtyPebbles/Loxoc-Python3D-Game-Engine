@@ -1,3 +1,3 @@
 [build-system]
-requires = ["wheel", "cython", "setuptools", "pkgconfig"]
+requires = ["wheel", "Cython", "setuptools", "pkgconfig"]
 build-backend = "setuptools.build_meta"
