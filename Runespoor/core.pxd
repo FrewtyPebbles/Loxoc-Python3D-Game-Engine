@@ -301,13 +301,6 @@ cdef class Vec3:
 cdef Vec3 vec_from_cpp(vec3 cppinst)
 
 
-cdef extern from "opencv2/core.hpp" namespace "cv":
-    cdef cppclass Mat:
-        Mat() except +
-        void create(int, int, int) except +
-        void* data
-        int rows
-        int cols
 
  
 
@@ -323,7 +316,9 @@ cdef extern from "../src/Mesh.h":
         float specular_exponent, optical_density, transparency
         illum_model illumination_model
         string ambient_tex_file, diffuse_tex_file, specular_highlight_file
-        Mat ambient_texture, diffuse_texture, specular_highlight_texture
+        unsigned char* ambient_texture
+        unsigned char* diffuse_texture
+        unsigned char* specular_highlight_texture
         
 
 

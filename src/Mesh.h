@@ -3,7 +3,6 @@
 #include <string>
 #include <sstream>
 #include "Tup.h"
-#include <opencv2/opencv.hpp>
 #include <map>
 #include "glad/gl.h"
 #include "Shader.h"
@@ -15,6 +14,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Texture.h"
+
 
 using std::vector;
 using std::string;
@@ -34,7 +34,7 @@ struct mesh_material {
     float specular_exponent, optical_density, transparency;
     illum_model illumination_model;
     string ambient_tex_file, diffuse_tex_file, specular_highlight_file;
-    cv::Mat ambient_texture, diffuse_texture, specular_highlight_texture;
+    unsigned char * ambient_texture, diffuse_texture, specular_highlight_texture;
 };
 
 

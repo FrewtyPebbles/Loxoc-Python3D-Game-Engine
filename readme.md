@@ -2,6 +2,14 @@
 
 > A python 3D game engine written in c++ using SDL, Assimp, OpenGL(GLAD), and GLM.
 
+Runespoor requires pkg-config along
+
+```
+pip install Runespoor
+```
+
+ - Note that Runespoor is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
+
 ## About:
 
 Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.  Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like.

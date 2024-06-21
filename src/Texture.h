@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
 #include "glad/gl.h"
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
 #include <stdexcept>
 #include <format>
+
 
 using std::string;
 
@@ -23,29 +22,7 @@ enum class TextureWraping {
 class texture {
 public:
     texture(){}
-    texture(string file_path, TextureWraping wrap, TextureFiltering filtering){
-        cv::Mat tex = cv::imread(file_path);
-        if (!tex.empty()) {
-            width = tex.cols;
-            height = tex.rows;
-            number_of_channels = tex.channels();
-            glGenTextures(1, &gl_texture);
-            glBindTexture(GL_TEXTURE_2D, gl_texture);
-            
-            // texture settings:
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filtering));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filtering));
-            
-            // texture data:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, number_of_channels > 3 ? GL_BGRA : GL_BGR,
-                GL_UNSIGNED_BYTE, tex.data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        } else {
-            throw std::runtime_error(std::format("Failed to load texture at \"{}\"\n\n  HINT: Could be missing \"texture\" folder?", file_path));
-        }
-    }
+    texture(string file_path, TextureWraping wrap, TextureFiltering filtering);
 
     void bind();
 

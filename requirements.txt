@@ -1,2 +1,3 @@
 Cython
-python-dotenv
+pkgconfig
+wheel
