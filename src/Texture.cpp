@@ -1,7 +1,7 @@
 #include "Texture.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-  
+
 texture::texture(string file_path, TextureWraping wrap, TextureFiltering filtering){
     unsigned char * tex = stbi_load(file_path.c_str(), &width, &height, &number_of_channels, 0);
     if (tex) {

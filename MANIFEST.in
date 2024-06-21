@@ -1,0 +1,17 @@
+graft src
+graft stb
+graft Runespoor
+graft glad
+
+include LICENSE
+include readme.md
+include *.glsl
+include requirements.txt
+
+global-exclude *.pyd
+
+exclude .env*
+exclude Runespoor/core.cpp
+
+prune __pycache__
+prune */__pycache__ 

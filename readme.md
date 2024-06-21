@@ -2,13 +2,17 @@
 
 > A python 3D game engine written in c++ using SDL, Assimp, OpenGL(GLAD), and GLM.
 
-Runespoor requires pkg-config along
+To install:
 
 ```
 pip install Runespoor
 ```
 
- - Note that Runespoor is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
+Please note:
+
+ - Runespoor is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
+
+ - When building from source `pkg-config` must be installed.  In addition to this, `GLM` must be installed and present in your c/c++ package manager's include directory.  Successful attempts to compile have been made on windows with `vcpkg` as the package manager.
 
 ## About:
 

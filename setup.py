@@ -4,11 +4,13 @@ from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
 
+MODULE_NAME = "Runespoor"
+
+DEV_VERSION = 3
+
 print(""
     "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory.  Otherwise the build will fail."
 "")
-
-MODULE_NAME = "Runespoor"
 
 C_PATH = "src"
 
@@ -47,9 +49,16 @@ EXTENSIONS = [
 readme_src = (fp:=open(path.join(path.dirname(__file__), "readme.md"), "r")).read()
 fp.close()
 
+included_pkg_data=[
+    'LICENSE',
+    '*.glsl',
+    'requirements.txt',
+    'readme.md',
+]
+
 setup(
     name=MODULE_NAME,
-    version="1.0.0.dev1",
+    version=f"1.0.0.dev{DEV_VERSION}",
     author="William Lim",
     description = """
     Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.
@@ -80,13 +89,6 @@ setup(
     ]),
     include_package_data=True,
     package_data={
-        MODULE_NAME: [
-            'LICENSE',
-            '*.pyi',
-            '*.glsl',
-            'requirements.txt',
-            'readme.md',
-            '*.h'
-        ]
+        MODULE_NAME: included_pkg_data
     },
 )
