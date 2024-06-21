@@ -27,7 +27,7 @@ public:
 
     void rotate(vec3 axis, float angle);
 
-    glm::quat quat;
+    glm::quat quat; 
 
     float get_w() {return quat.w;}
     float get_x() {return quat.x;}

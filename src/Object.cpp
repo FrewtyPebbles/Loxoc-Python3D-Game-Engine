@@ -18,9 +18,7 @@ void object::render(camera& camera) {
     view *= glm::lookAt(camera.position->axis, camera.position->axis + camera.rotation->get_forward().axis, camera.rotation->get_up().axis);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, this->position->axis);
-    model = glm::rotate(model, this->rotation->axis.x, glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, this->rotation->axis.y, glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, this->rotation->axis.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    model *= glm::toMat4(glm::inverse(this->rotation->quat));
     model = glm::scale(model, this->scale->axis);
 
 

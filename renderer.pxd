@@ -140,7 +140,6 @@ cdef extern from "src/Vec3.h":
         quaternion(const glmquat& quat) except +
         quaternion(const quaternion& quat) except +
         glmquat quat
-
         #conversions/alternate constructors:
         vec3 to_euler()
         @staticmethod
@@ -358,11 +357,11 @@ cdef extern from "src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
-        object3d(vector[mesh*] mesh, vec3* position, vec3* rotation, vec3* scale) except +
-        object3d(vector[mesh*] mesh, vec3* position, vec3* rotation, vec3* scale, material* mat) except +
+        object3d(vector[mesh*] mesh, vec3* position, quaternion* rotation, vec3* scale) except +
+        object3d(vector[mesh*] mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
         vector[mesh*] mesh_data
         vec3* position
-        vec3* rotation
+        quaternion* rotation
         vec3* scale
         material* mat
 
@@ -379,7 +378,8 @@ cdef class Object:
     cdef object3d* c_class
     cdef public list[Mesh] meshes
     cdef public Material material
-    cdef Vec3 _position, _rotation, _scale
+    cdef Vec3 _position, _scale
+    cdef Quaternion _rotation
     
     cpdef void render(self, Camera camera)
 

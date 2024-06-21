@@ -4,7 +4,7 @@
 #include <math.h>
 
 quaternion quaternion::from_axis_angle(vec3 axis, float angle) {
-    return glm::angleAxis(angle, axis.axis);
+    return glm::angleAxis(angle, axis.get_normalized().axis);
 }  
  
 void quaternion::rotate(vec3 axis, float angle) {

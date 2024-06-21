@@ -3,7 +3,6 @@
 #include "Object.h"
 #include <algorithm>
 
-
 void camera::render(vector<object*> objects) {
     for (object * obj : objects) {
         obj->render(*this);
@@ -22,5 +21,4 @@ camera::camera(vec3* position, quaternion* rotation, int view_width, int view_he
     this->view_height = view_height;
     this->focal_length = focal_length;
     this->fov = fov;
-
 }

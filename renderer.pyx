@@ -32,7 +32,7 @@ cdef class Camera:
         del self.c_class
 
     @property
-    def position(self):
+    def position(self) -> Vec3:
         return self._position
 
     @position.setter
@@ -41,7 +41,7 @@ cdef class Camera:
         self.c_class.position = value.c_class
 
     @property
-    def rotation(self):
+    def rotation(self) -> Quaternion:
         return self._rotation
 
     @rotation.setter
@@ -121,7 +121,7 @@ cdef class Object:
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Material material = None) -> None:
         self._position = position
-        self._rotation = rotation
+        self._rotation = rotation.to_quaternion()
         self._scale = scale
         self.meshes = mesh_list
         
@@ -135,13 +135,13 @@ cdef class Object:
         
         if material:
             self.material = material
-            self.c_class = new object3d(mesh_vec, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_vec, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
         else:
             self.material = Material()
-            self.c_class = new object3d(mesh_vec, position.c_class, rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_vec, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
 
     @property
-    def position(self):
+    def position(self) -> Vec3:
         return self._position
 
     @position.setter
@@ -150,16 +150,19 @@ cdef class Object:
         self.c_class.position = value.c_class
 
     @property
-    def rotation(self):
+    def rotation(self) -> Quaternion:
         return self._rotation
 
     @rotation.setter
-    def rotation(self, Vec3 value):
-        self._rotation = value
-        self.c_class.rotation = value.c_class
+    def rotation(self, value: Vec3 | Quaternion):
+        if isinstance(value, Vec3):
+            self._rotation = value.to_quaternion()
+        elif isinstance(value, Quaternion):
+            self._rotation = value
+        self.c_class.rotation = self._rotation.c_class
 
     @property
-    def scale(self):
+    def scale(self) -> Vec3:
         return self._scale
 
     @scale.setter
@@ -277,10 +280,11 @@ cdef class Quaternion:
             self.set_euler_vec(value)
     
     cpdef void set_euler_quat(self, Quaternion value):
-        self.c_class[0] = value.c_class[0]
+        self.c_class[0].quat = value.c_class[0].quat
 
     cpdef void set_euler_vec(self, Vec3 value):
-        self.c_class[0] = value.c_class.to_quaternion()
+        self.c_class[0].quat = value.c_class.to_quaternion().quat
+        
 
     @property
     def euler_pitch(self) -> float:

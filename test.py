@@ -68,10 +68,12 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     if window.event.get_flag(EVENT_FLAG.KEY_w) == EVENT_STATE.PRESSED:
         # FORWARD
         vel += accel
-    teapot.rotation = Quaternion.from_axis_angle(teapot.rotation.up, math.radians(counter)).to_euler()
+    # apply a quaternion rotation arround the vector vec3(1,1,0)
+    teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
+    
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
-    car.rotation.y += vel_yaw/magic_turn_dampener * window.dt
+    car.rotation.rotate_yaw(-vel_yaw/magic_turn_dampener * window.dt)
     vel_yaw -= math.copysign(frict, vel_yaw)
     
     # Clamp the velocity.
@@ -86,7 +88,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     yaw_rot = 0 # capture the yaw rot so we can apply it to the quat later in the case where the camera is clamped
 
     if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        cam_rot.rotate_yaw( yaw_rot := -math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt))
+        cam_rot.rotate_yaw(yaw_rot := -math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt))
 
         cam_rot.rotate(cam_rot.right, math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt))
     

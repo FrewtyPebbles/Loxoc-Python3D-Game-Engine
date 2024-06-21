@@ -43,11 +43,45 @@ class Object:
     meshes:list[Mesh]
     material:Material
     position:Vec3
-    rotation:Vec3
+    rotation:Quaternion
     scale:Vec3
     def __init__(self, mesh_list:list[Mesh], position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
 
+    @property
+    def position(self) -> Vec3:
+        """
+        The position of the object as a vec3.
+        """
 
+    @position.setter
+    def position(self, value:Vec3):
+        """
+        The position of the object as a vec3.
+        """
+
+    @property
+    def rotation(self) -> Quaternion:
+        """
+        The rotation of the object as a Quaternion.
+        """
+
+    @rotation.setter
+    def rotation(self, value: Vec3 | Quaternion):
+        """
+        The rotation of the object as a Quaternion.  Can assign a Vec3 of EulerAngles to it.
+        """
+
+    @property
+    def scale(self) -> Vec3:
+        """
+        The scale of the object as a vec3.
+        """
+
+    @scale.setter
+    def scale(self, value:Vec3):
+        """
+        The scale of the object as a vec3.
+        """
 
 
     def render(self, camera:Camera):...

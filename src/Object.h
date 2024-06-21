@@ -1,5 +1,6 @@
 #pragma once
 #include "Vec3.h"
+#include "Quaternion.h"
 #include <vector>
 #include "Material.h"
 using std::vector;
@@ -12,13 +13,13 @@ class camera;
 class object {
 public:
     object(){};
-    object(vector<mesh*> mesh, vec3* position, vec3* rotation, vec3* scale, material* mat) : mesh_data(mesh), position(position), rotation(rotation), scale(scale), mat(mat) {}
+    object(vector<mesh*> mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh), position(position), rotation(rotation), scale(scale), mat(mat) {}
     
     ~object(){}
 
     vector<mesh*> mesh_data;
     vec3* position;
-    vec3* rotation;
+    quaternion* rotation;
     vec3* scale;
     material* mat;
     map<int, uniform_type> uniforms;
