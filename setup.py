@@ -7,7 +7,7 @@ import pkgconfig as pcfg
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 7
+DEV_VERSION = 11
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
