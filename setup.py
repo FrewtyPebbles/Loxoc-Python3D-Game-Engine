@@ -1,15 +1,18 @@
+from __future__ import annotations
 from os import getenv, listdir, path
-import os
+import sys, os
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 3
+DEV_VERSION = 4
 
-print(""
-    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory.  Otherwise the build will fail."
+VERSION = f"1.0.0.dev{DEV_VERSION}"
+
+print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
+    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory, make sure pkg-config is installed and include the flag `--RUNEcompiler=<clang|gcc|msvc>`.  Otherwise the build will fail."
 "")
 
 C_PATH = "src"
@@ -35,17 +38,6 @@ c_deps = [
     "glad/src/gl.c"
 ]
 
-EXTENSIONS = [
-    Extension(f"{MODULE_NAME}.core",
-              sources=[path.join(MODULE_NAME, "core" + ".pyx"), *c_deps],
-              language="c++",
-              include_dirs=INCLUDE_DIRS,
-              libraries=LIBRARIES,
-              library_dirs=LIBRARY_DIRS,
-              extra_compile_args=["/MT", "/std:c++20", "/MP", "/Ox"]
-              )
-]
-
 readme_src = (fp:=open(path.join(path.dirname(__file__), "readme.md"), "r")).read()
 fp.close()
 
@@ -56,9 +48,47 @@ included_pkg_data=[
     'readme.md',
 ]
 
+flags = {
+    "clang":[
+        "-static-libgcc -static-libstdc++",
+        "-std=c++20",
+        "-O3"
+    ],
+    "gcc":[
+        "-static-libgcc -static-libstdc++",
+        "-std=c++20",
+        "-O3"
+    ],
+    "msvc":[
+        "/MT",
+        "/std:c++20",
+        "/MP",
+        "/Ox"
+    ],
+}
+
+compiler = "msvc"
+
+if  len([arg:=a for a in sys.argv if a.startswith("--RUNEcompiler=")]) == 1:
+    compiler = arg.split("=")[1]
+    sys.argv.remove(arg)
+
+
+
+EXTENSIONS = [
+    Extension(f"{MODULE_NAME}.core",
+            sources=[path.join(MODULE_NAME, "core" + ".pyx"), *c_deps],
+            language="c++",
+            include_dirs=INCLUDE_DIRS,
+            libraries=LIBRARIES,
+            library_dirs=LIBRARY_DIRS,
+            extra_compile_args=flags[compiler]
+            )
+]
+
 setup(
     name=MODULE_NAME,
-    version=f"1.0.0.dev{DEV_VERSION}",
+    version=VERSION,
     author="William Lim",
     description = """
     Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.
@@ -79,7 +109,7 @@ setup(
         compiler_directives={
             "language_level": 3,
             "profile": False
-        }
+        },
     ),
     setup_requires=['wheel'],
     packages=find_packages(exclude=[
