@@ -12,7 +12,7 @@ DEV_VERSION = 4
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
 print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
-    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory, make sure pkg-config is installed and include the flag `--RUNEcompiler=<clang|gcc|msvc>`.  Otherwise the build will fail."
+    "Note: If building from source, ensure that GLM is installed inside whatever package manager you are using's include directory, make sure pkg-config is installed and include the flag `--RUNEcompiler=<clang|gcc|msvc>` with your default compiler.  Otherwise the build will fail."
 "")
 
 C_PATH = "src"
@@ -73,7 +73,8 @@ if  len([arg:=a for a in sys.argv if a.startswith("--RUNEcompiler=")]) == 1:
     compiler = arg.split("=")[1]
     sys.argv.remove(arg)
 
-
+if not compiler in ['clang', 'gcc', 'msvc']:
+    raise RuntimeError(f"`{compiler}` is not a valid compiler option for the flag `--RUNEcompiler=<clang|gcc|msvc>`")
 
 EXTENSIONS = [
     Extension(f"{MODULE_NAME}.core",
