@@ -7,7 +7,7 @@ import pkgconfig as pcfg
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 4
+DEV_VERSION = 7
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
@@ -112,7 +112,6 @@ setup(
             "profile": False
         },
     ),
-    setup_requires=['wheel'],
     packages=find_packages(exclude=[
         "./Runespoor/core.cp311-win_amd64.pyd",
         "./Runespoor/core.cpp"
