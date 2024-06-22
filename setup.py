@@ -69,7 +69,7 @@ for compiler, args in [
     ]),
     ('gcc', [
         '-O3',
-        '-std=c++20'
+        '-std=c++20',
         '-static'
     ])
 ]:
