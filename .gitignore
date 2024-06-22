@@ -13,3 +13,4 @@ meshes/
 *.egg-info
 dist/
 .eggs/
+.linuxvenv

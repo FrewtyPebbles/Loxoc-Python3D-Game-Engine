@@ -12,7 +12,7 @@ Please note:
 
  - Runespoor is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
 
- - When building from source `pkg-config` must be installed.  In addition to this, `GLM` must be installed and present in your c/c++ package manager's include directory.  Lastly include the flag `--RUNEcompiler=<clang|gcc|msvc>` or `--config-settings=\"--RUNEcompiler=<clang|gcc|msvc>\"` with your default compiler on build.  Successful attempts to compile have been made on windows with `vcpkg` as the package manager.
+ - When building from source `pkg-config` must be installed.  In addition to this, `GLM` must be installed and present in your c/c++ package manager's include directory.  Successful attempts to compile have been made on windows with `vcpkg` as the package manager.
 
 ## About:
 
