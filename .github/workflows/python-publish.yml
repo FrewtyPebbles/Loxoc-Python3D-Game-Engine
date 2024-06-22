@@ -31,7 +31,7 @@ jobs:
         CIBW_BEFORE_BUILD_LINUX: >
           yum -y update &&
           yum install -y clang &&
-          yum install -y pkg-config &&
+          yum install -y pkgconfig &&
           yum install -y libassimp-dev &&
           yum install -y libglm-dev &&
           yum install -y libsdl2-dev
