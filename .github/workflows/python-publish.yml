@@ -19,8 +19,6 @@ jobs:
   deploy-ubuntu-latest:
     name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
-    env:
-      PKG_CONFIG_PATH: "/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -35,17 +33,18 @@ jobs:
         sudo apt-get install -y libassimp-dev
         sudo apt-get install -y libglm-dev
         sudo apt-get install -y libsdl2-dev
-        python -m pip install --upgrade pip
-        python -m pip install cibuildwheel
+        export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig"
+        pkg-config --libs assimp glm sdl2
     - name: Build wheels
-      run: |
-        cibuildwheel --output-dir wheelhouse
+      uses: pypa/cibuildwheel@v2.19.1
+      env:
+        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig"
+        CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
-        packages-dir: wheelhouse/
 
   # deploy-windows-latest:
   #   name: Build wheels on windows-latest
