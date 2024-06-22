@@ -18,12 +18,12 @@ C_PATH = "src"
 INCLUDE_DIRS = [
     "glad/include/",
     "stb/",
-    *[inc.removeprefix("-I") for inc in pcfg.cflags("sdl2").split()],
-    *[inc.removeprefix("-I") for inc in pcfg.cflags("assimp").split()]
+    *[inc["includedir"] for inc in pcfg.variables("sdl2")],
+    *[inc["includedir"] for inc in pcfg.variables("assimp")]
 ]
 LIBRARY_DIRS = [
-    *[inc.removeprefix("-L") for inc in pcfg.libs("sdl2", True).split() if inc.startswith("-L")],
-    *[inc.removeprefix("-L") for inc in pcfg.libs("assimp", True).split() if inc.startswith("-L")]
+    *[inc["libdir"] for inc in pcfg.variables("sdl2")],
+    *[inc["libdir"] for inc in pcfg.variables("assimp")]
 ]
 
 LIBRARIES = [
