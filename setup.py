@@ -56,10 +56,6 @@ EXTENSIONS = [
             include_dirs=INCLUDE_DIRS,
             libraries=LIBRARIES,
             library_dirs=LIBRARY_DIRS,
-            extra_compile_args=[
-            
-            
-        ]
     )
 ]
 
