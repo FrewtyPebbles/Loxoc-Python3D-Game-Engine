@@ -36,7 +36,7 @@ jobs:
         sudo vkpkg install glm:x64-linux-static
         sudo apt-get update -y
         sudo apt-get install -y pkg-config
-        export PKG_CONFIG_PATH=/home/user/vcpkg/installed/x64-linux/lib/pkgconfig
+        export PKG_CONFIG_PATH=/home/runner/work/Runespoor-Python3D-Game-Engine/Runespoor-Python3D-Game-Engine/vcpkg/installed/x64-linux/lib/pkgconfig
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
     - name: Publish package
