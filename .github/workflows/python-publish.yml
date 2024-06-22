@@ -21,26 +21,31 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
-      CIBW_BEFORE_BUILD: |
-        apt-get -y update
-        apt-get install -y clang
-        apt-get install -y pkg-config
-        apt-get install -y libassimp-dev
-        apt-get install -y libglm-dev
-        apt-get install -y libsdl2-dev
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-    - name: Build wheels # use clang as default for build step
-      uses: pypa/cibuildwheel@v2.19.1
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get install -y clang
+        sudo apt-get install -y pkg-config
+        sudo apt-get install -y libassimp-dev
+        sudo apt-get install -y libglm-dev
+        sudo apt-get install -y libsdl2-dev
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+    - name: Build wheels
+      run: |
+        cibuildwheel --output-dir wheelhouse
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: wheelhouse/
 
   # deploy-windows-latest:
   #   name: Build wheels on windows-latest
