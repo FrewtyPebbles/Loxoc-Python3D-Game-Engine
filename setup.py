@@ -15,7 +15,6 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 "")
 
 C_PATH = "src"
-print(f'pkg-config_PATH = {os.listdir(os.environ["PKG_CONFIG_PATH"])}')
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
 INCLUDE_DIRS = [
@@ -30,8 +29,8 @@ LIBRARY_DIRS = [
 ]
 
 LIBRARIES = [
-    *[inc.removeprefix("-l") for inc in pcfg.libs("sdl2", True).split() if not inc.startswith("-L")],
-    *[inc.removeprefix("-l") for inc in pcfg.libs("assimp", True).split() if not inc.startswith("-L")]
+    *[inc.replace("-l", "") for inc in pcfg.libs("sdl2", True).split() if not inc.startswith("-L")],
+    *[inc.replace("-l", "") for inc in pcfg.libs("assimp", True).split() if not inc.startswith("-L")]
 ]
 
 c_deps = [
