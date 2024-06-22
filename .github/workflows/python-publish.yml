@@ -20,7 +20,7 @@ jobs:
     name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
     env:
-      PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/miniconda/lib/pkgconfig:/usr/share/pkgconfig:/opt/az/lib/pkgconfig"
+      PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -37,7 +37,7 @@ jobs:
         sudo apt-get install -y libsdl2-dev
         pkg-config --libs sdl2
         pkg-config --libs assimp
-        pkg-config --libs gml
+        pkg-config --libs glm
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
     - name: Publish package
