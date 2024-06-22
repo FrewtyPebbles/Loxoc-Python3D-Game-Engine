@@ -1,15 +1,7 @@
-from __future__ import annotations
-from os import getenv, listdir, path
-import sys, os
-from typing import Generic, TypeVar
+from os import listdir, path
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
-from setuptools.command.build_ext import build_ext
-from setuptools.command.install import install as st_install
-from setuptools.command.sdist import sdist
-from setuptools import Command
-from wheel.bdist_wheel import bdist_wheel
 
 MODULE_NAME = "Runespoor"
 
