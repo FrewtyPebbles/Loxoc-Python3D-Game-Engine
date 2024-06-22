@@ -36,6 +36,7 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt install -y clang
+        apt-get install python-jinja2
         vcpkg integrate install
         vcpkg install
         echo "VCPKG INTEGRATED"
