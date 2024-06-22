@@ -38,7 +38,7 @@ jobs:
         sudo apt install -y clang
         vcpkg integrate install
         echo "VCPKG INTEGRATED"
-        vcpkg install assimp sdl2 glm --triplet=x64-linux
+        vcpkg install assimp --triplet=x64-linux
         vcpkg install sdl2 --triplet=x64-linux
         vcpkg install glm --triplet=x64-linux
         sudo apt-get update -y
