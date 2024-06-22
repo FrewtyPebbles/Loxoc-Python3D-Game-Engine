@@ -35,8 +35,9 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update -y
+        sudo apt update
         sudo apt install -y clang
-        sudo apt-get install python-jinja2
+        sudo apt install -y python3-jinja2
         vcpkg integrate install
         vcpkg install
         echo "VCPKG INTEGRATED"
