@@ -36,9 +36,7 @@ jobs:
       run: |
         sudo apt install -y clang
         vcpkg integrate install
-        vkpkg install assimp:x64-linux-static
-        vkpkg install sdl2:x64-linux-static
-        vkpkg install glm:x64-linux-static
+        vkpkg install assimp sdl2 glm --triplet x64-linux-static
         sudo apt-get update -y
         sudo apt-get install -y pkg-config
         export PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg/installed/x64-linux/lib/pkgconfig
