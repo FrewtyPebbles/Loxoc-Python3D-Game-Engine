@@ -34,7 +34,7 @@ jobs:
           yum install -y pkgconfig &&
           yum install -y assimp-devel &&
           yum install -y glm-devel &&
-          yum install -y SDL2-devel &&
+          yum install -y SDL2-devel
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
