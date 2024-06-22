@@ -1,9 +1,5 @@
 {
   "name": "main",
   "version-string": "latest",
-  "dependencies": [
-    "assimp",
-    "glm",
-    "sdl2"
-  ]
+  "dependencies": []
 }
