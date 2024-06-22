@@ -32,9 +32,9 @@ jobs:
           yum -y update &&
           yum install -y clang &&
           yum install -y pkgconfig &&
-          yum install -y libassimp-dev &&
-          yum install -y libglm-dev &&
-          yum install -y libsdl2-dev
+          yum install -y assimp &&
+          yum install -y glm &&
+          yum install -y SDL2-devel
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig" PKG_CONFIG="/usr/bin/pkg-config" PATH="$PATH:/usr/bin"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
