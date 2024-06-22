@@ -27,8 +27,10 @@ jobs:
         python-version: '3.x'
     - name: Get VCPkg
       uses: lukka/run-vcpkg@v11
+      id: runvcpkg
       with:
         vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
+        runVcpkgInstall: true
     - name: Install dependencies
       run: |
         sudo apt install -y clang
