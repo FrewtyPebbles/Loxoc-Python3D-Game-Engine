@@ -29,11 +29,12 @@ jobs:
       run: |
         sudo apt -y update
         sudo apt install -y pkg-config
+        export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+        sudo find / -maxdepth 5 -name pkgconfig 2>/dev/null
         sudo apt install libassimp-dev
         sudo apt install libglm-dev
         sudo apt install libsdl2-dev
-        export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
-        find / -maxdepth 5 -type f -name sdl2.pc 2>/dev/null
+        
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
     - name: Publish package
