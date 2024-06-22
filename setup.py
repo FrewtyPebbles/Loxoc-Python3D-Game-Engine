@@ -75,9 +75,9 @@ flags = {
 
 default_compiler = "clang"
 
-def command_factory(command:type[Command]) -> type:
+def command_factory(command:type[Command]) -> type: #BUG bdist_wheel cli arg not working
     class st_CLIARGS(command):
-        user_options = [
+        user_options = command.user_options + [
             ('RUNEcompiler=', None, "Set this to your default compiler if building from source.")
         ]
 
@@ -85,9 +85,6 @@ def command_factory(command:type[Command]) -> type:
             self.RUNEcompiler = default_compiler
             super().initialize_options()
 
-        def set_undefined_options(self, src_cmd: str, *option_pairs: tuple[str, str]) -> None:
-            self.RUNEcompiler = default_compiler
-            super().set_undefined_options(src_cmd, *option_pairs)
 
         def finalize_options(self):
             assert self.RUNEcompiler in flags.keys(), f"'{self.RUNEcompiler}' is not a valid compiler option for `--RUNEcompiler=<clang|gcc|msvc>`"
