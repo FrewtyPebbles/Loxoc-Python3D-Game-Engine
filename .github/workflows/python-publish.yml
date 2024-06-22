@@ -38,8 +38,13 @@ jobs:
         pkg-config --libs sdl2
         pkg-config --libs assimp
         pkg-config --libs glm
+        echo "path var:$PATH"
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
+      with:
+        script: |
+          env
+          cibuildwheel --output-dir dist
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
