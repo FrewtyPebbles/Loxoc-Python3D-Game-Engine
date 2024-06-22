@@ -27,7 +27,7 @@ jobs:
         python-version: '3.x'
     - uses: lukka/get-cmake@latest
     - name: Get VCPkg
-      uses: lukka/run-vcpkg@v11
+      uses: lukka/run-vcpkg@latest
       id: runvcpkg
       with:
         vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
