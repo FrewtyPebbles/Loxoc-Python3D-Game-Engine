@@ -20,7 +20,7 @@ jobs:
     name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
     env:
-      PKG_CONFIG_PATH: "/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig"
+      PKG_CONFIG_PATH: "/usr/lib/x86_64-linux-gnu/pkgconfig"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -35,7 +35,6 @@ jobs:
         sudo apt-get install -y libassimp-dev
         sudo apt-get install -y libglm-dev
         sudo apt-get install -y libsdl2-dev
-        find / -maxdepth 5 -type f -name assimp.pc 2>/dev/null
         python -m pip install --upgrade pip
         python -m pip install cibuildwheel
     - name: Build wheels
