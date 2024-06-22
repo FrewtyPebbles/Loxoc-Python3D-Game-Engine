@@ -15,7 +15,7 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 "")
 
 C_PATH = "src"
-print(f'pkg-config_PATH = {os.listdir(path.dirname(os.environ["PKG_CONFIG_PATH"]))}')
+print(f'pkg-config_PATH = {os.listdir(os.environ["PKG_CONFIG_PATH"])}')
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
 INCLUDE_DIRS = [
