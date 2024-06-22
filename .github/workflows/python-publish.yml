@@ -19,6 +19,8 @@ jobs:
   deploy-ubuntu-latest:
     name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
+    env:
+      PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/miniconda/lib/pkgconfig:/usr/share/pkgconfig:/opt/az/lib/pkgconfig"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -30,7 +32,6 @@ jobs:
         sudo apt -y update
         sudo apt install -y clang
         sudo apt install -y pkg-config
-        export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/miniconda/lib/pkgconfig:/usr/share/pkgconfig:/opt/az/lib/pkgconfig
         sudo apt install -y libassimp-dev
         sudo apt install -y libglm-dev
         sudo apt install -y libsdl2-dev
