@@ -31,7 +31,7 @@ jobs:
       with:
         vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
         runVcpkgInstall: true
-        vcpkgJsonGlob: '**/.github/vcpkg/vcpkg.json'
+        vcpkgJsonGlob: '${{ github.workspace }}/.github/vcpkg/vcpkg.json'
     - name: Install dependencies
       run: |
         sudo apt install -y clang
