@@ -1,8 +1,10 @@
+from collections import defaultdict
 from os import listdir, path
 import os
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
+from setuptools.command.build_ext import build_ext
 
 MODULE_NAME = "Runespoor"
 
@@ -55,18 +57,36 @@ EXTENSIONS = [
             libraries=LIBRARIES,
             library_dirs=LIBRARY_DIRS,
             extra_compile_args=[
-            "/MT",
-            "/std:c++20",
-            "/MP",
-            "/Ox",
-            "-static-libgcc -static-libstdc++",
-            "-std=c++20",
-            "-O3"
+            
+            
         ]
     )
 ]
 
+BUILD_ARGS = defaultdict(lambda: ['-O3', '-g0'])
+for compiler, args in [
+    ('msvc', [
+        "/MT",
+        "/std:c++20",
+        "/MP",
+        "/Ox",
+    ]),
+    ('gcc', [
+        '-O3'
+    ])
+]:
+    BUILD_ARGS[compiler] = args
+    
+class build_ext_compiler_check(build_ext):
+    def build_extensions(self):
+        compiler = self.compiler.compiler_type
+        args = BUILD_ARGS[compiler]
+        for ext in self.extensions:
+            ext.extra_compile_args = args
+        build_ext.build_extensions(self)
+
 setup(
+    cmdclass={ 'build_ext': build_ext_compiler_check },
     name=MODULE_NAME,
     version=VERSION,
     author="William Lim",
