@@ -15,7 +15,7 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 "")
 
 C_PATH = "src"
-print(f'PKG_CONFIG_PATH == {os.environ["PKG_CONFIG_PATH"]}!!!!!!!!!')
+print(f'ENVIRON == {os.environ}!!!!!!!!!')
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
 INCLUDE_DIRS = [
