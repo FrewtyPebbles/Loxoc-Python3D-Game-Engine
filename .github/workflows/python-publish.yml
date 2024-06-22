@@ -21,30 +21,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
+      CIBW_BEFORE_BUILD: |
         sudo apt-get -y update
         sudo apt-get install -y clang
         sudo apt-get install -y pkg-config
         sudo apt-get install -y libassimp-dev
         sudo apt-get install -y libglm-dev
         sudo apt-get install -y libsdl2-dev
-        pkg-config --libs sdl2
-        pkg-config --libs assimp
-        pkg-config --libs glm
-        echo "path var:$PATH"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
-      with:
-        script: |
-          env
-          cibuildwheel --output-dir dist
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
