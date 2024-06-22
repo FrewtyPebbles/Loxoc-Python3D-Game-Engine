@@ -35,7 +35,7 @@ jobs:
           apt-get install -y libassimp-dev &&
           apt-get install -y libglm-dev &&
           apt-get install -y libsdl2-dev
-        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig" PKG_CONFIG="/usr/bin/pkg-config" PATH="$PATH:/usr/bin/apt"
+        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig" PKG_CONFIG="/usr/bin/pkg-config" PATH="$PATH:/usr/bin"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
