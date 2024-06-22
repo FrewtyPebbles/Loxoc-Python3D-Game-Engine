@@ -43,9 +43,8 @@ c_deps = [
     *[path.join(C_PATH, cppf) for cppf in listdir(C_PATH) if cppf.endswith(".cpp")],
     "glad/src/gl.c"
 ]
-
-readme_src = (fp:=open(path.join(path.dirname(__file__), "readme.md"), "r")).read()
-fp.close()
+with open(path.join(path.dirname(__file__), "readme.md"), "r") as fp:
+    readme_src = fp.read()
 
 included_pkg_data=[
     'LICENSE',
