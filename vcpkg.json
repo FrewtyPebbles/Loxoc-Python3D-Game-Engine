@@ -2,23 +2,8 @@
   "name": "main",
   "version-string": "latest",
   "dependencies": [
-    {
-      "name":"assimp",
-      "triplets": [
-        "x64-linux"
-      ]
-    },
-    {
-      "name":"sdl2",
-      "triplets": [
-        "x64-linux"
-      ]
-    },
-    {
-      "name":"glm",
-      "triplets": [
-        "x64-linux"
-      ]
-    }
+    "assimp:x64-linux",
+    "sdl2:x64-linux",
+    "glm:x64-linux"
   ]
 }
