@@ -1,9 +1,4 @@
 {
   "name": "main",
   "version-string": "latest",
-  "dependencies": [
-    "assimp:x64-linux",
-    "sdl2:x64-linux",
-    "glm:x64-linux"
-  ]
 }
