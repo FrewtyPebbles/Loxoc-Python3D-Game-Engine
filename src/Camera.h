@@ -2,7 +2,6 @@
 #include <vector>
 #include "Tup.h"
 #include <unordered_set>
-#include <windows.h>
 #include "glad/gl.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
