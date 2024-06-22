@@ -29,7 +29,7 @@ jobs:
       uses: lukka/run-vcpkg@v11
       id: runvcpkg
       with:
-        vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
+        #vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
         runVcpkgInstall: true
         vcpkgJsonGlob: '${{ github.workspace }}/.github/vcpkg/vcpkg.json'
     - name: Install dependencies
