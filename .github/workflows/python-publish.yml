@@ -39,7 +39,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.19.1
       env:
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig"
-        CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH
+        CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PATH
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
