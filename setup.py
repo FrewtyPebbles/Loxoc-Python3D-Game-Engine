@@ -13,7 +13,7 @@ from wheel.bdist_wheel import bdist_wheel
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 13
+DEV_VERSION = 14
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
@@ -73,6 +73,8 @@ flags = {
     ],
 }
 
+default_compiler = "clang"
+
 def command_factory(command:type[Command]) -> type:
     class st_CLIARGS(command):
         user_options = [
@@ -80,11 +82,11 @@ def command_factory(command:type[Command]) -> type:
         ]
 
         def initialize_options(self):
-            self.RUNEcompiler = "msvc"
+            self.RUNEcompiler = default_compiler
             super().initialize_options()
 
         def set_undefined_options(self, src_cmd: str, *option_pairs: tuple[str, str]) -> None:
-            self.RUNEcompiler = "msvc"
+            self.RUNEcompiler = default_compiler
             super().set_undefined_options(src_cmd, *option_pairs)
 
         def finalize_options(self):
@@ -100,7 +102,6 @@ class build_ext_custom(command_factory(build_ext)):
             ext.extra_compile_args = flags[self.RUNEcompiler]
         super().run()
 
-    
 
 EXTENSIONS = [
     Extension(f"{MODULE_NAME}.core",
@@ -117,10 +118,10 @@ setup(
     name=MODULE_NAME,
     version=VERSION,
     author="William Lim",
-    description = """
-    Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.
-    Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like.
-    """,
+    description = ""
+    "Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind."
+    "Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like."
+    "",
     long_description=readme_src,
     long_description_content_type="text/markdown",
     license="MIT",
