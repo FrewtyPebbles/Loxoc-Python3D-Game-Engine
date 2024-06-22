@@ -20,7 +20,7 @@ jobs:
     name: Build wheels on ubuntu-latest
     runs-on: ubuntu-latest
     env:
-      PKG_CONFIG_PATH: "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
+      PKG_CONFIG_PATH: "/usr/lib/x86_64-linux-gnu/pkgconfig"
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
