@@ -33,7 +33,7 @@ jobs:
         sudo apt install -y clang
         sudo apt install -y meson
     - name: Get VCPkg
-      uses: lukka/run-vcpkg@latest
+      uses: lukka/run-vcpkg@v11
       id: runvcpkg
       with:
         vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
