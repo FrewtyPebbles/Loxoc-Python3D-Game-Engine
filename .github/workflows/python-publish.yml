@@ -28,13 +28,13 @@ jobs:
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.19.1
       env:
-        CIBW_BEFORE_BUILD_LINUX: |
-          sudo apt-get -y update
-          sudo apt-get install -y clang
-          sudo apt-get install -y pkg-config
-          sudo apt-get install -y libassimp-dev
-          sudo apt-get install -y libglm-dev
-          sudo apt-get install -y libsdl2-dev
+        CIBW_BEFORE_BUILD_LINUX: >
+          apt-get -y update &&
+          apt-get install -y clang &&
+          apt-get install -y pkg-config &&
+          apt-get install -y libassimp-dev &&
+          apt-get install -y libglm-dev &&
+          apt-get install -y libsdl2-dev
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig" PKG_CONFIG="/usr/bin/pkg-config"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
