@@ -72,7 +72,8 @@ for compiler, args in [
         "/Ox",
     ]),
     ('gcc', [
-        '-O3'
+        '-O3',
+        '-std=c++20'
     ])
 ]:
     BUILD_ARGS[compiler] = args
