@@ -1,4 +1,5 @@
 from os import listdir, path
+import os
 from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
@@ -14,16 +15,18 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 "")
 
 C_PATH = "src"
-
+print(f'PKG_CONFIG_PATH == {os.environ["PKG_CONFIG_PATH"]}!!!!!!!!!')
+sdl2 = pcfg.variables("sdl2")
+assimp = pcfg.variables("assimp")
 INCLUDE_DIRS = [
     "glad/include/",
     "stb/",
-    *[inc["includedir"] for inc in pcfg.variables("sdl2")],
-    *[inc["includedir"] for inc in pcfg.variables("assimp")]
+    sdl2["includedir"],
+    assimp["includedir"]
 ]
 LIBRARY_DIRS = [
-    *[inc["libdir"] for inc in pcfg.variables("sdl2")],
-    *[inc["libdir"] for inc in pcfg.variables("assimp")]
+    sdl2["libdir"],
+    assimp["libdir"]
 ]
 
 LIBRARIES = [
