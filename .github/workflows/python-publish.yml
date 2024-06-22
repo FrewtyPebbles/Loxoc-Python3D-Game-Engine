@@ -29,13 +29,15 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        sudo apt -y update
-        sudo apt install -y clang
-        sudo apt install -y pkg-config
-        sudo apt install -y libassimp-dev
-        sudo apt install -y libglm-dev
-        sudo apt install -y libsdl2-dev
-        
+        sudo apt-get -y update
+        sudo apt-get install -y clang
+        sudo apt-get install -y pkg-config
+        sudo apt-get install -y libassimp-dev
+        sudo apt-get install -y libglm-dev
+        sudo apt-get install -y libsdl2-dev
+        pkg-config --libs sdl2
+        pkg-config --libs assimp
+        pkg-config --libs gml
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
     - name: Publish package
