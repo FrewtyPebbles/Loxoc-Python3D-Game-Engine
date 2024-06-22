@@ -33,7 +33,7 @@ jobs:
         sudo apt install libglm-dev
         sudo apt install libsdl2-dev
         export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
-        pkg-config --libs sdl2
+        find / -maxdepth 5 -type f -name sdl2.pc 2>/dev/null
     - name: Build wheels # use clang as default for build step
       uses: pypa/cibuildwheel@v2.19.1
     - name: Publish package
