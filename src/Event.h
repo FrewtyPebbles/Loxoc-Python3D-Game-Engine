@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 #include <stdexcept>
 #include <map>
-#include <format>
 #include <iostream>
 
 #define TOTAL_EVENT_FLAGS 100

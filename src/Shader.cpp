@@ -41,7 +41,9 @@ void shader::compile() {
     if (!success)
     {
         glGetShaderInfoLog(this->shader_handle, 512, NULL, infoLog);
-        throw std::runtime_error(std::format("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n{}\n", infoLog));
+        std::stringstream ss;
+        ss << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
+        throw std::runtime_error(ss.str());
     }
 }
 

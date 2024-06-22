@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "util.h"
 #include <filesystem>
-
+#include <sstream>
 
 string fix_texture_path(string file_path, string file) {
     return std::filesystem::absolute(std::filesystem::path(str_tool::rem_file_from_path(file_path) + "/textures/" + str_tool::rem_path_from_file(file))).string();
@@ -44,7 +44,9 @@ void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshe
                 }
                 
             } else {
-                throw std::runtime_error(std::format("Assimp failed to get diffuse texture for node \"{}\"\n", node->mName.C_Str()));
+                std::stringstream ss;
+                ss << "Assimp failed to get diffuse texture for node \"" << node->mName.C_Str() << "\"\n";
+                throw std::runtime_error(ss.str());
             }
         }
 
@@ -59,7 +61,9 @@ void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshe
                     );
                 }
             } else {
-                throw std::runtime_error(std::format("Assimp failed to get specular texture for node \"{}\"\n", node->mName.C_Str()));
+                std::stringstream ss;
+                ss << "Assimp failed to get specular texture for node \"" << node->mName.C_Str() << "\"\n";
+                throw std::runtime_error(ss.str());
             }
         }
 
@@ -74,7 +78,9 @@ void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshe
                     );
                 }
             } else {
-                throw std::runtime_error(std::format("Assimp failed to get normals texture for node \"{}\"\n", node->mName.C_Str()));
+                std::stringstream ss;
+                ss << "Assimp failed to get normals texture for node \"" << node->mName.C_Str() << "\"\n";
+                throw std::runtime_error(ss.str());
             }
         }
 
@@ -112,7 +118,9 @@ vector<mesh*> mesh::from_file(string file_path) {
     const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene) {
-        throw std::runtime_error(std::format("Failed to import model at \"{}\"\nLOG:\n{}\n", file_path, importer.GetErrorString()));
+        std::stringstream ss;
+        ss << "Failed to import model at \"" << file_path << "\"\nLOG:\n" << importer.GetErrorString() << "\n";
+        throw std::runtime_error(ss.str());
     }
     vector<mesh*> meshes;
     

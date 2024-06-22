@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "util.h"
+#include <sstream>
 
 void material::set_uniform(string name, uniform_type value, string type) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
@@ -135,7 +136,9 @@ void material::link_shaders() {
     glGetProgramiv(this->shader_program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(this->shader_program, 512, NULL, infoLog);
-        throw std::runtime_error(std::format("ERROR::SHADER::PROGRAM::LINKING_FAILED\n{}\n", infoLog));
+        std::stringstream ss;
+        ss << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << "\n";
+        throw std::runtime_error(ss.str());
     }
     // glDetachShader(this->shader_program, this->vertex_shader.shader_handle);
     // glDetachShader(this->shader_program, this->fragment_shader.shader_handle);

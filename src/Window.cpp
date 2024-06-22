@@ -3,8 +3,8 @@
 #include "Camera.h"
 #include <iostream>
 #include <mutex>
-#include <format>
 #include "Object.h"
+#include <sstream>
 
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
@@ -23,7 +23,9 @@ window::window(string title, camera* cam, int width, int height, bool fullscreen
 
 void window::create_window() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        throw std::runtime_error(std::format("could not initialize sdl2: {}\n", SDL_GetError()));
+        std::stringstream ss;
+        ss << "could not initialize sdl2: " << SDL_GetError() << "\n";
+        throw std::runtime_error(ss.str());
     }
     atexit(SDL_Quit);
 
@@ -49,7 +51,9 @@ void window::create_window() {
         );
     }
     if (this->app_window == NULL) {
-        throw std::runtime_error(std::format("could not create window: {}\n", SDL_GetError()));
+        std::stringstream ss;
+        ss << "could not create window: " << SDL_GetError() << "\n";
+        throw std::runtime_error(ss.str());
     }
 
     this->gl_context = SDL_GL_CreateContext(this->app_window);
@@ -64,9 +68,12 @@ void window::create_window() {
         std::cout << "Failed to initialize GLAD\n";
         throw std::runtime_error("Failed to initialize GLAD");
     }
-    std::cout << std::format("Vendor:   {}\n", (char *)glGetString(GL_VENDOR));
-    std::cout << std::format("Renderer: {}\n", (char *)glGetString(GL_RENDERER));
-    std::cout << std::format("Version:  {}\n", (char *)glGetString(GL_VERSION));
+    std::stringstream ss;
+        ss << "could not create window: " << SDL_GetError() << "\n";
+        throw std::runtime_error(ss.str());
+    std::cout << "Vendor:   " << (char *)glGetString(GL_VENDOR) << "\n";
+    std::cout << "Renderer: " << (char *)glGetString(GL_RENDERER) << "\n";
+    std::cout << "Version:  " << (char *)glGetString(GL_VERSION) << "\n";
 
 
     glEnable(GL_DEPTH_TEST);

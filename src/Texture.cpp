@@ -1,6 +1,7 @@
 #include "Texture.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <sstream>
 
 texture::texture(string file_path, TextureWraping wrap, TextureFiltering filtering){
     unsigned char * tex = stbi_load(file_path.c_str(), &width, &height, &number_of_channels, 0);
@@ -20,8 +21,9 @@ texture::texture(string file_path, TextureWraping wrap, TextureFiltering filteri
         glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(tex);
     } else {
-        
-        throw std::runtime_error(std::format("Failed to load texture at \"{}\"\nSTBI log: {}\n\n  HINT: Could be missing \"texture\" folder?", file_path, stbi_failure_reason()));
+        std::stringstream ss;
+        ss << "Failed to load texture at \"" << file_path << "\"\nSTBI log: " << stbi_failure_reason() << "\n\n  HINT: Could be missing \"texture\" folder?";
+        throw std::runtime_error(ss.str());
     }
 }
 
