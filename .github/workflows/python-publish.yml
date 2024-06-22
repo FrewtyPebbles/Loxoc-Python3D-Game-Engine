@@ -26,20 +26,22 @@ jobs:
       with:
         python-version: '3.x'
     - uses: lukka/get-cmake@latest
-    - name: Get VCPkg
-      uses: lukka/run-vcpkg@latest
-      id: runvcpkg
-      with:
-        vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
-        vcpkgJsonGlob: 'vcpkg.json'
-    - name: Install dependencies
+    - name: Install VCPKG dependencies
       run: |
         sudo apt-get update -y
         sudo apt update
         sudo apt install -y clang
         sudo apt install -y meson
+    - name: Get VCPkg
+      uses: lukka/run-vcpkg@latest
+      id: runvcpkg
+      with:
+        vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
+        runVcpkgInstall: true
+        vcpkgJsonGlob: 'vcpkg.json'
+    - name: Install dependencies
+      run: |
         vcpkg integrate install
-        vcpkg install
         echo "VCPKG INTEGRATED"
         sudo apt-get install -y pkg-config
         export PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg/installed/x64-linux/lib/pkgconfig
