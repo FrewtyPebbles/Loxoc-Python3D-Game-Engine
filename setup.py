@@ -77,7 +77,12 @@ for compiler, args in [
 class build_ext_compiler_check(build_ext):
     def build_extensions(self):
         compiler = self.compiler.compiler_type
-        args = BUILD_ARGS[compiler]
+        print(f"COMPILER USED: {compiler}")
+        args = []
+        if compiler == 'msvc':
+            args = BUILD_ARGS['msvc']
+        else:
+            args = BUILD_ARGS['gcc']
         for ext in self.extensions:
             ext.extra_compile_args = args
         build_ext.build_extensions(self)
