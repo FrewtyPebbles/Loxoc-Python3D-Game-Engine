@@ -85,7 +85,7 @@ jobs:
           & './vcpkg/vcpkg.exe' install glm:x64-windows-static;
           Write-Output 'INSTALL SDL';
           & './vcpkg/vcpkg.exe' install sdl2:x64-windows-static;
-          Get-Childitem –Path 'D:\' -Include '*sdl2.pc' -File -Recurse -ErrorAction SilentlyContinue;
+          Get-Childitem –Path 'D:\' -Include '*.pc' -File -Recurse -ErrorAction SilentlyContinue;
           New-Item -Path './run-check' -ItemType 'File';
           } }"
         CIBW_ENVIRONMENT_WINDOWS: PKG_CONFIG_PATH="${{ github.workspace }}\vcpkg\installed\x64-windows-static\lib\pkgconfig"
