@@ -68,9 +68,6 @@ void window::create_window() {
         std::cout << "Failed to initialize GLAD\n";
         throw std::runtime_error("Failed to initialize GLAD");
     }
-    std::stringstream ss;
-        ss << "could not create window: " << SDL_GetError() << "\n";
-        throw std::runtime_error(ss.str());
     std::cout << "Vendor:   " << (char *)glGetString(GL_VENDOR) << "\n";
     std::cout << "Renderer: " << (char *)glGetString(GL_RENDERER) << "\n";
     std::cout << "Version:  " << (char *)glGetString(GL_VERSION) << "\n";
