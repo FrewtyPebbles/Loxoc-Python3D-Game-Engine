@@ -34,6 +34,7 @@ jobs:
           yum install -y pkgconfig &&
           yum install -y assimp-devel &&
           yum -y install cmake3 &&
+          if [ ! -f "./run-check" ]; then
           git clone https://github.com/g-truc/glm.git &&
           cd glm &&
           cmake \
@@ -50,7 +51,9 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release &&
           cmake --build . --config Release --parallel &&
           cmake --install . --config Release &&
-          cd ../..
+          cd ../.. &&
+          touch "./run-check";
+          fi
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
