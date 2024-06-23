@@ -77,6 +77,7 @@ jobs:
           Pop-Location;
           & './vcpkg/vcpkg.exe' integrate install;
           Write-Output 'INSTALL PKG-CONFIG';
+          choco install pkgconfiglite;
           pkg-config --version;
           Write-Output 'INSTALL ASSIMP';
           & './vcpkg/vcpkg.exe' install assimp:x64-windows-static;
