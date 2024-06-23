@@ -69,23 +69,21 @@ jobs:
         CIBW_ENVIRONMENT_LINUX: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
         CIBW_BEFORE_BUILD_WINDOWS: >
-          PowerShell -Command "& {
-          if (![System.IO.File]::Exists('./run-check')) {
-            git clone https://github.com/microsoft/vcpkg.git;
-            Push-Location vcpkg;
-            ./bootstrap-vcpkg.bat;
-            Pop-Location;
-            ./vcpkg/vcpkg.exe integrate install;
-            ./vcpkg/vcpkg.exe install pkgconfig;
-            Write-Output 'INSTALL ASSIMP';
-            ./vcpkg/vcpkg.exe install assimp:x64-windows-static;
-            Write-Output 'INSTALL GLM';
-            ./vcpkg/vcpkg.exe install glm:x64-windows-static;
-            Write-Output 'INSTALL SDL';
-            ./vcpkg/vcpkg.exe install sdl2:x64-windows-static;
-            New-Item -Path './run-check' -ItemType 'File';
-          }
-          }"
+          PowerShell -Command "& { if (![System.IO.File]::Exists('./run-check')) {
+          git clone https://github.com/microsoft/vcpkg.git;
+          Push-Location vcpkg;
+          & './bootstrap-vcpkg.bat';
+          Pop-Location;
+          & './vcpkg/vcpkg.exe' integrate install;
+          & './vcpkg/vcpkg.exe' install pkgconfig;
+          Write-Output 'INSTALL ASSIMP';
+          & './vcpkg/vcpkg.exe' install assimp:x64-windows-static;
+          Write-Output 'INSTALL GLM';
+          & './vcpkg/vcpkg.exe' install glm:x64-windows-static;
+          Write-Output 'INSTALL SDL';
+          & './vcpkg/vcpkg.exe' install sdl2:x64-windows-static;
+          New-Item -Path './run-check' -ItemType 'File';
+          } }"
         CIBW_ENVIRONMENT_WINDOWS: PKG_CONFIG_PATH="${{ vars.GITHUB_WORKSPACE }}/vcpkg/installed/x64-windows-static/lib/pkgconfig"
         CIBW_SKIP: "cp36-* cp37-* *-win32 *-manylinux_i686 *-macosx_* *-musllinux_*"
     - uses: actions/upload-artifact@v4
