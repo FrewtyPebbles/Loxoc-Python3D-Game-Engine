@@ -31,14 +31,13 @@ jobs:
         CIBW_BEFORE_BUILD_LINUX: >
           yum -y update &&
           yum install -y pkgconfig &&
-          yum install -y assimp-devel &&
           yum -y install cmake3 &&
           if [ ! -f "./run-check" ]; then
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
             cmake CMakeLists.txt;
-            cmake --build . -DBUILD_SHARED_LIBS=OFF;
+            cmake -DBUILD_SHARED_LIBS=OFF --build .;
             cd ..;
             echo "BUILD GLM";
             git clone https://github.com/g-truc/glm.git;
