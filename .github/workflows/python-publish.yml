@@ -29,102 +29,44 @@ jobs:
       uses: pypa/cibuildwheel@v2.19.1
       env:
         CIBW_BEFORE_BUILD_LINUX: >
-          yum -y update &&
-          yum install -y clang &&
-          yum install -y pkgconfig &&
-          yum install -y assimp-devel &&
-          yum -y install cmake3 &&
-          git clone https://github.com/g-truc/glm.git &&
-          cd glm &&
-          cmake \
-              -DGLM_BUILD_TESTS=OFF \
-              -DBUILD_SHARED_LIBS=OFF \
-              -B build . &&
-          cmake --build build -- all &&
-          cmake --build build -- install &&
-          cd .. &&
-          git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4 &&
-          cd SDL &&
-          mkdir build &&
-          cd build &&
-          cmake .. -DCMAKE_BUILD_TYPE=Release &&
-          cmake --build . --config Release --parallel &&
-          cmake --install . --config Release &&
-          cd ../..
-        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig"
+          if [ ! -f "./run-check" ]; then
+            yum -y update;
+            yum install -y pkgconfig;
+            yum -y install cmake3;
+            echo "BUILD ASSIMP";
+            git clone https://github.com/assimp/assimp.git;
+            cd assimp;
+            mkdir build
+            cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF;
+            make -j4;
+            make install;
+            cd ../..;
+            echo "BUILD GLM";
+            git clone https://github.com/g-truc/glm.git;
+            cd glm;
+            cmake \
+                -DGLM_BUILD_TESTS=OFF \
+                -DBUILD_SHARED_LIBS=OFF \
+                -B build .;
+            cmake --build build -- all;
+            cmake --build build -- install;
+            cd ..;
+            echo "BUILD SDL";
+            git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4;
+            cd SDL;
+            mkdir build;
+            cd build;
+            cmake .. -DCMAKE_BUILD_TYPE=Release;
+            cmake --build . --config Release --parallel;
+            cmake --install . --config Release;
+            cd ../..;
+            touch "./run-check";
+          fi
+        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
-
-  # deploy-windows-latest:
-  #   name: Build wheels on windows-latest
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.x'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install build
-      # - name: Get VCPkg
-      #   uses: lukka/run-vcpkg@v11
-      #   id: runvcpkg
-      #   with:
-      #     vcpkgGitCommitId: 'c4467cb686f92671f0172aa8299a77d908175b4e'
-      #     runVcpkgInstall: true
-      #     vcpkgJsonGlob: 'vcpkg.json'
-  #   - name: Build wheels
-  #     uses: pypa/cibuildwheel@v2.19.1
-  #   - name: Publish package
-  #     uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-  #     with:
-  #       user: __token__
-  #       password: ${{ secrets.PYPI_API_TOKEN }}
-        
-  # deploy-macos-13:
-  #   name: Build wheels on macos-13
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.x'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install build
-  #   - name: Build wheels
-  #     uses: pypa/cibuildwheel@v2.19.1
-  #   - name: Publish package
-  #     uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-  #     with:
-  #       user: __token__
-  #       password: ${{ secrets.PYPI_API_TOKEN }}
-        
-  # deploy-macos-14:
-  #   name: Build wheels on macos-14
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.x'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install build
-  #   - name: Build wheels
-  #     uses: pypa/cibuildwheel@v2.19.1
-  #   - name: Publish package
-  #     uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-  #     with:
-  #       user: __token__
-  #       password: ${{ secrets.PYPI_API_TOKEN }}
