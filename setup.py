@@ -31,8 +31,8 @@ LIBRARY_DIRS = [
 ]
 
 LIBRARIES = [
-    *[inc.replace("-l", "") for inc in pcfg.libs("sdl2", True).split() if not inc.startswith("-L")],
-    *[inc.replace("-l", "") for inc in pcfg.libs("assimp", True).split() if not inc.startswith("-L")]
+    *[inc.replace("-l", "") for inc in pcfg.libs("sdl2", True).split() if inc.startswith("-l")],
+    *[inc.replace("-l", "") for inc in pcfg.libs("assimp", True).split() if inc.startswith("-l")]
 ]
 
 c_deps = [

@@ -120,7 +120,7 @@ void material::register_uniforms() {
             glUniform4fv(loc, 1, glm::value_ptr(std::get<glm::quat>(value)));
         }
     }
-}
+} 
 
 void material::link_shaders() {
     this->vertex->compile();
