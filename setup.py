@@ -5,7 +5,6 @@ from setuptools import find_packages, setup, Extension
 from Cython.Build import cythonize
 import pkgconfig as pcfg
 from setuptools.command.build_ext import build_ext
-from pathlib import Path
 
 MODULE_NAME = "Runespoor"
 
@@ -18,10 +17,6 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 "")
 
 C_PATH = "src"
-print("PKG_CONFIG_PATH ls:")
-print(os.listdir(os.environ["PKG_CONFIG_PATH"]))
-print("parent:")
-print(os.listdir(Path(os.environ["PKG_CONFIG_PATH"]).parent.absolute()))
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
 INCLUDE_DIRS = [
