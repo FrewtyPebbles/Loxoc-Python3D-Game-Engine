@@ -40,7 +40,7 @@ jobs:
             cd build
             cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF;
             make -j4;
-            sudo make install;
+            make install;
             cd ../..;
             pkg-config --libs assimp;
             pkg-config --cflags assimp;
