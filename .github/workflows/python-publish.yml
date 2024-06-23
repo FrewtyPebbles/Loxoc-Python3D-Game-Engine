@@ -36,10 +36,15 @@ jobs:
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
-            cmake CMakeLists.txt;
-            cmake -DBUILD_SHARED_LIBS=OFF --build .;
-            cd ..;
-            find / -maxdepth 5 -name "assimp.pc" 2>/dev/null;
+            mkdir build
+            cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF;
+            make -j4;
+            sudo make install;
+            cd ../..;
+            pkg-config --libs assimp;
+            pkg-config --cflags assimp;
+            find / -maxdepth 9 -name "assimp.pc" 2>/dev/null;
             echo "BUILD GLM";
             git clone https://github.com/g-truc/glm.git;
             cd glm;
