@@ -52,7 +52,7 @@ jobs:
           cmake --install . --config Release &&
           cd ../.. &&
           find / -name sdl2.pc
-        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
+        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
