@@ -42,9 +42,6 @@ jobs:
             make -j4;
             make install;
             cd ../..;
-            pkg-config --libs assimp;
-            pkg-config --cflags assimp;
-            find / -maxdepth 9 -name "assimp.pc" 2>/dev/null;
             echo "BUILD GLM";
             git clone https://github.com/g-truc/glm.git;
             cd glm;
