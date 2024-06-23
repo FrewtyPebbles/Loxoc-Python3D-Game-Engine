@@ -72,15 +72,16 @@ jobs:
           PowerShell -Command "&{
           if (![System.IO.File]::Exists('./run-check')) {
             git clone https://github.com/microsoft/vcpkg.git;
-            cd vcpkg;
-            bootstrap-vcpkg.bat;
-            cd ..;
+            Push-Location vcpkg;
+            ./bootstrap-vcpkg.bat;
+            Pop-Location;
+            ./vcpkg/vcpkg.exe integrate install;
             ./vcpkg/vcpkg.exe install pkgconfig;
-            echo 'INSTALL ASSIMP';
+            Write-Output 'INSTALL ASSIMP';
             ./vcpkg/vcpkg.exe install assimp:x64-windows-static;
-            echo 'INSTALL GLM';
+            Write-Output 'INSTALL GLM';
             ./vcpkg/vcpkg.exe install glm:x64-windows-static;
-            echo 'INSTALL SDL';
+            Write-Output 'INSTALL SDL';
             ./vcpkg/vcpkg.exe install sdl2:x64-windows-static;
             New-Item -Path './run-check' -ItemType 'File';
           }
