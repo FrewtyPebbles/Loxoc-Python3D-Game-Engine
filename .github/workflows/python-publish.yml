@@ -33,7 +33,6 @@ jobs:
           yum install -y clang &&
           yum install -y pkgconfig &&
           yum install -y assimp-devel &&
-          yum install -y SDL2-devel &&
           yum -y install cmake3 &&
           git clone https://github.com/g-truc/glm.git &&
           cd glm &&
@@ -43,8 +42,16 @@ jobs:
               -B build . &&
           cmake --build build -- all &&
           cmake --build build -- install &&
-          cd ..
-        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
+          cd .. &&
+          git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4 &&
+          cd SDL &&
+          mkdir build &&
+          cd build &&
+          cmake .. -DCMAKE_BUILD_TYPE=Release &&
+          cmake --build . --config Release --parallel &&
+          cmake --install . --config Release &&
+          cd ../..
+        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
