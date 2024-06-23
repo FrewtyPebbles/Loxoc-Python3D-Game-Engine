@@ -70,12 +70,18 @@ jobs:
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
         CIBW_BEFORE_BUILD_WINDOWS: >
           PowerShell -Command "& { if (![System.IO.File]::Exists('./run-check')) {
+          echo 'INSTALL VCPKG';
           git clone https://github.com/microsoft/vcpkg.git;
           Push-Location vcpkg;
           & './bootstrap-vcpkg.bat';
           Pop-Location;
           & './vcpkg/vcpkg.exe' integrate install;
-          winget install bloodrock.pkg-config-lite;
+          echo 'INSTALL CHOCOLATEY';
+          Set-ExecutionPolicy Bypass -Scope Process -Force;
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'));
+          choco install pkgconfiglite;
+          pkg-config --version;
           Write-Output 'INSTALL ASSIMP';
           & './vcpkg/vcpkg.exe' install assimp:x64-windows-static;
           Write-Output 'INSTALL GLM';
