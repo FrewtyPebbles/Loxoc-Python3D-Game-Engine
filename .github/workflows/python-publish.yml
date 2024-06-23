@@ -34,7 +34,7 @@ jobs:
           yum install -y pkgconfig &&
           yum install -y assimp-devel &&
           yum install -y SDL2-devel &&
-          sudo yum -y install cmake3 &&
+          yum -y install cmake3 &&
           git clone https://github.com/g-truc/glm.git &&
           cd glm &&
           cmake \
