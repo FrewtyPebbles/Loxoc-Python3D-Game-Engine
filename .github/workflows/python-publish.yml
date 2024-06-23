@@ -65,7 +65,7 @@ jobs:
           fi
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
-        CIBW_SKIP: "cp36-* *-win32 *-manylinux_i686 *-macosx_*"
+        CIBW_SKIP: "cp36-* cp37-* *-win32 *-manylinux_i686 *-macosx_* *-musllinux_*"
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
