@@ -39,7 +39,6 @@ jobs:
             cmake CMakeLists.txt;
             cmake -DBUILD_SHARED_LIBS=OFF --build .;
             cd ..;
-            find / -name "assimp.pc" 2>/dev/null;
             echo "BUILD GLM";
             git clone https://github.com/g-truc/glm.git;
             cd glm;
