@@ -70,7 +70,8 @@ for compiler, args in [
     ('gcc', [
         '-O3',
         '-std=c++20',
-        '-static'
+        '-static',
+        '-fpermissive'
     ])
 ]:
     BUILD_ARGS[compiler] = args
