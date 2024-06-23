@@ -50,7 +50,8 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release &&
           cmake --build . --config Release --parallel &&
           cmake --install . --config Release &&
-          cd ../..
+          cd ../.. &&
+          find / -name sdl2.pc
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
     - name: Publish package
