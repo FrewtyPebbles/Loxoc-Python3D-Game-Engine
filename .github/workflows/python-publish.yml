@@ -75,13 +75,13 @@ jobs:
             cd vcpkg;
             bootstrap-vcpkg.bat;
             cd ..;
-            ${{ vars.GITHUB_WORKSPACE }}/vcpkg/vcpkg.exe install pkgconfig;
+            ./vcpkg/vcpkg.exe install pkgconfig;
             echo 'INSTALL ASSIMP';
-            ${{ vars.GITHUB_WORKSPACE }}/vcpkg/vcpkg.exe install assimp:x64-windows-static;
+            ./vcpkg/vcpkg.exe install assimp:x64-windows-static;
             echo 'INSTALL GLM';
-            ${{ vars.GITHUB_WORKSPACE }}/vcpkg/vcpkg.exe install glm:x64-windows-static;
+            ./vcpkg/vcpkg.exe install glm:x64-windows-static;
             echo 'INSTALL SDL';
-            ${{ vars.GITHUB_WORKSPACE }}/vcpkg/vcpkg.exe install sdl2:x64-windows-static;
+            ./vcpkg/vcpkg.exe install sdl2:x64-windows-static;
             New-Item -Path './run-check' -ItemType 'File';
           }
           }"
