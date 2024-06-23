@@ -69,7 +69,7 @@ jobs:
         CIBW_ENVIRONMENT_LINUX: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
         CIBW_BEFORE_BUILD_WINDOWS: >
-          PowerShell -Command "&{
+          PowerShell -Command "& {
           if (![System.IO.File]::Exists('./run-check')) {
             git clone https://github.com/microsoft/vcpkg.git;
             Push-Location vcpkg;
