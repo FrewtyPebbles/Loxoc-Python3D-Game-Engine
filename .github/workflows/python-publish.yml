@@ -30,29 +30,36 @@ jobs:
       env:
         CIBW_BEFORE_BUILD_LINUX: >
           yum -y update &&
-          yum install -y clang &&
           yum install -y pkgconfig &&
           yum install -y assimp-devel &&
           yum -y install cmake3 &&
           if [ ! -f "./run-check" ]; then
-          git clone https://github.com/g-truc/glm.git &&
-          cd glm &&
-          cmake \
-              -DGLM_BUILD_TESTS=OFF \
-              -DBUILD_SHARED_LIBS=OFF \
-              -B build . &&
-          cmake --build build -- all &&
-          cmake --build build -- install &&
-          cd .. &&
-          git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4 &&
-          cd SDL &&
-          mkdir build &&
-          cd build &&
-          cmake .. -DCMAKE_BUILD_TYPE=Release &&
-          cmake --build . --config Release --parallel &&
-          cmake --install . --config Release &&
-          cd ../.. &&
-          touch "./run-check";
+            echo "BUILD ASSIMP";
+            git clone https://github.com/assimp/assimp.git;
+            cd assimp;
+            cmake CMakeLists.txt;
+            cmake --build . -BUILD_SHARED_LIBS=OFF;
+            cd ..;
+            echo "BUILD GLM";
+            git clone https://github.com/g-truc/glm.git;
+            cd glm;
+            cmake \
+                -DGLM_BUILD_TESTS=OFF \
+                -DBUILD_SHARED_LIBS=OFF \
+                -B build .;
+            cmake --build build -- all;
+            cmake --build build -- install;
+            cd ..;
+            echo "BUILD SDL";
+            git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4;
+            cd SDL;
+            mkdir build;
+            cd build;
+            cmake .. -DCMAKE_BUILD_TYPE=Release;
+            cmake --build . --config Release --parallel;
+            cmake --install . --config Release;
+            cd ../..;
+            touch "./run-check";
           fi
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
