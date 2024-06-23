@@ -45,9 +45,9 @@ jobs:
           cd .. &&
           git clone https://github.com/libsdl-org/SDL.git --branch release-2.30.4 &&
           cd SDL &&
-          ./configure &&
-          make all &&
-          make install &&
+          cmake . -DCMAKE_BUILD_TYPE=Release &&
+          cmake --build . --config Release --parallel &&
+          sudo cmake --install . --config Release &&
           cd ..
         CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
