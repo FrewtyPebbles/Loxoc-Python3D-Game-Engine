@@ -87,7 +87,7 @@ jobs:
         CIBW_SKIP: "cp36-* cp37-* *-win32 *-manylinux_i686 *-macosx_* *-musllinux_*"
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        name: Runespoor-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
