@@ -76,11 +76,7 @@ jobs:
           & './bootstrap-vcpkg.bat';
           Pop-Location;
           & './vcpkg/vcpkg.exe' integrate install;
-          echo 'INSTALL CHOCOLATEY';
-          Set-ExecutionPolicy Bypass -Scope Process -Force;
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'));
-          choco install pkgconfiglite;
+          Write-Output 'INSTALL PKG-CONFIG';
           pkg-config --version;
           Write-Output 'INSTALL ASSIMP';
           & './vcpkg/vcpkg.exe' install assimp:x64-windows-static;
