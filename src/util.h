@@ -7,8 +7,15 @@
 
 using std::vector;
 using std::string;
+namespace gamemath {
+  inline float lerp(float start, float end, float ratio) {return start*ratio + end*(1-ratio);}
 
-inline float lerp(float start, float end, float ratio) {return start*ratio + end*(1-ratio);}
+  template <typename T>
+  inline T clamp(const T& value, const T& low, const T& high) {
+    return value < low ? low : (value > high ? high : value); 
+  }
+}
+
 
 inline tup<float, 3> barycentric_coords(float x1, float y1, float x2, float y2, float x3, float y3,
 float xp, float yp) {
@@ -25,11 +32,6 @@ template <typename T>
 inline void vec_extend(vector<T>& v, vector<T>& v_prime) {
   v.reserve(v.size() + distance(v_prime.begin(),v_prime.end()));
   v.insert(v.end(),v_prime.begin(),v_prime.end());
-}
-
-template <typename T>
-inline T clamp(const T& value, const T& low, const T& high) {
-  return value < low ? low : (value > high ? high : value); 
 }
 
 namespace str_tool
