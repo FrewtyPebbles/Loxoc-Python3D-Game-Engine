@@ -16,9 +16,12 @@ permissions:
   contents: read
 
 jobs:
-  deploy-ubuntu-latest:
-    name: Build wheels on ubuntu-latest
-    runs-on: ubuntu-latest
+  build-and-deploy-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -63,10 +66,37 @@ jobs:
             cd ../..;
             touch "./run-check";
           fi
-        CIBW_ENVIRONMENT: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
+        CIBW_ENVIRONMENT_LINUX: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        CIBW_BEFORE_BUILD_WINDOWS: >
+          PowerShell -Command "& { if (![System.IO.File]::Exists('./run-check')) {
+          echo 'INSTALL VCPKG';
+          git clone https://github.com/microsoft/vcpkg.git;
+          Push-Location vcpkg;
+          & './bootstrap-vcpkg.bat';
+          Pop-Location;
+          & './vcpkg/vcpkg.exe' integrate install;
+          Write-Output 'INSTALL PKG-CONFIG';
+          choco install pkgconfiglite;
+          pkg-config --version;
+          Write-Output 'INSTALL ASSIMP';
+          & './vcpkg/vcpkg.exe' install assimp:x64-windows-static;
+          Write-Output 'INSTALL GLM';
+          & './vcpkg/vcpkg.exe' install glm:x64-windows-static;
+          Write-Output 'INSTALL SDL';
+          & './vcpkg/vcpkg.exe' install sdl2:x64-windows-static;
+          New-Item -Path './run-check' -ItemType 'File';
+          } }"
+        CIBW_ENVIRONMENT_WINDOWS: PKG_CONFIG_PATH="${{ github.workspace }}/vcpkg/installed/x64-windows-static/lib/pkgconfig"
+        CIBW_SKIP: "cp36-* cp37-* *-win32 *-manylinux_i686 *-macosx_* *-musllinux_*"
+    - name: Add Wheels To Release
+      uses: actions/upload-artifact@v4
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        name: Runespoor-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        path: ./wheelhouse/*.whl
+    # - name: Publish package
+    #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
+    #     packages-dir: ./wheelhouse/*.whl
