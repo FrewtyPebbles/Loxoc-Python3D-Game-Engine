@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy-wheels:
+  build-wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -95,9 +95,11 @@ jobs:
         name: Runespoor-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
 
-  upload-to-pypi:
-    name: Upload wheels
+  upload-to-pypi-and-release:
+    name: Upload Wheels
     runs-on: ubuntu-latest
+    needs:
+    - build-wheels
     steps:
     - name: Get Wheels
       uses: actions/download-artifact@v4.1.7
