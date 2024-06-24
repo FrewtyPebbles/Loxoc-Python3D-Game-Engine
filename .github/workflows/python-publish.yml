@@ -107,10 +107,13 @@ jobs:
         path: dist/
     - name: Unzip files
       run: >
-        unzip "./dist/Runespoor-wheels-ubuntu-latest" &&
-        unzip "./dist/Runespoor-wheels-windows-latest" &&
-        rm "./dist/Runespoor-wheels-windows-latest*" &&
-        rm "./dist/Runespoor-wheels-windows-latest*"
+        cd dist &&
+        ls &&
+        unzip "Runespoor-wheels-ubuntu-latest" &&
+        unzip "Runespoor-wheels-windows-latest" &&
+        rm "Runespoor-wheels-windows-latest*" &&
+        rm "Runespoor-wheels-windows-latest*" &&
+        cd ..
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
