@@ -92,7 +92,7 @@ jobs:
     - name: Collect Wheels
       uses: actions/upload-artifact@v4
       with:
-        name: Runespoor-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        name: Runespoor-wheels-${{ matrix.os }}
         path: ./wheelhouse/*.whl
 
   upload-to-pypi-and-release:
@@ -105,6 +105,10 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         path: dist/
+    - name: Unzip files
+      run: >
+        unzip "./dist/Runespoor-wheels-ubuntu-latest" &&
+        unzip "./dist/Runespoor-wheels-windows-latest"
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
