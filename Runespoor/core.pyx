@@ -1,7 +1,7 @@
 # distutils: language = c++
 from cython.parallel cimport prange
 from libc.math cimport M_PI
-
+from os import path
 
 
 cdef class Texture:
@@ -567,12 +567,12 @@ cdef class Material:
         if vertex:
             self.vertex_shader = vertex
         else:
-            self.vertex_shader = Shader.from_file("./default_vertex.glsl", ShaderType.VERTEX)
+            self.vertex_shader = Shader.from_file(path.join(path.dirname(__file__), "default_vertex.glsl"), ShaderType.VERTEX)
 
         if fragment:
             self.fragment_shader = fragment
         else:
-            self.fragment_shader = Shader.from_file("./default_fragment.glsl", ShaderType.FRAGMENT)
+            self.fragment_shader = Shader.from_file(path.join(path.dirname(__file__), "default_fragment.glsl"), ShaderType.FRAGMENT)
 
         self.c_class = new material(self.vertex_shader.c_class, self.fragment_shader.c_class)
         
