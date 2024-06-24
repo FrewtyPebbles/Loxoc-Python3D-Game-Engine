@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy-wheels:
+  build-wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -89,14 +89,33 @@ jobs:
           } }"
         CIBW_ENVIRONMENT_WINDOWS: PKG_CONFIG_PATH="D:/a/Runespoor-Python3D-Game-Engine/Runespoor-Python3D-Game-Engine/vcpkg/installed/x64-windows-static/lib/pkgconfig"
         CIBW_SKIP: "cp36-* cp37-* *-win32 *-manylinux_i686 *-macosx_* *-musllinux_*"
-    - name: Add Wheels To Release
+    - name: Collect Wheels
       uses: actions/upload-artifact@v4
       with:
-        name: Runespoor-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        name: Runespoor-wheels-${{ matrix.os }}
         path: ./wheelhouse/*.whl
-    # - name: Publish package
-    #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-    #   with:
-    #     user: __token__
-    #     password: ${{ secrets.PYPI_API_TOKEN }}
-    #     packages-dir: ./wheelhouse/*.whl
+
+  upload-to-pypi-and-release:
+    name: Upload Wheels
+    runs-on: ubuntu-latest
+    needs:
+    - build-wheels
+    steps:
+    - name: Get Wheels
+      uses: actions/download-artifact@v4.1.7
+      with:
+        merge-multiple: true
+        path: dist/
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages_dir: dist/
+    - name: Upload Wheels GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: >-
+        gh release upload
+        '${{ github.ref_name }}' dist/**
+        --repo '${{ github.repository }}'
