@@ -104,7 +104,6 @@ jobs:
     - name: Get Wheels
       uses: actions/download-artifact@v4.1.7
       with:
-        name: python-package-distributions
         path: dist/
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
