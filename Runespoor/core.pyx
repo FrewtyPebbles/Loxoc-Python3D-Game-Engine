@@ -2,7 +2,13 @@
 from cython.parallel cimport prange
 from libc.math cimport M_PI
 from os import path
+from cpython.ref cimport Py_INCREF, Py_DECREF
+from cython.operator import dereference, postincrement
 
+# IMPORTANT: All data must be written saved within the CPP classes.
+# All classes here just wrap CPP class pointers.
+# So if data is stored in a python class for purposes other than reference counting,
+# the pointer could change causing the class to associate with the wrong pointers.
 
 cdef class Texture:
     @classmethod
@@ -60,19 +66,69 @@ cdef class Camera:
             vec.push_back(obj.c_class)
         self.c_class.render(vec)
 
+cdef class MeshDict:
+
+    def __init__(self, list[Mesh] meshes) -> None:
+        cdef:
+            Mesh m
+            map[string, mesh*] mc_map
+        for m in meshes:
+            mc_map[m.c_class.name] = m.c_class
+        
+        self.c_class = new mesh_dict(mc_map)
+
+    def __dealloc__(self):
+        del self.c_class
+
+    cpdef void insert(self, Mesh m):
+        self.c_class.insert(m.c_class)
+
+    cpdef Mesh get(self, str name):
+        return Mesh.from_cpp(self.c_class.get(name.encode()))
+
+    cpdef void remove(self, str name):
+        self.c_class.remove(name.encode())
+
+    def __iter__(self):
+        cdef:
+            string key
+            mesh* value
+            map[string, mesh*].iterator map_it = self.c_class.begin()
+        while map_it != self.c_class.end():
+            yield (dereference(map_it).first, Mesh.from_cpp(dereference(map_it).second))
+
+    def __getitem__(self, str key) -> Mesh:
+        return self.get(key)
+
+    @staticmethod
+    cdef MeshDict from_cpp(mesh_dict cppinst):
+        cdef MeshDict ret = MeshDict.__new__(MeshDict)
+        ret.c_class = new mesh_dict(cppinst)
+        return ret
+
+    @staticmethod
+    cdef MeshDict from_cpp_ptr(mesh_dict* cppinst):
+        cdef MeshDict ret = MeshDict.__new__(MeshDict)
+        ret.c_class = cppinst
+        return ret
 
 cdef class Mesh:
     def __dealloc__(self):
         del self.c_class
 
+    @property
+    def name(self) -> str:
+        return self.c_class.name
+
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst):
         cdef:
-            Mesh ret = Mesh()
+            Mesh ret = Mesh.__new__(Mesh)
             texture* _tex
             list[Texture] diffuse_textures = []
             list[Texture] specular_textures = []
             list[Texture] normals_textures = []
+            Texture tex_diff, tex_spec, tex_norm
         
         ret.c_class = cppinst
 
@@ -80,65 +136,57 @@ cdef class Mesh:
         
         # refcount diffuse
         for _tex in ret.c_class.diffuse_textures:
-            tex = Texture()
-            tex.c_class = _tex
-            diffuse_textures.append(tex)
+            tex_diff = Texture.__new__(Texture)
+            tex_diff.c_class = _tex
+            diffuse_textures.append(tex_diff)
         
         ret.diffuse_textures = diffuse_textures
 
         # refcount specular
         for _tex in ret.c_class.specular_textures:
-            tex = Texture()
-            tex.c_class = _tex
-            specular_textures.append(tex)
+            tex_spec = Texture.__new__(Texture)
+            tex_spec.c_class = _tex
+            specular_textures.append(tex_spec)
         
         ret.specular_textures = specular_textures
 
         # refcount normals
         for _tex in ret.c_class.normals_textures:
-            tex = Texture()
-            tex.c_class = _tex
-            normals_textures.append(tex)
+            tex_norm = Texture.__new__(Texture)
+            tex_norm.c_class = _tex
+            normals_textures.append(tex_norm)
         
         ret.normals_textures = normals_textures
 
         return ret
 
     @staticmethod
-    def from_file(file_path:str) -> list[Mesh]:
+    def from_file(file_path:str) -> MeshDict:
         return mesh_from_file(file_path)
 
-cpdef list[Mesh] mesh_from_file(str file_path):
-    cdef:
-        mesh* m
-        list[Mesh] ret = []
-    for m in mesh.from_file(file_path.encode()):
-        ret.append(Mesh.from_cpp(m))
-    return ret
+cpdef MeshDict mesh_from_file(str file_path):
+    return MeshDict.from_cpp(mesh.from_file(file_path.encode()))
 
 cdef class Object:
-    def __init__(self, list[Mesh] mesh_list, Vec3 position = Vec3(0.0,0.0,0.0),
+    def __init__(self, MeshDict mesh_data, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Material material = None) -> None:
         self._position = position
         self._rotation = rotation.to_quaternion()
         self._scale = scale
-        self.meshes = mesh_list
+        self.mesh_data = mesh_data
         
         # create the mesh vector for the cppclass
         cdef:
-            vector[mesh*] mesh_vec
             Mesh m
-
-        for m in mesh_list:
-            mesh_vec.push_back(m.c_class)
+            str name
         
         if material:
             self.material = material
-            self.c_class = new object3d(mesh_vec, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
         else:
             self.material = Material()
-            self.c_class = new object3d(mesh_vec, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
 
     @property
     def position(self) -> Vec3:
@@ -620,16 +668,33 @@ cdef class Window:
     def __dealloc__(self):
         del self.c_class
 
-    cpdef void update(self, list[Object] objects):
-        cdef:
-            vector[object3d*] vec
-            Object obj
-        for obj in objects:
-            vec.push_back(obj.c_class)
-        self.c_class.update(vec)
+    cpdef void update(self):
+        self.c_class.update()
 
     cpdef void lock_mouse(self, bint lock):
         self.c_class.lock_mouse(lock)
+
+    cpdef void add_object(self, Object obj):
+        Py_INCREF(obj)
+        self.c_class.add_object(obj.c_class)
+
+    cpdef void remove_object(self, Object obj):
+        self.c_class.remove_object(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_object_list(self, list[Object] objs):
+        cdef:
+            Object obj
+
+        for obj in objs:
+            self.add_object(obj)
+
+    cpdef void remove_object_list(self, list[Object] objs):
+        cdef:
+            Object obj
+
+        for obj in objs:
+            self.remove_object(obj)
 
 cdef class MouseDevice:
     pass

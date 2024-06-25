@@ -83,7 +83,8 @@ void window::create_window() {
 }
 
 
-void window::update(vector<object*> objects) {
+
+void window::update() {
     this->new_time = SDL_GetTicks();
     this->deltatime = (this->new_time - this->old_time)/1000.0f;// dt in seconds
     glViewport(0, 0, this->width, this->height);
@@ -93,11 +94,31 @@ void window::update(vector<object*> objects) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    for (object* ob : objects) {
+    for (object* ob : render_list) {
+        this->cam->recalculate_pv();
         ob->render(*this->cam);
     }
 
     SDL_GL_SwapWindow(this->app_window);
-    //SDL_Delay(1);
     this->old_time = new_time;
+}
+
+void window::add_object(object* obj) {
+    this->render_list.insert(obj);
+}
+
+void window::remove_object(object* obj) {
+    this->render_list.erase(obj);
+}
+
+void window::add_object_list(vector<object*> objs) {
+    for (object * obj : objs) {
+        this->render_list.insert(obj);
+    }
+}
+
+void window::remove_object_list(vector<object*> objs) {
+    for (object * obj : objs) {
+        this->render_list.erase(obj);
+    }
 }

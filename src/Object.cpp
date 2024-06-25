@@ -13,9 +13,6 @@
 
 void object::render(camera& camera) {
     // opengl renderer
-    glm::mat4 projection = glm::perspective(camera.fov, static_cast<float>(camera.view_width)/static_cast<float>(camera.view_height), 0.1f, static_cast<float>(camera.focal_length));
-    glm::mat4 view = glm::mat4(1.0f);
-    view *= glm::lookAt(camera.position->axis, camera.position->axis + camera.rotation->get_forward().axis, camera.rotation->get_up().axis);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, this->position->axis);
     model *= glm::toMat4(glm::inverse(this->rotation->quat));
@@ -27,19 +24,30 @@ void object::render(camera& camera) {
     int projection_loc = glGetUniformLocation(this->mat->shader_program, "projection");
 
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
+    glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
 
     this->mat->register_uniforms();
     this->register_uniforms(); // register object level uniforms
     
     glUseProgram(this->mat->shader_program);
 
-    for (auto _mesh : this->mesh_data) {
+    for (auto [_mesh_name, _mesh] : *this->mesh_data) {
+
         for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
-            glActiveTexture(GL_TEX_N_ITTER[t_n]);
+            glActiveTexture(GL_TEX_N_ITTER[0]);
             _mesh->diffuse_textures[t_n]->bind();
         }
+
+        // for(size_t t_n = 0; t_n < _mesh->specular_textures.size(); t_n++) {
+        //     glActiveTexture(GL_TEX_N_ITTER[1]);
+        //     _mesh->specular_textures[t_n]->bind();
+        // }
+
+        // for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
+        //     glActiveTexture(GL_TEX_N_ITTER[2]);
+        //     _mesh->specular_textures[t_n]->bind();
+        // }
 
         glBindVertexArray(_mesh->gl_VAO);
 

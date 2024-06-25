@@ -326,7 +326,8 @@ cdef extern from "../src/Mesh.h":
         mesh() except +
         mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[texture*] diffuse_textures, vector[texture*] specular_textures, vector[texture*] normals_textures) except +
         @staticmethod
-        vector[mesh*] from_file(string file_path) except +
+        mesh_dict from_file(string file_path) except +
+        string name
         vector[mesh_material*] materials
         vector[vec3]* vertexes
         vector[vec3]* diffuse_coordinates
@@ -337,6 +338,34 @@ cdef extern from "../src/Mesh.h":
         vector[texture*] specular_textures
         vector[texture*] normals_textures
 
+    ctypedef map[string, mesh*].iterator iterator
+    ctypedef map[string, mesh*].const_iterator const_iterator
+
+    cdef cppclass mesh_dict:
+        mesh_dict() except +
+        mesh_dict(map[string, mesh*] data) except +
+        mesh_dict(mesh_dict& rhs) except +
+        void insert(mesh* m)
+        mesh* get(string name)
+        void remove(string name)
+        mesh* operator[](string name)
+        iterator begin() noexcept
+        const_iterator cbegin() noexcept
+        iterator end() noexcept
+        const_iterator cend()
+
+cdef class MeshDict:
+    cdef mesh_dict* c_class
+    cpdef void insert(self, Mesh m)
+    cpdef Mesh get(self, str name)
+    cpdef void remove(self, str name)
+
+    @staticmethod
+    cdef MeshDict from_cpp(mesh_dict cppinst)
+    @staticmethod
+    cdef MeshDict from_cpp_ptr(mesh_dict* cppinst)
+
+
 cdef class Mesh:
     cdef mesh* c_class
     cdef public list[Texture] diffuse_textures
@@ -346,15 +375,15 @@ cdef class Mesh:
     @staticmethod
     cdef Mesh from_cpp(mesh* cppinst)
     
-cpdef list[Mesh] mesh_from_file(str file_path)
+cpdef MeshDict mesh_from_file(str file_path)
 
 cdef extern from "../src/Object.h":
     cdef cppclass object3d:
         # alias for cpp class object since name object is reserved by python
         object3d() except +
-        object3d(vector[mesh*] mesh, vec3* position, quaternion* rotation, vec3* scale) except +
-        object3d(vector[mesh*] mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
-        vector[mesh*] mesh_data
+        object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale) except +
+        object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
+        mesh_dict* mesh_data
         vec3* position
         quaternion* rotation
         vec3* scale
@@ -371,7 +400,7 @@ cdef extern from "../src/Object.h":
 
 cdef class Object:
     cdef object3d* c_class
-    cdef public list[Mesh] meshes
+    cdef public MeshDict mesh_data
     cdef public Material material
     cdef Vec3 _position, _scale
     cdef Quaternion _rotation
@@ -411,8 +440,12 @@ cdef extern from "../src/Window.h":
         camera* cam
         string title
         int width, height
-        void update(vector[object3d*] objects)
+        void update()
         void lock_mouse(bint lock)
+        void add_object(object3d* obj)
+        void remove_object(object3d* obj)
+        void add_object_list(vector[object3d*] objs)
+        void remove_object_list(vector[object3d*] objs)
         event current_event
         float deltatime
         bint fullscreen
@@ -420,7 +453,12 @@ cdef extern from "../src/Window.h":
 cdef class Window:
     cdef window* c_class
 
-    cpdef void update(self, list[Object] objects)
+    cpdef void update(self)
+
+    cpdef void add_object(self, Object obj)
+    cpdef void remove_object(self, Object obj)
+    cpdef void add_object_list(self, list[Object] objs)
+    cpdef void remove_object_list(self, list[Object] objs)
 
     cpdef void lock_mouse(self, bint lock)
 

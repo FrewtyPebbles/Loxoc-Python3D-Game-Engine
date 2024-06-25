@@ -6,6 +6,7 @@
 using std::vector;
 class mesh;
 class camera;
+class mesh_dict;
 
 // Shaders
 
@@ -13,11 +14,11 @@ class camera;
 class object {
 public:
     object(){};
-    object(vector<mesh*> mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh), position(position), rotation(rotation), scale(scale), mat(mat) {}
+    object(mesh_dict* mesh_data, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {}
     
     ~object(){}
 
-    vector<mesh*> mesh_data;
+    mesh_dict* mesh_data;
     vec3* position;
     quaternion* rotation;
     vec3* scale;

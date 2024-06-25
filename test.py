@@ -14,13 +14,20 @@ camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.r
 window = Window("FBX Car Test", camera, *dim, False)
 
 # Materials are equivalent to shader programs.
-default_material = Material(
-    Shader.from_file("./default_vertex.glsl", ShaderType.VERTEX),
-    Shader.from_file("./default_fragment.glsl", ShaderType.FRAGMENT)
-)
+default_material = Material()
 
-default_material.set_uniform("focal_length", focal_length, "i")
-# "i" means the uniform is an integer type
+# # If you wanted to create a new shader program, normally you would do something like this:
+#
+# default_material = Material(
+#   Shader.from_file("path/to/vertexshader.glsl", ShaderType.FRAGMENT),
+#   Shader.from_file("path/to/fragmentshader.glsl", ShaderType.VERTEX)
+# )
+# 
+# # Then to set a uniform:
+#
+# default_material.set_uniform("uniform_name", some_value, "i")
+#
+# # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
 car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
 
@@ -36,12 +43,12 @@ teapot = Object(Mesh.from_file("./meshes/teapot/teapot.obj"),
 pirate_ship = Object(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,-100,300), Vec3(0,10,0), material=default_material)
 
-render_list = [
+window.add_object_list([
     car,
     car2,
     teapot,
     pirate_ship
-]
+])
 
 window.lock_mouse(True)
 
@@ -55,6 +62,11 @@ mouse_sensitivity = 10
 counter = 0
 counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
+    # if window.dt > 0:
+    #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
+    # else:
+    #     print("FRAMERATE: inf fps")
+    
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT
@@ -108,6 +120,6 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         # Position the camera behind the car based on its forward vector
         camera.position = car.position - (camera.rotation.forward * cam_dist)
     # Re-render the scene.
-    window.update(render_list)
+    window.update()
     # This also refreshes window.current_event.
     counter += counter_speed

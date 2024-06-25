@@ -14,12 +14,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Texture.h"
-
+#include <map>
 
 using std::vector;
 using std::string;
 using std::map;
-
+class mesh_dict;
 
 enum illum_model {
     CONSTANT_COLOR,
@@ -42,6 +42,7 @@ class mesh {
 public:
     mesh(){}
     mesh(
+        string name,
         vector<mesh_material*> materials,
         vector<vec3>* vertexes,
         vector<vec3>* diffuse_coordinates,
@@ -52,6 +53,7 @@ public:
         vector<texture*> specular_textures,
         vector<texture*> normals_textures
     ):
+    name(name),
     materials(materials),
     vertexes(vertexes),
     diffuse_coordinates(diffuse_coordinates),
@@ -76,7 +78,8 @@ public:
             delete mat;
         }
     }
-    static vector<mesh*> from_file(string file_path);
+    static mesh_dict from_file(string file_path);
+    string name;
     vector<mesh_material*> materials;
     // VVV THESE SHOULD BE HEAP ALLOCATED
     vector<vec3>* vertexes;
@@ -96,7 +99,7 @@ public:
     size_t verticies_size;
 private:
     // RETURNS A HEAP ALLOCATED POINTER
-    static void process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform, string file_path);
+    static void process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, const aiMatrix4x4& transform, string file_path);
     void create_VAO();
 };
 
@@ -118,9 +121,6 @@ inline vector<std::string> split(std::string const &input) {
     return ret;
 }
 
-template<typename T>
-void print_vec(vector<T> in);
-
 inline size_t sub_str_ind(const std::string& haystack, const std::string& needle, int nth)
 {
     size_t  pos = 0;
@@ -136,3 +136,49 @@ inline size_t sub_str_ind(const std::string& haystack, const std::string& needle
     }
     return pos;
 }
+
+class mesh_dict {
+public:
+    typedef typename std::map<string, mesh*>::iterator iterator;
+    typedef typename std::map<string, mesh*>::const_iterator const_iterator;
+
+    mesh_dict(){}
+    mesh_dict(std::map<string, mesh*> data):data(data){}
+    mesh_dict(const mesh_dict& rhs) : data(rhs.data) {}
+    inline void insert(mesh* m) {
+        this->data.insert_or_assign(m->name, m);
+    }
+    inline mesh* get(string name) {
+        return this->data[name];
+    }
+    inline void remove(string name) {
+        this->data.erase(name);
+    }
+    inline mesh* operator[](string name) {
+        return this->data[name];
+    }
+    inline iterator begin() noexcept { return this->data.begin(); }
+    inline const_iterator cbegin() const noexcept { return this->data.cbegin(); }
+    inline iterator end() noexcept { return this->data.end(); }
+    inline const_iterator cend() const noexcept { return this->data.cend(); }
+    std::map<string, mesh*> data;
+};
+
+
+// Texture assimp macro
+
+#define get_textures(type_name, aitype) vector<texture*> type_name##_textures;\
+        for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aitype); t_n++) {\
+            aiString path;\
+            if (ai_mat->GetTexture(aitype, t_n, &path) == AI_SUCCESS) {\
+                if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {\
+                    type_name##_textures.push_back(\
+                        new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)\
+                    );\
+                }\
+            } else {\
+                std::stringstream ss;\
+                ss << "Assimp failed to get "#type_name"s texture for node \"" << node->mName.C_Str() << "\"\n";\
+                throw std::runtime_error(ss.str());\
+            }\
+        }

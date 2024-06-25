@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Generator
 
 class ShaderType(Enum):
     FRAGMENT: 'ShaderType'
@@ -18,9 +19,47 @@ class Mesh:
     """
 
     @staticmethod
-    def from_file(file_path:str) -> list[Mesh]:
+    def from_file(file_path: str) -> MeshDict:
         """
         Returns all of the meshes from the supplied path to the 3d file.
+        """
+
+    @property
+    def name(self) -> str:
+        """
+        Name of the mesh.
+        """
+
+class MeshDict:
+
+    def __init__(self, meshes: list[Mesh]) -> None:
+        """
+        A fast mesh container that can be used like a statically typed dict.
+        """
+
+    def insert(self, m: Mesh) -> None:
+        """
+        Insert a Mesh.  It will use the Mesh name as a key.
+        """
+
+    def get(self, name: str) -> Mesh:
+        """
+        Get a Mesh from the dict by name.
+        """
+
+    def remove(self, name: str) -> None:
+        """
+        Remove a Mesh from the dict by name.
+        """
+
+    def __iter__(self) -> Generator[(str, Mesh), None, None]:
+        """
+        Itterates through the key value pairs of the dict.
+        """
+
+    def __getitem__(self, key: str) -> Mesh:
+        """
+        Get a Mesh from the dict by name.
         """
 
 class Material:
@@ -40,12 +79,12 @@ class Object:
     """
     This class is your game object.
     """
-    meshes:list[Mesh]
+    mesh_data:MeshDict
     material:Material
     position:Vec3
     rotation:Quaternion
     scale:Vec3
-    def __init__(self, mesh_list:list[Mesh], position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
+    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
 
     @property
     def position(self) -> Vec3:
@@ -83,9 +122,6 @@ class Object:
         The scale of the object as a vec3.
         """
 
-
-    def render(self, camera:Camera):...
-
     def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:
         """
         Sets the value of a uniform for the shaders in the object's material.
@@ -94,6 +130,7 @@ class Object:
 class Shader:
     def __init__(self, source:str, shader_type:ShaderType) -> None:...
 
+    @classmethod
     def from_file(cls, filepath:str, type:ShaderType) -> Shader:...
 
 class Vec3:
@@ -196,16 +233,35 @@ class Window:
         The current deltatime for the window.
         """
 
-    def update(self, objects:list[Object]):
+    def update(self) -> None:
         """
         Re-renders and refreshes the current_event on the application window.
         """
 
-    def lock_mouse(self, lock:bool):
+    def lock_mouse(self, lock:bool) -> None:
         """
         Locks the mouse in the center of the window.
         """
 
+    def add_object(self, obj: Object) -> None:
+        """
+        Adds the object to the scene.  This ensures that the object is rendered by the camera.
+        """
+
+    def remove_object(self, obj: Object) -> None:
+        """
+        Removes the object from the scene.  Only objects which are in the scene will be rendered by the camera.
+        """
+
+    def add_object_list(self, objs: list[Object]) -> None:
+        """
+        Adds multiple objects to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_object_list(self, objs: list[Object]) -> None:
+        """
+        Removes multiple objects from the scene.  Only objects which are in the scene will be rendered by the camera.
+        """
 
 class EVENT_FLAG(Enum):
 
@@ -431,7 +487,7 @@ class Quaternion:
         Rotation about the x axis.
         """
 
-    def rotate_pitch(self, value:float):
+    def rotate_pitch(self, value:float) -> None:
         """
         Rotates the Euler pitch (x) axis by the provided value.
         """
@@ -442,7 +498,7 @@ class Quaternion:
         Rotation about the y axis.
         """
 
-    def rotate_yaw(self, value:float):
+    def rotate_yaw(self, value:float) -> None:
         """
         Rotates the Euler yaw (y) axis by the provided value.
         """
@@ -453,7 +509,7 @@ class Quaternion:
         Rotation about the z axis.
         """
 
-    def rotate_roll(self, value:float):
+    def rotate_roll(self, value:float) -> None:
         """
         Rotates the Euler roll (z) axis by the provided value.
         """
@@ -494,7 +550,7 @@ class Quaternion:
         `axis` is a Euler Angle Vec3 (in radians).
         """
 
-    def rotate(self, axis:Vec3, angle:float):
+    def rotate(self, axis:Vec3, angle:float) -> None:
         """
         Mutably rotates the Quaternion by `angle` arround `axis`.
         `axis` is a Euler Angle Vec3 (in radians).

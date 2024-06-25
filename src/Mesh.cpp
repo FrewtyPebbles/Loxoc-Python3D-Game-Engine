@@ -12,7 +12,7 @@ string fix_texture_path(string file_path, string file) {
     return std::filesystem::absolute(std::filesystem::path(str_tool::rem_file_from_path(file_path) + "/textures/" + str_tool::rem_path_from_file(file))).string();
 }
 
-void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshes, const aiMatrix4x4& transform, string file_path) {
+void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, const aiMatrix4x4& transform, string file_path) {
     // traverse to deeper nodes
     for (size_t c_n = 0; c_n < node->mNumChildren; c_n++) {
         process_node(node->mChildren[c_n], scene, meshes, transform * node->mChildren[c_n]->mTransformation, file_path);
@@ -27,62 +27,20 @@ void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshe
         vector<vec3>* _vertex_normals = new vector<vec3>();
         vector<tup<unsigned int, 3>>* faces = new vector<tup<unsigned int, 3>>();
         vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
-        
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
-        
         // get texture data
-        //    diffuse
-        vector<texture*> diffuse_textures;
-        for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aiTextureType_DIFFUSE); t_n++) {
-            aiString path;
-            if (ai_mat->GetTexture(aiTextureType_DIFFUSE, t_n, &path) == AI_SUCCESS) {
-                if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {
-                    diffuse_textures.push_back(
-                        new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)
-                    );
-                }
-                
-            } else {
-                std::stringstream ss;
-                ss << "Assimp failed to get diffuse texture for node \"" << node->mName.C_Str() << "\"\n";
-                throw std::runtime_error(ss.str());
-            }
-        }
-
-        //    specular
-        vector<texture*> specular_textures;
-        for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aiTextureType_SPECULAR); t_n++) {
-            aiString path;
-            if (ai_mat->GetTexture(aiTextureType_SPECULAR, t_n, &path) == AI_SUCCESS) {
-                if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {
-                    specular_textures.push_back(
-                        new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)
-                    );
-                }
-            } else {
-                std::stringstream ss;
-                ss << "Assimp failed to get specular texture for node \"" << node->mName.C_Str() << "\"\n";
-                throw std::runtime_error(ss.str());
-            }
-        }
-
-        //    normal
-        vector<texture*> normals_textures;
-        for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aiTextureType_NORMALS); t_n++) {
-            aiString path;
-            if (ai_mat->GetTexture(aiTextureType_NORMALS, t_n, &path) == AI_SUCCESS) {
-                if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {
-                    normals_textures.push_back(
-                        new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)
-                    );
-                }
-            } else {
-                std::stringstream ss;
-                ss << "Assimp failed to get normals texture for node \"" << node->mName.C_Str() << "\"\n";
-                throw std::runtime_error(ss.str());
-            }
-        }
+    
+        get_textures(diffuse, aiTextureType_DIFFUSE);
+        get_textures(specular, aiTextureType_SPECULAR);
+        get_textures(normals, aiTextureType_NORMALS);
+        get_textures(ambient, aiTextureType_AMBIENT);
+        get_textures(ambient_occlusion, aiTextureType_AMBIENT_OCCLUSION);
+        get_textures(base_color, aiTextureType_BASE_COLOR);
+        get_textures(height, aiTextureType_HEIGHT);
+        get_textures(displacement, aiTextureType_DISPLACEMENT);
+        get_textures(emissive, aiTextureType_EMISSIVE);
+        get_textures(lightmap, aiTextureType_LIGHTMAP);
 
         // get mesh data
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
@@ -97,23 +55,27 @@ void mesh::process_node(aiNode* node, const aiScene* scene, vector<mesh*>& meshe
             auto uv_coord = msh->mTextureCoords[0][j];// 0 = diffuse
             _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
         }
-
-        meshes.push_back(new mesh(
-            materials,
-            _vertexes,
-            _diffuse_coordinates,
-            _vertex_normals,
-            faces,
-            _transform,
-            diffuse_textures,
-            specular_textures,
-            normals_textures
-        ));
+        
+        if (!meshes.data.contains(string(msh->mName.C_Str()))) {
+            meshes.insert(new mesh(
+                string(msh->mName.C_Str()),
+                materials,
+                _vertexes,
+                _diffuse_coordinates,
+                _vertex_normals,
+                faces,
+                _transform,
+                diffuse_textures,
+                specular_textures,
+                normals_textures
+            ));
+        }
+            
     }
 }
 
 
-vector<mesh*> mesh::from_file(string file_path) {
+mesh_dict mesh::from_file(string file_path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -122,7 +84,7 @@ vector<mesh*> mesh::from_file(string file_path) {
         ss << "Failed to import model at \"" << file_path << "\"\nLOG:\n" << importer.GetErrorString() << "\n";
         throw std::runtime_error(ss.str());
     }
-    vector<mesh*> meshes;
+    mesh_dict meshes;
     
     process_node(scene->mRootNode, scene, meshes, scene->mRootNode->mTransformation, file_path);
     

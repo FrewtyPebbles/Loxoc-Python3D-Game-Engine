@@ -23,4 +23,6 @@ public:
     int view_width, view_height;
     float focal_length;
     float fov;
+    void recalculate_pv();
+    glm::mat4 projection, view;
 }; 

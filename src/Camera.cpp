@@ -21,4 +21,11 @@ camera::camera(vec3* position, quaternion* rotation, int view_width, int view_he
     this->view_height = view_height;
     this->focal_length = focal_length;
     this->fov = fov;
+    this->projection = glm::perspective(this->fov, static_cast<float>(this->view_width)/static_cast<float>(this->view_height), 0.1f, static_cast<float>(this->focal_length));
+    this->view = glm::lookAt(this->position->axis, this->position->axis + this->rotation->get_forward().axis, this->rotation->get_up().axis);
+}
+
+void camera::recalculate_pv() {
+    this->projection = glm::perspective(this->fov, static_cast<float>(this->view_width)/static_cast<float>(this->view_height), 0.1f, static_cast<float>(this->focal_length));
+    this->view = glm::lookAt(this->position->axis, this->position->axis + this->rotation->get_forward().axis, this->rotation->get_up().axis);
 }

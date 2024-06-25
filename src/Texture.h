@@ -27,6 +27,7 @@ public:
 
     int width, height, number_of_channels;
     GLuint gl_texture;
+    string file_path;
 };
 
 const int GL_TEX_N_ITTER[] = {

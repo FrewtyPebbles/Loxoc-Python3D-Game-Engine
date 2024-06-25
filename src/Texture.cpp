@@ -4,6 +4,7 @@
 #include <sstream>
 
 texture::texture(string file_path, TextureWraping wrap, TextureFiltering filtering){
+    this->file_path = file_path;
     unsigned char * tex = stbi_load(file_path.c_str(), &width, &height, &number_of_channels, 0);
     if (tex) {
         glGenTextures(1, &gl_texture);
@@ -22,7 +23,7 @@ texture::texture(string file_path, TextureWraping wrap, TextureFiltering filteri
         stbi_image_free(tex);
     } else {
         std::stringstream ss;
-        ss << "Failed to load texture at \"" << file_path << "\"\nSTBI log: " << stbi_failure_reason() << "\n\n  HINT: Could be missing \"texture\" folder?";
+        ss << "Failed to load texture at \"" << file_path << "\"\nSTBI log: " << stbi_failure_reason() << "\n\n  HINT: Could be missing \"textures\" folder?";
         throw std::runtime_error(ss.str());
     }
 }
