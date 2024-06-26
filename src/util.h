@@ -4,6 +4,11 @@
 #include <cctype>
 #include <vector>
 
+static std::string MOD_PATH;
+
+void c_set_mod_path(std::string path);
+
+std::string get_mod_path();
 
 using std::vector;
 using std::string;

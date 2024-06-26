@@ -71,10 +71,10 @@ mouse_sensitivity = 10
 counter = 0
 counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
-    if window.dt > 0:
-        print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
-    else:
-        print("FRAMERATE: inf fps")
+    # if window.dt > 0:
+    #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
+    # else:
+    #     print("FRAMERATE: inf fps")
     doomguy.position.x = math.sin(counter/1.75 * window.dt)
     doomguy.position.y = math.cos(counter/1.75 * window.dt)
     # Use WASD keys.

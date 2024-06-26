@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <sstream>
 
+
 string fix_texture_path(string file_path, string file) {
     return std::filesystem::absolute(std::filesystem::path(str_tool::rem_file_from_path(file_path) + "/textures/" + str_tool::rem_path_from_file(file))).string();
 }
@@ -30,7 +31,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
         // get texture data
-    
+
         get_textures(diffuse, aiTextureType_DIFFUSE);
         get_textures(specular, aiTextureType_SPECULAR);
         get_textures(normals, aiTextureType_NORMALS);
@@ -54,6 +55,13 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         for (unsigned int j = 0; j < msh->mNumVertices; ++j) {
             auto uv_coord = msh->mTextureCoords[0][j];// 0 = diffuse
             _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
+        }
+
+        if (diffuse_textures.empty()) {
+            // insert default texture
+            diffuse_textures.push_back(
+                new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR)
+            );
         }
         
         if (!meshes.data.contains(string(msh->mName.C_Str()))) {

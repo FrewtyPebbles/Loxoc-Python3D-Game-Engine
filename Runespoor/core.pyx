@@ -10,6 +10,9 @@ from cython.operator import dereference, postincrement
 # So if data is stored in a python class for purposes other than reference counting,
 # the pointer could change causing the class to associate with the wrong pointers.
 
+cpdef void set_mod_path(str _path):
+    c_set_mod_path(path.dirname(_path).encode())
+
 cdef class Texture:
     @classmethod
     def from_file(cls, str file_path, TextureWraping wrap = TextureWraping.REPEAT, TextureFiltering filtering = TextureFiltering.LINEAR) -> Texture:

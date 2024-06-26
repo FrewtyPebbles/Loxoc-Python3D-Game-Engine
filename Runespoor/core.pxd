@@ -3,6 +3,10 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map
 
+cdef extern from "../src/util.h":
+    cdef void c_set_mod_path(string path)
+
+cpdef void set_mod_path(str path)
 
 cdef extern from "../src/Texture.h":
     cpdef enum class TextureFiltering:
