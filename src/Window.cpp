@@ -82,6 +82,7 @@ void window::create_window() {
     glViewport(0, 0, this->width, this->height);
     
     this->old_time = SDL_GetTicks();
+    glViewport(0, 0, this->width, this->height);
     
     return;
 }
@@ -91,7 +92,6 @@ void window::create_window() {
 void window::update() {
     this->new_time = SDL_GetTicks();
     this->deltatime = (this->new_time - this->old_time)/1000.0f;// dt in seconds
-    glViewport(0, 0, this->width, this->height);
     this->current_event.handle_events(this);
 
 
