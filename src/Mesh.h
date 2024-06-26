@@ -173,13 +173,15 @@ public:
             aiString path;\
             if (ai_mat->GetTexture(aitype, t_n, &path) == AI_SUCCESS) {\
                 if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {\
-                    type_name##_textures.push_back(\
-                        new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)\
-                    );\
+                    try {\
+                        type_name##_textures.push_back(\
+                            new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)\
+                        );\
+                    } catch ( std::runtime_error e ) {\
+                        std::cerr << e.what();\
+                    }\
                 }\
             } else {\
-                std::stringstream ss;\
-                ss << "Assimp failed to get "#type_name"s texture for node \"" << node->mName.C_Str() << "\"\n";\
-                throw std::runtime_error(ss.str());\
+                std::cerr << "Assimp failed to get "#type_name"s texture for node \"" << node->mName.C_Str() << "\"\n";\
             }\
         }

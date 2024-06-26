@@ -153,6 +153,37 @@ Then when we run it, it looks something like this:
 
 ![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/the_quats_are_quatting.gif)
 
+# Important: How to Import 3D Assets:
+
+For now, your 3d assets. must be structured a specific way to be picked up by the asset importer.
+
+The 3d asset file must be accompanied by an adjacent `\textures\` folder where you must store all image assets for your 3d asset file.  This may or may not be changed in the future, the asset importing system is not finalized.
+
+Your assets might look something like this:
+
+```
+asset_1_name_of_this_folder_doesnt_matter\
+    my_3d_thing.obj
+    textures\
+        name_of_texture_file.png
+
+asset_2_name_of_this_folder_doesnt_matter_either\
+    my_other_3d_thing.fbx
+    textures\
+        name_of_other_texture_file.png
+```
+
+Then you would import yout assets like so:
+
+```py
+asset1 = Mesh.from_file("...../asset_1_name_of_this_folder_doesnt_matter/my_3d_thing.fbx")
+
+asset2 = Mesh.from_file("...../asset_2_name_of_this_folder_doesnt_matter_either/my_other_3d_thing.fbx")
+```
+
+And voila!  Your 3D assets are now imported and ready to be used in objects and rendered to the screen.
+
+
 # TODO:
 
  - Add `from_raw` constructor to mesh to make procedural meshes possible.
