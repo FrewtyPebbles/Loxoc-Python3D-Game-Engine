@@ -5,6 +5,7 @@
 #include <mutex>
 #include "Object.h"
 #include <sstream>
+#include "Object2d.h"
 
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
@@ -73,7 +74,10 @@ void window::create_window() {
     std::cout << "Version:  " << (char *)glGetString(GL_VERSION) << "\n";
 
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LINE_SMOOTH);
     
     glViewport(0, 0, this->width, this->height);
     
@@ -91,7 +95,6 @@ void window::update() {
     this->current_event.handle_events(this);
 
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     for (object* ob : render_list) {
@@ -99,6 +102,10 @@ void window::update() {
         ob->render(*this->cam);
     }
 
+    for (object2d* ob : render_list2d) {
+        ob->render(*this->cam);
+    }
+    
     SDL_GL_SwapWindow(this->app_window);
     this->old_time = new_time;
 }
@@ -120,5 +127,25 @@ void window::add_object_list(vector<object*> objs) {
 void window::remove_object_list(vector<object*> objs) {
     for (object * obj : objs) {
         this->render_list.erase(obj);
+    }
+}
+
+void window::add_object2d(object2d* obj) {
+    this->render_list2d.insert(obj);
+}
+
+void window::remove_object2d(object2d* obj) {
+    this->render_list2d.erase(obj);
+}
+
+void window::add_object2d_list(vector<object2d*> objs) {
+    for (object2d * obj : objs) {
+        this->render_list2d.insert(obj);
+    }
+}
+
+void window::remove_object2d_list(vector<object2d*> objs) {
+    for (object2d * obj : objs) {
+        this->render_list2d.erase(obj);
     }
 }

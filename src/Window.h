@@ -17,6 +17,7 @@ using std::string;
 using std::vector;
 class camera;
 class object;
+class object2d;
 
 class window {
 public:
@@ -38,6 +39,11 @@ public:
     void remove_object(object* obj);
     void add_object_list(vector<object*> objs);
     void remove_object_list(vector<object*> objs);
+
+    void add_object2d(object2d* obj);
+    void remove_object2d(object2d* obj);
+    void add_object2d_list(vector<object2d*> objs);
+    void remove_object2d_list(vector<object2d*> objs);
 private:
     void create_window();
     SDL_Window* app_window = NULL;
@@ -46,4 +52,5 @@ private:
     SDL_GLContext gl_context = NULL;
     uint32_t old_time, new_time;
     std::set<object*> render_list;
+    std::set<object2d*> render_list2d;
 };

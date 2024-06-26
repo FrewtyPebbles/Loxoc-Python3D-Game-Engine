@@ -134,7 +134,15 @@ class Shader:
     def from_file(cls, filepath:str, type:ShaderType) -> Shader:...
 
 class Vec3:
-    def __init__(self, x:float, y:float, z:float) -> None:...
+    def __init__(self, x:float, y:float, z:float) -> None:
+        """
+        A size 3 vector used for 3D positioning and (sometimes)rotation.
+        """
+
+    def __repr__(self) -> str:
+        """
+        Vec3 str representation.
+        """
 
     @property
     def quaternion(self) -> Quaternion:
@@ -208,6 +216,82 @@ class Vec3:
         """
 
 
+class Vec2:
+    def __init__(self, x:float, y:float) -> None:
+        """
+        A size 2 vector used for 2D positioning and (sometimes)rotation.
+        """
+
+    def __repr__(self) -> str:
+        """
+        Vec2 str representation.
+        """
+
+    def __neg__(self) -> Vec2:...
+
+
+    @property
+    def angle(self) -> float:
+        """
+        The vector converted to an angle in radians.
+        """
+
+    @angle.setter
+    def angle(self, value: float):
+        """
+        Setting the angle of the vector in radians
+        """
+
+    def to_angle(self) -> float:
+        """
+        Convert the vector to an angle in radians
+        """
+
+    @property
+    def x(self) -> float:...
+
+    @x.setter
+    def x(self, value:float):...
+
+    @property
+    def y(self) -> float:...
+
+    @y.setter
+    def y(self, value:float):...
+
+
+    # OPERATORS
+
+    def __add__(self, other:Vec2 | float) -> Vec2:...
+
+    def __sub__(self, other:Vec2 | float) -> Vec2:...
+
+    def __mul__(self, other: Vec2 | float) -> Vec2:...
+
+    def __truediv__(self, other:Vec2 | float) -> Vec2:...
+
+    def dot(self, other:Vec2) -> float:
+        """
+        Calculate the dot product of 2 `Vec2`s.
+        """
+
+    def get_magnitude(self) -> float:
+        """
+        Calculate the `Vec2`'s magnitude.
+        """
+
+    def get_normalized(self) -> Vec2:
+        """
+        Calculate the normalized `Vec2` of the `Vec2`.
+        """
+
+    @classmethod
+    def from_angle(cls, angle:float) -> Vec2:
+        """
+        Construct a normalized `Vec2` given an angle.
+        """
+
+
 class Window:
     """
     An application window that can be used as a render medium.
@@ -245,22 +329,42 @@ class Window:
 
     def add_object(self, obj: Object) -> None:
         """
-        Adds the object to the scene.  This ensures that the object is rendered by the camera.
+        Adds the `Object` to the scene.  This ensures that the `Object` is rendered by the camera.
         """
 
     def remove_object(self, obj: Object) -> None:
         """
-        Removes the object from the scene.  Only objects which are in the scene will be rendered by the camera.
+        Removes the `Object` from the scene.  Only `Object`s which are in the scene will be rendered by the camera.
         """
 
     def add_object_list(self, objs: list[Object]) -> None:
         """
-        Adds multiple objects to the scene.  This ensures that they are rendered by the camera.
+        Adds multiple `Object`s to the scene.  This ensures that they are rendered by the camera.
         """
 
     def remove_object_list(self, objs: list[Object]) -> None:
         """
-        Removes multiple objects from the scene.  Only objects which are in the scene will be rendered by the camera.
+        Removes multiple `Object`s from the scene.  Only `Object`s which are in the scene will be rendered by the camera.
+        """
+
+    def add_object2d(self, obj: Object2D) -> None:
+        """
+        Adds the `Object2D` to the scene.  This ensures that the `Object2D` is rendered by the camera.
+        """
+
+    def remove_object2d(self, obj: Object2D) -> None:
+        """
+        Removes the `Object2D` from the scene.  Only `Object2D`s which are in the scene will be rendered by the camera.
+        """
+
+    def add_object2d_list(self, objs: list[Object2D]) -> None:
+        """
+        Adds multiple `Object2D`s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_object2d_list(self, objs: list[Object2D]) -> None:
+        """
+        Removes multiple `Object2D`s from the scene.  Only `Object2D`s which are in the scene will be rendered by the camera.
         """
 
 class EVENT_FLAG(Enum):
@@ -560,4 +664,77 @@ class Quaternion:
     def from_quat(quat:Quaternion) -> Quaternion:
         """
         Used to construct a copy of a Quaternion.
+        """
+
+class TextureFiltering(Enum):
+        NEAREST: 'TextureFiltering'
+        LINEAR: 'TextureFiltering'
+
+class TextureWraping(Enum):
+    REPEAT: 'TextureWraping'
+    MIRRORED_REPEAT: 'TextureWraping'
+    CLAMP_TO_EDGE: 'TextureWraping'
+    CLAMP_TO_BORDER: 'TextureWraping'
+
+class Texture:
+    @classmethod
+    def from_file(cls, file_path:str, wrap:TextureWraping = TextureWraping.REPEAT, filtering:TextureFiltering = TextureFiltering.LINEAR) -> Texture:
+        """
+        Create a texture from the specified file.
+        """
+
+class Sprite:
+    texture:Texture
+    def __init__(self, file_path:str) -> None:
+        """
+        Creates a sprite of the supplied texture.
+        """
+        
+    @classmethod
+    def from_texture(cls, tex: Texture) -> Sprite:
+        """
+        Creates a sprite of the supplied texture.
+        """
+
+
+class Object2D:
+    def __init__(self, sprite: Sprite, position:Vec2 = Vec2(0.0,0.0),
+    rotation:float = 0.0, scale:Vec2 = Vec2(1.0, 1.0),
+    material:Material = None) -> None:
+        """
+        `Object2D`s are rendered infront of all objects rendered in 3D space.
+        This class is good for 2D games, GUIs, game heads up displays or anything you might need to render something in 2D space for.
+        """
+
+    @property
+    def position(self) -> Vec2:
+        """
+        The position of the `Object2D` on the screen as a `Vec2`.
+        """
+
+    @position.setter
+    def position(self, value: Vec2) -> None:...
+
+    @property
+    def rotation(self) -> float:
+        """
+        The rotation of the `Object2D` on the screen as a `Vec2`.
+        """
+
+    @rotation.setter
+    def rotation(self, value: Vec2 | float) -> None:...
+
+    @property
+    def scale(self) -> Vec2:
+        """
+        The scale of the `Object2D` on the screen as a `Vec2`.
+        """
+
+    @scale.setter
+    def scale(self, value:Vec2) -> None:...
+
+
+    def set_uniform(self, name:str, value:list[float] | int | float, type:str) -> None:
+        """
+        Sets the value of a uniform for the shaders in the object2d's material.
         """

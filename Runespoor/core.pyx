@@ -274,15 +274,15 @@ cdef class Quaternion:
 
     @property
     def up(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_up())
+        return vec3_from_cpp(self.c_class.get_up())
 
     @property
     def right(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_right())
+        return vec3_from_cpp(self.c_class.get_right())
 
     @property
     def forward(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_forward())
+        return vec3_from_cpp(self.c_class.get_forward())
 
     @property
     def w(self) -> float:
@@ -393,7 +393,7 @@ cdef class Quaternion:
         return quat_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Vec3 vecmul(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0] * other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Quaternion floatmul(self, float other):
         return quat_from_cpp(self.c_class[0] * other)
@@ -423,7 +423,7 @@ cdef class Quaternion:
         return quat_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef Vec3 vec_cross(self, Vec3 other):
-        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
+        return vec3_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef float get_magnitude(self):
         return self.c_class[0].get_magnitude()
@@ -433,7 +433,7 @@ cdef class Quaternion:
 
 
     cpdef Vec3 to_euler(self):
-        return vec_from_cpp(self.c_class.to_euler())
+        return vec3_from_cpp(self.c_class.to_euler())
 
     @staticmethod
     def from_euler(Vec3 euler_vec) -> Quaternion:
@@ -468,7 +468,7 @@ cdef class Vec3:
         del self.c_class
 
     def __neg__(self) -> Vec3:
-        return vec_from_cpp(-self.c_class[0])
+        return vec3_from_cpp(-self.c_class[0])
 
     @property
     def quaternion(self) -> Quaternion:
@@ -513,15 +513,15 @@ cdef class Vec3:
 
     @property
     def up(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_up())
+        return vec3_from_cpp(self.c_class.get_up())
 
     @property
     def right(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_right())
+        return vec3_from_cpp(self.c_class.get_right())
 
     @property
     def forward(self) -> Vec3:
-        return vec_from_cpp(self.c_class.get_forward())
+        return vec3_from_cpp(self.c_class.get_forward())
 
 
     # OPERATORS
@@ -533,10 +533,10 @@ cdef class Vec3:
             return self.floatadd(other)
 
     cpdef Vec3 vecadd(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0] + other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] + other.c_class[0])
 
     cpdef Vec3 floatadd(self, float other):
-        return vec_from_cpp(self.c_class[0] + other)
+        return vec3_from_cpp(self.c_class[0] + other)
 
     def __sub__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
@@ -545,10 +545,10 @@ cdef class Vec3:
             return self.floatsub(other)
 
     cpdef Vec3 vecsub(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0] - other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] - other.c_class[0])
 
     cpdef Vec3 floatsub(self, float other):
-        return vec_from_cpp(self.c_class[0] - other)
+        return vec3_from_cpp(self.c_class[0] - other)
 
     def __mul__(self, other:Vec3 | float | Quaternion) -> Vec3:
         if isinstance(other, Vec3):
@@ -559,13 +559,13 @@ cdef class Vec3:
             return self.floatmul(other)
         
     cpdef Vec3 vecmul(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0] * other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Vec3 quatmul(self, Quaternion other):
-        return vec_from_cpp(self.c_class[0] * other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
 
     cpdef Vec3 floatmul(self, float other):
-        return vec_from_cpp(self.c_class[0] * other)
+        return vec3_from_cpp(self.c_class[0] * other)
 
     def __truediv__(self, other:Vec3 | float) -> Vec3:
         if isinstance(other, Vec3):
@@ -574,10 +574,10 @@ cdef class Vec3:
             return self.floatdiv(other)
         
     cpdef Vec3 vecdiv(self, Vec3 other):
-        return vec_from_cpp(self.c_class[0] / other.c_class[0])
+        return vec3_from_cpp(self.c_class[0] / other.c_class[0])
 
     cpdef Vec3 floatdiv(self, float other):
-        return vec_from_cpp(self.c_class[0] / other)
+        return vec3_from_cpp(self.c_class[0] / other)
 
     def dot(self, Vec3 other) -> float:
         return self.c_class[0].dot(other.c_class[0])
@@ -589,26 +589,138 @@ cdef class Vec3:
             return self.vec_cross(other)
 
     cpdef Quaternion quat_cross(self, Quaternion other):
-        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
+        return vec3_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef Vec3 vec_cross(self, Vec3 other):
-        return vec_from_cpp(self.c_class.cross(other.c_class[0]))
+        return vec3_from_cpp(self.c_class.cross(other.c_class[0]))
 
     cpdef float get_magnitude(self):
         return self.c_class.get_magnitude()
 
     cpdef Vec3 get_normalized(self):
-        return vec_from_cpp(self.c_class.get_normalized())
+        return vec3_from_cpp(self.c_class.get_normalized())
 
     cpdef Quaternion to_quaternion(self):
         return quat_from_cpp(self.c_class.to_quaternion())
 
-cdef Vec3 vec_from_cpp(vec3 cppinst):
+cdef Vec3 vec3_from_cpp(vec3 cppinst):
     cdef Vec3 ret = Vec3.__new__(Vec3)
     ret.c_class = new vec3(cppinst)
     return ret
     
+cdef class Vec2:
+    def __init__(self, float x, float y) -> None:
+        self.c_class = new vec2(x,y)
 
+    def __repr__(self) -> str:
+        return f"<{self.x}, {self.y}>"
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __neg__(self) -> Vec2:
+        return vec2_from_cpp(-self.c_class[0])
+
+
+    @property
+    def angle(self) -> float:
+        return self.to_angle()
+
+    @angle.setter
+    def angle(self, float value):
+        self.c_class[0] = self.c_class.from_angle(value) * self.c_class.get_magnitude()
+
+    cpdef float to_angle(self):
+        return self.c_class.to_angle()
+
+    @property
+    def x(self) -> float:
+        return self.c_class.get_x()
+
+    @x.setter
+    def x(self, float value):
+        self.c_class.set_x(value)
+
+    @property
+    def y(self) -> float:
+        return self.c_class.get_y()
+
+    @y.setter
+    def y(self, float value):
+        self.c_class.set_y(value)
+
+
+    # OPERATORS
+
+    def __add__(self, other:Vec2 | float) -> Vec2:
+        if isinstance(other, Vec2):
+            return self.vecadd(other)
+        else:
+            return self.floatadd(other)
+
+    cpdef Vec2 vecadd(self, Vec2 other):
+        return vec2_from_cpp(self.c_class[0] + other.c_class[0])
+
+    cpdef Vec2 floatadd(self, float other):
+        return vec2_from_cpp(self.c_class[0] + other)
+
+    def __sub__(self, other:Vec2 | float) -> Vec2:
+        if isinstance(other, Vec2):
+            return self.vecsub(other)
+        else:
+            return self.floatsub(other)
+
+    cpdef Vec2 vecsub(self, Vec2 other):
+        return vec2_from_cpp(self.c_class[0] - other.c_class[0])
+
+    cpdef Vec2 floatsub(self, float other):
+        return vec2_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, other: Vec2 | float) -> Vec2:
+        if isinstance(other, Vec2):
+            return self.vecmul(other)
+        else:
+            return self.floatmul(other)
+        
+    cpdef Vec2 vecmul(self, Vec2 other):
+        return vec2_from_cpp(self.c_class[0] * other.c_class[0])
+
+
+    cpdef Vec2 floatmul(self, float other):
+        return vec2_from_cpp(self.c_class[0] * other)
+
+    def __truediv__(self, other:Vec2 | float) -> Vec2:
+        if isinstance(other, Vec2):
+            return self.vecdiv(other)
+        else:
+            return self.floatdiv(other)
+        
+    cpdef Vec2 vecdiv(self, Vec2 other):
+        return vec2_from_cpp(self.c_class[0] / other.c_class[0])
+
+    cpdef Vec2 floatdiv(self, float other):
+        return vec2_from_cpp(self.c_class[0] / other)
+
+    def dot(self, Vec2 other) -> float:
+        return self.c_class.dot(other.c_class[0])
+
+    cpdef float get_magnitude(self):
+        return self.c_class.get_magnitude()
+
+    cpdef Vec2 get_normalized(self):
+        cdef Vec2 ret = vec2_from_cpp(self.c_class.get_normalized())
+        return ret
+
+    @classmethod
+    def from_angle(cls, float angle) -> Vec2:
+        return vec2_from_cpp(vec2.from_angle(angle))
+
+cdef Vec2 vec2_from_cpp(vec2 cppinst):
+    cdef:
+        Vec2 ret = Vec2.__new__(Vec2)
+        vec2* v = new vec2(cppinst)
+    ret.c_class = v
+    return ret
 
 cdef class Material:
     def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
@@ -696,6 +808,28 @@ cdef class Window:
         for obj in objs:
             self.remove_object(obj)
 
+    cpdef void add_object2d(self, Object2D obj):
+        Py_INCREF(obj)
+        self.c_class.add_object2d(obj.c_class)
+
+    cpdef void remove_object2d(self, Object2D obj):
+        self.c_class.remove_object2d(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_object2d_list(self, list[Object2D] objs):
+        cdef:
+            Object2D obj
+
+        for obj in objs:
+            self.add_object2d(obj)
+
+    cpdef void remove_object2d_list(self, list[Object2D] objs):
+        cdef:
+            Object2D obj
+
+        for obj in objs:
+            self.remove_object2d(obj)
+
 cdef class MouseDevice:
     pass
 
@@ -735,3 +869,92 @@ cdef class Event:
         return mdev
 
 
+cdef class Sprite:
+    def __init__(self, str file_path) -> None:
+        self.texture = Texture.from_file(file_path, TextureWraping.CLAMP_TO_EDGE, TextureFiltering.LINEAR)
+        self.c_class = new sprite(self.texture.c_class)
+        
+    @classmethod
+    def from_texture(cls, Texture tex) -> Sprite:
+        return sprite_from_texture(tex)
+
+
+    def __dealloc__(self):
+        del self.c_class
+
+cpdef Sprite sprite_from_texture(Texture tex):
+    cdef:
+            Sprite ret = Sprite.__new__(Sprite)
+    ret.texture = tex
+    ret.c_class.tex = tex.c_class
+    return ret
+
+cdef class Object2D:
+    def __init__(self, Sprite sprite, Vec2 position = Vec2(0.0,0.0),
+    float rotation = 0.0, Vec2 scale = Vec2(1.0, 1.0),
+    Material material = None) -> None:
+        self._position = position
+        self._scale = scale
+        self.sprite = sprite
+
+        
+        
+        if material:
+            self.material = material
+            self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class)
+        else:
+            self.material = Material(
+                Shader.from_file(path.join(path.dirname(__file__), "default_vertex_2D.glsl"), ShaderType.VERTEX),
+                Shader.from_file(path.join(path.dirname(__file__), "default_fragment_2D.glsl"), ShaderType.FRAGMENT)
+            )
+            self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class)
+
+    @property
+    def position(self) -> Vec2:
+        return self._position
+
+    @position.setter
+    def position(self, Vec2 value):
+        self._position = value
+        self.c_class.position = value.c_class
+
+    @property
+    def rotation(self) -> float:
+        return self.c_class.rotation
+
+    @rotation.setter
+    def rotation(self, value: Vec2 | float):
+        if isinstance(value, Vec2):
+            self.c_class.rotation = value.to_angle()
+        elif isinstance(value, float):
+            self.c_class.rotation = value
+
+    @property
+    def scale(self) -> Vec2:
+        return self._scale
+
+    @scale.setter
+    def scale(self, Vec2 value):
+        self._scale = value
+        self.c_class.scale = value.c_class
+
+    def __dealloc__(self):
+        del self.c_class
+
+
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
+        cdef:
+            vector[float] uni_vec
+            uniform_type valu
+
+        if isinstance(value, float):
+            valu = <float>value
+            self.c_class.set_uniform(name.encode(), valu, type.encode())
+        elif isinstance(value, int):
+            valu = <int>value
+            self.c_class.set_uniform(name.encode(), valu, type.encode())
+        else:
+            for val in value:
+                uni_vec.push_back(val)
+            valu = uni_vec
+            self.c_class.set_uniform(name.encode(), valu, type.encode())

@@ -31,7 +31,16 @@ typedef std::variant<
     std::vector<float>
 > uniform_type;
 
-class material {
+class TRAIT_has_uniform {
+public:
+    map<int, uniform_type> uniforms;
+    
+    void register_uniforms();
+protected:
+    void inner_set_uniform(int loc, string name, uniform_type value, string type);
+};
+
+class material : public TRAIT_has_uniform {
 public:
     material(shader* vertex, shader* fragment)
     : vertex(vertex), fragment(fragment)
@@ -40,7 +49,6 @@ public:
     }
     ~material(){}
     void set_uniform(string name, uniform_type value, string type);
-    void register_uniforms();
     void link_shaders();
 
     // calls use shader program
@@ -49,5 +57,4 @@ public:
     shader* vertex;
     shader* fragment;
     GLuint shader_program;
-    map<int, uniform_type> uniforms;
 };

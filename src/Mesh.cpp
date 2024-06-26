@@ -107,12 +107,12 @@ void mesh::create_VAO() {
     //VBO
     glGenBuffers(1, &this->gl_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->gl_VBO);
-    glBufferData(GL_ARRAY_BUFFER, this->verticies_size * sizeof(GLfloat), &gl_verts[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, this->verticies_size * sizeof(GLfloat), &gl_verts[0], GL_DYNAMIC_DRAW);
     
     //EBO
     glGenBuffers(1, &this->gl_EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_DYNAMIC_DRAW);
 
     // Vertex attributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -124,6 +124,7 @@ void mesh::create_VAO() {
         glEnableVertexAttribArray(1);
     }
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 

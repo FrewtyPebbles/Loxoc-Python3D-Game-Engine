@@ -1,6 +1,7 @@
 from Runespoor import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
-    Material, Shader, ShaderType, EVENT_STATE, Quaternion
+    Material, Shader, ShaderType, EVENT_STATE, Quaternion,
+    Texture, Sprite, Object2D, Vec2
 )
 import math
 from copy import copy
@@ -16,6 +17,7 @@ window = Window("FBX Car Test", camera, *dim, False)
 # Materials are equivalent to shader programs.
 default_material = Material()
 
+
 # # If you wanted to create a new shader program, normally you would do something like this:
 #
 # default_material = Material(
@@ -30,6 +32,9 @@ default_material = Material()
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
 car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
+spr_doomguy = Sprite("./textures/doomguy.png")
+
+doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object(car_meshes,
     Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
@@ -50,6 +55,10 @@ window.add_object_list([
     pirate_ship
 ])
 
+window.add_object2d_list([
+    doomguy
+])
+
 window.lock_mouse(True)
 
 vel_yaw = 0.0
@@ -66,7 +75,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
     # else:
     #     print("FRAMERATE: inf fps")
-    
+    doomguy.position.x = math.sin(counter/1.75 * window.dt)
+    doomguy.position.y = math.cos(counter/1.75 * window.dt)
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT

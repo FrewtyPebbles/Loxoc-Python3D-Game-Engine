@@ -15,9 +15,10 @@ texture::texture(string file_path, TextureWraping wrap, TextureFiltering filteri
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filtering));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filtering));
-        
+
+        int col_format = number_of_channels > 3 ? GL_RGBA : GL_RGB;
         // texture data:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, number_of_channels > 3 ? GL_RGBA : GL_RGB,
+        glTexImage2D(GL_TEXTURE_2D, 0, col_format, width, height, 0, col_format,
             GL_UNSIGNED_BYTE, tex);
         glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(tex);

@@ -157,8 +157,6 @@ Then when we run it, it looks something like this:
 
  - Add `from_raw` constructor to mesh to make procedural meshes possible.
 
- - Add Sprite object and Object2D object for 2D games/HUD.
-
  - Add window/fullscreen scaling.
 
  - Add Matrix datastructures for GLM.

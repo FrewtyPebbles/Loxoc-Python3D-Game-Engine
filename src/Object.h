@@ -11,7 +11,7 @@ class mesh_dict;
 // Shaders
 
 
-class object {
+class object : public TRAIT_has_uniform {
 public:
     object(){};
     object(mesh_dict* mesh_data, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {}
@@ -25,7 +25,6 @@ public:
     material* mat;
     map<int, uniform_type> uniforms;
     void set_uniform(string name, uniform_type value, string type);
-    void register_uniforms();
 
     void render(camera& camera);
 };

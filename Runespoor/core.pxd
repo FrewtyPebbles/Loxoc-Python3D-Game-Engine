@@ -298,7 +298,68 @@ cdef class Vec3:
 
     cpdef Quaternion to_quaternion(self)
     
-cdef Vec3 vec_from_cpp(vec3 cppinst)
+cdef Vec3 vec3_from_cpp(vec3 cppinst)
+
+cdef extern from "../src/Vec2.h":
+    cdef cppclass glmvec2:
+        float x,y
+
+    cdef cppclass vec2:
+        vec2() except +
+        vec2(float x, float y) except +
+        vec2(glmvec2& axis) except +
+        vec2(vec2& rhs) except +
+        glmvec2 axis
+        float get_x()
+        float get_y()
+        void set_x(float other)
+        void set_y(float other)
+
+        # operators
+        vec2 operator+(vec2& other)
+        vec2 operator+(float& other)
+        vec2 operator-()
+        vec2 operator-(vec2& other)
+        vec2 operator-(float& other)
+        vec2 operator*(vec2& other)
+        vec2 operator*(float& other)
+        vec2 operator/(vec2& other)
+        vec2 operator/(float& other)
+        float dot(vec2& other)
+        float get_magnitude()
+        vec2 get_normalized()
+        float to_angle()
+        @staticmethod
+        vec2 from_angle(float angle)
+
+
+cdef class Vec2:
+    cdef vec2* c_class
+
+    cpdef Vec2 vecadd(self, Vec2 other)
+
+    cpdef Vec2 floatadd(self, float other)
+
+    cpdef Vec2 vecsub(self, Vec2 other)
+
+    cpdef Vec2 floatsub(self, float other)
+
+    cpdef Vec2 vecmul(self, Vec2 other)
+
+    cpdef Vec2 floatmul(self, float other)
+
+    cpdef Vec2 vecdiv(self, Vec2 other)
+
+    cpdef Vec2 floatdiv(self, float other)
+    
+    cpdef float get_magnitude(self)
+
+    cpdef Vec2 get_normalized(self)
+
+    cpdef float to_angle(self)
+    
+
+cdef Vec2 vec2_from_cpp(vec2 cppinst)
 
 
 
@@ -399,11 +460,12 @@ cdef extern from "../src/Object.h":
 
 
 cdef class Object:
-    cdef object3d* c_class
-    cdef public MeshDict mesh_data
-    cdef public Material material
-    cdef Vec3 _position, _scale
-    cdef Quaternion _rotation
+    cdef:
+        object3d* c_class
+        public MeshDict mesh_data
+        public Material material
+        Vec3 _position, _scale
+        Quaternion _rotation
     
     cpdef void render(self, Camera camera)
 
@@ -442,10 +504,17 @@ cdef extern from "../src/Window.h":
         int width, height
         void update()
         void lock_mouse(bint lock)
+
         void add_object(object3d* obj)
         void remove_object(object3d* obj)
         void add_object_list(vector[object3d*] objs)
         void remove_object_list(vector[object3d*] objs)
+
+        void add_object2d(object2d* obj)
+        void remove_object2d(object2d* obj)
+        void add_object2d_list(vector[object2d*] objs)
+        void remove_object2d_list(vector[object2d*] objs)
+
         event current_event
         float deltatime
         bint fullscreen
@@ -459,6 +528,11 @@ cdef class Window:
     cpdef void remove_object(self, Object obj)
     cpdef void add_object_list(self, list[Object] objs)
     cpdef void remove_object_list(self, list[Object] objs)
+
+    cpdef void add_object2d(self, Object2D obj)
+    cpdef void remove_object2d(self, Object2D obj)
+    cpdef void add_object2d_list(self, list[Object2D] objs)
+    cpdef void remove_object2d_list(self, list[Object2D] objs)
 
     cpdef void lock_mouse(self, bint lock)
 
@@ -614,3 +688,44 @@ cdef class MouseWheel:
         public int int_x, int_y
         public float x, y
         public MOUSE_WHEEL_DIRECTION direction
+
+
+cdef extern from "../src/Sprite.h":
+    cdef cppclass sprite:
+        sprite() except +
+        sprite(texture* tex) except +
+
+        texture* tex
+        vec2[4] quad
+        unsigned int gl_VAO, gl_VBO, gl_EBO
+
+cdef class Sprite:
+    cdef:
+        sprite* c_class
+        public Texture texture
+
+cpdef Sprite sprite_from_texture(Texture tex)
+
+cdef extern from "../src/Object2d.h":
+    cdef cppclass object2d:
+        object2d() except +
+        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, material* mat) except +
+        
+        sprite* spr
+        vec2* position
+        float rotation
+        vec2* scale
+        material* mat
+
+        void set_uniform(string name, uniform_type value, string type)
+
+cdef class Object2D:
+    cdef:
+        object2d* c_class
+        public Sprite sprite
+        public Material material
+        Vec2 _position, _scale
+    
+    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
+
+cpdef Sprite sprite_from_texture(Texture tex)

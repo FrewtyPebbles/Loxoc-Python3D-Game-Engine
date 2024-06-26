@@ -4,6 +4,14 @@
 
 void material::set_uniform(string name, uniform_type value, string type) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
+    this->inner_set_uniform(loc, name, value, type);
+}
+
+void material::use_material() {
+    glUseProgram(this->shader_program);
+}
+
+void TRAIT_has_uniform::inner_set_uniform(int loc, string name, uniform_type value, string type) {
     type = str_tool::to_lowercase(type);
     
     if (type == "f" || type == "float" || type == "i" || type == "int") {
@@ -80,11 +88,7 @@ void material::set_uniform(string name, uniform_type value, string type) {
     }
 }
 
-void material::use_material() {
-    glUseProgram(this->shader_program);
-}
-
-void material::register_uniforms() {
+void TRAIT_has_uniform::register_uniforms() {
     for (auto [loc, value] : this->uniforms) {
         if (std::holds_alternative<GLfloat>(value)) {
             glUniform1f(loc, std::get<GLfloat>(value));
