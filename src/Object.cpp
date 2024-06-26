@@ -31,28 +31,29 @@ void object::render(camera& camera) {
     this->mat->register_uniforms();
     this->register_uniforms(); // register object level uniforms
 
-    for (auto [_mesh_name, _mesh] : *this->mesh_data) {
+    for (auto [_mesh_name, _meshes] : *this->mesh_data) {
+        for (auto _mesh : _meshes) {
+            for(size_t t_n = 0; t_n < _mesh->data->diffuse_textures.size(); t_n++) {
+                glActiveTexture(GL_TEX_N_ITTER[0]);
+                _mesh->data->diffuse_textures[t_n]->data->bind();
+            }
 
-        for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
-            glActiveTexture(GL_TEX_N_ITTER[0]);
-            _mesh->diffuse_textures[t_n]->bind();
+            // for(size_t t_n = 0; t_n < _mesh->specular_textures.size(); t_n++) {
+            //     glActiveTexture(GL_TEX_N_ITTER[1]);
+            //     _mesh->specular_textures[t_n]->bind();
+            // }
+
+            // for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
+            //     glActiveTexture(GL_TEX_N_ITTER[2]);
+            //     _mesh->specular_textures[t_n]->bind();
+            // }
+
+            glBindVertexArray(_mesh->data->gl_VAO);
+
+            glDrawElements(GL_TRIANGLES, _mesh->data->indicies_size, GL_UNSIGNED_INT, 0);
+            
+            glBindVertexArray(0);
         }
-
-        // for(size_t t_n = 0; t_n < _mesh->specular_textures.size(); t_n++) {
-        //     glActiveTexture(GL_TEX_N_ITTER[1]);
-        //     _mesh->specular_textures[t_n]->bind();
-        // }
-
-        // for(size_t t_n = 0; t_n < _mesh->diffuse_textures.size(); t_n++) {
-        //     glActiveTexture(GL_TEX_N_ITTER[2]);
-        //     _mesh->specular_textures[t_n]->bind();
-        // }
-
-        glBindVertexArray(_mesh->gl_VAO);
-
-        glDrawElements(GL_TRIANGLES, _mesh->indicies_size, GL_UNSIGNED_INT, 0);
-        
-        glBindVertexArray(0);
     }
 }
 

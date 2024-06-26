@@ -13,9 +13,8 @@ void object2d::set_uniform(string name, uniform_type value, string type) {
 
 void object2d::render(camera& camera) {
     // opengl renderer
-
-    glUseProgram(this->mat->shader_program);
     glm::mat4 transform2D = glm::mat4(1.0f);
+    glUseProgram(this->mat->shader_program);
     transform2D = glm::translate(transform2D, glm::vec3(this->position->axis, 0.0f));
     transform2D = glm::rotate(transform2D, this->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     transform2D = glm::scale(transform2D, glm::vec3(this->scale->axis, 1.0f));
@@ -27,7 +26,7 @@ void object2d::render(camera& camera) {
     this->mat->register_uniforms();
     this->register_uniforms(); // register object level uniforms
 
-    this->spr->tex->bind();
+    this->spr->tex->data->bind();
 
     glBindVertexArray(this->spr->gl_VAO);
 

@@ -42,7 +42,7 @@ class MeshDict:
         Insert a Mesh.  It will use the Mesh name as a key.
         """
 
-    def get(self, name: str) -> Mesh:
+    def get(self, name: str) -> list[Mesh]:
         """
         Get a Mesh from the dict by name.
         """
@@ -52,12 +52,12 @@ class MeshDict:
         Remove a Mesh from the dict by name.
         """
 
-    def __iter__(self) -> Generator[(str, Mesh), None, None]:
+    def __iter__(self) -> Generator[tuple[str, list[Mesh]], None, None]:
         """
         Itterates through the key value pairs of the dict.
         """
 
-    def __getitem__(self, key: str) -> Mesh:
+    def __getitem__(self, key: str) -> list[Mesh]:
         """
         Get a Mesh from the dict by name.
         """
@@ -84,7 +84,7 @@ class Object:
     position:Vec3
     rotation:Quaternion
     scale:Vec3
-    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(0.0,0.0,0.0), material:Material | None = None) -> None:...
+    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), material:Material | None = None) -> None:...
 
     @property
     def position(self) -> Vec3:

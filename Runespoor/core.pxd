@@ -3,6 +3,16 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map
 
+cdef extern from "../src/RC.h":
+    cdef cppclass RC[T]:
+        RC() except +
+        RC(T data) except +
+        T inc()
+        void dec()
+        T data
+
+    cdef void RC_collect[T](RC[T*]* rc)
+
 cdef extern from "../src/util.h":
     cdef void c_set_mod_path(string path)
 
@@ -26,7 +36,7 @@ cdef extern from "../src/Texture.h":
         void bind()
 
 cdef class Texture:
-    cdef texture* c_class
+    cdef RC[texture*]* c_class
 
 cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering)
 
@@ -386,10 +396,10 @@ cdef extern from "../src/Mesh.h":
         unsigned char* specular_highlight_texture
         
 
-
     cdef cppclass mesh:
         mesh() except +
-        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[texture*] diffuse_textures, vector[texture*] specular_textures, vector[texture*] normals_textures) except +
+        mesh(const mesh& rhs) except +
+        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[RC[texture*]*] diffuse_textures, vector[RC[texture*]*] specular_textures, vector[RC[texture*]*] normals_textures) except +
         @staticmethod
         mesh_dict from_file(string file_path) except +
         string name
@@ -399,30 +409,34 @@ cdef extern from "../src/Mesh.h":
         vector[vec3]* vertex_normals
         vector[tup3ui]* faces
         vec3 transform
-        vector[texture*] diffuse_textures
-        vector[texture*] specular_textures
-        vector[texture*] normals_textures
+        vector[RC[texture*]*] diffuse_textures
+        vector[RC[texture*]*] specular_textures
+        vector[RC[texture*]*] normals_textures
 
-    ctypedef map[string, mesh*].iterator iterator
-    ctypedef map[string, mesh*].const_iterator const_iterator
+    
 
     cdef cppclass mesh_dict:
+        ctypedef map[string, vector[RC[mesh*]*]].iterator meshmap_iterator
+        ctypedef map[string, vector[RC[mesh*]*]].const_iterator const_meshmap_iterator
+        
         mesh_dict() except +
-        mesh_dict(map[string, mesh*] data) except +
+        mesh_dict(map[string, vector[RC[mesh*]*]] data) except +
         mesh_dict(mesh_dict& rhs) except +
-        void insert(mesh* m)
-        mesh* get(string name)
+        void insert(RC[mesh*]* m)
+        vector[RC[mesh*]*] get(string name)
         void remove(string name)
-        mesh* operator[](string name)
-        iterator begin() noexcept
-        const_iterator cbegin() noexcept
-        iterator end() noexcept
-        const_iterator cend()
+        vector[RC[mesh*]*] operator[](string name)
+        meshmap_iterator begin() noexcept
+        const_meshmap_iterator cbegin() noexcept
+        meshmap_iterator end() noexcept
+        const_meshmap_iterator cend()
+
+        map[string, vector[RC[mesh*]*]] data
 
 cdef class MeshDict:
     cdef mesh_dict* c_class
     cpdef void insert(self, Mesh m)
-    cpdef Mesh get(self, str name)
+    cpdef list[Mesh] get(self, str name)
     cpdef void remove(self, str name)
 
     @staticmethod
@@ -432,13 +446,13 @@ cdef class MeshDict:
 
 
 cdef class Mesh:
-    cdef mesh* c_class
+    cdef RC[mesh*]* c_class
     cdef public list[Texture] diffuse_textures
     cdef public list[Texture] specular_textures
     cdef public list[Texture] normals_textures
 
     @staticmethod
-    cdef Mesh from_cpp(mesh* cppinst)
+    cdef Mesh from_cpp(RC[mesh*]* cppinst)
     
 cpdef MeshDict mesh_from_file(str file_path)
 
@@ -697,9 +711,9 @@ cdef class MouseWheel:
 cdef extern from "../src/Sprite.h":
     cdef cppclass sprite:
         sprite() except +
-        sprite(texture* tex) except +
+        sprite(RC[texture*]* tex) except +
 
-        texture* tex
+        RC[texture*]* tex
         vec2[4] quad
         unsigned int gl_VAO, gl_VBO, gl_EBO
 

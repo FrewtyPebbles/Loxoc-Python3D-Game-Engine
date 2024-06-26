@@ -16,6 +16,7 @@
 #include "Texture.h"
 #include <map>
 #include <iterator>
+#include "RC.h"
 
 using std::vector;
 using std::string;
@@ -38,10 +39,23 @@ struct mesh_material {
     unsigned char * ambient_texture, diffuse_texture, specular_highlight_texture;
 };
 
+typedef RC<texture*>* rc_texture; 
 
 class mesh {
 public:
     mesh(){}
+    mesh(const mesh& rhs):
+    name(rhs.name),
+    materials(rhs.materials),
+    vertexes(rhs.vertexes),
+    diffuse_coordinates(rhs.diffuse_coordinates),
+    vertex_normals(rhs.vertex_normals),
+    faces(rhs.faces),
+    transform(rhs.transform),
+    diffuse_textures(rhs.diffuse_textures),
+    specular_textures(rhs.specular_textures),
+    normals_textures(rhs.normals_textures)
+    {}
     mesh(
         string name,
         vector<mesh_material*> materials,
@@ -50,9 +64,9 @@ public:
         vector<vec3>* vertex_normals,
         vector<tup<unsigned int, 3>>* faces,
         vec3 transform,
-        vector<texture*> diffuse_textures,
-        vector<texture*> specular_textures,
-        vector<texture*> normals_textures
+        vector<rc_texture> diffuse_textures,
+        vector<rc_texture> specular_textures,
+        vector<rc_texture> normals_textures
     ):
     name(name),
     materials(materials),
@@ -88,9 +102,9 @@ public:
     vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
     vec3 transform;
-    vector<texture*> diffuse_textures;
-    vector<texture*> specular_textures;
-    vector<texture*> normals_textures;
+    vector<rc_texture> diffuse_textures;
+    vector<rc_texture> specular_textures;
+    vector<rc_texture> normals_textures;
 
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
@@ -138,44 +152,50 @@ inline size_t sub_str_ind(const std::string& haystack, const std::string& needle
     return pos;
 }
 
+typedef RC<mesh*>* rc_mesh;
+
 class mesh_dict {
 public:
-    typedef typename std::map<string, mesh*>::iterator iterator;
-    typedef typename std::map<string, mesh*>::const_iterator const_iterator;
+    typedef typename std::map<string, vector<rc_mesh>>::iterator meshmap_iterator;
+    typedef typename std::map<string, vector<rc_mesh>>::const_iterator const_meshmap_iterator;
 
     mesh_dict(){}
-    mesh_dict(std::map<string, mesh*> data):data(data){}
+    mesh_dict(std::map<string, vector<rc_mesh>> data):data(data){}
     mesh_dict(const mesh_dict& rhs) : data(rhs.data) {}
-    inline void insert(mesh* m) {
-        this->data.insert_or_assign(m->name, m);
+    inline void insert(rc_mesh m) {
+        if (this->data.contains(m->data->name))
+            this->data[m->data->name].push_back(m);
+        else {
+            this->data.insert_or_assign(m->data->name, vector({m}));
+        }
     }
-    inline mesh* get(string name) {
+    inline vector<rc_mesh> get(string name) {
         return this->data[name];
     }
     inline void remove(string name) {
         this->data.erase(name);
     }
-    inline mesh* operator[](string name) {
+    inline vector<rc_mesh> operator[](string name) {
         return this->data[name];
     }
-    inline iterator begin() noexcept { return this->data.begin(); }
-    inline const_iterator cbegin() const noexcept { return this->data.cbegin(); }
-    inline iterator end() noexcept { return this->data.end(); }
-    inline const_iterator cend() const noexcept { return this->data.cend(); }
-    std::map<string, mesh*> data;
+    inline meshmap_iterator begin() noexcept { return this->data.begin(); }
+    inline const_meshmap_iterator cbegin() const noexcept { return this->data.cbegin(); }
+    inline meshmap_iterator end() noexcept { return this->data.end(); }
+    inline const_meshmap_iterator cend() const noexcept { return this->data.cend(); }
+    std::map<string, vector<rc_mesh>> data;
 };
 
 
 // Texture assimp macro
 
-#define get_textures(type_name, aitype) vector<texture*> type_name##_textures;\
+#define get_textures(type_name, aitype) vector<RC<texture*>*> type_name##_textures;\
         for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aitype); t_n++) {\
             aiString path;\
             if (ai_mat->GetTexture(aitype, t_n, &path) == AI_SUCCESS) {\
                 if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {\
                     try {\
                         type_name##_textures.push_back(\
-                            new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR)\
+                            new RC(new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR))\
                         );\
                     } catch ( std::runtime_error e ) {\
                         std::cerr << e.what();\

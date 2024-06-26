@@ -3,12 +3,20 @@ from cython.parallel cimport prange
 from libc.math cimport M_PI
 from os import path
 from cpython.ref cimport Py_INCREF, Py_DECREF
-from cython.operator import dereference, postincrement
+from cython.operator import dereference, preincrement, postincrement
+from typing import Generator
+from libcpp.pair cimport pair
 
 # IMPORTANT: All data must be written saved within the CPP classes.
 # All classes here just wrap CPP class pointers.
 # So if data is stored in a python class for purposes other than reference counting,
 # the pointer could change causing the class to associate with the wrong pointers.
+
+# ALSO:
+# Any classes that are heap allocated by c++ as a child of the c++ function's return type
+# need to be wrapped in an RC and handled accordingly. You must increment the RC manually
+# with .inc() wherever the counter is incremented and RC_collect(RC) when ever the counter
+# is decremented.
 
 cpdef void set_mod_path(str _path):
     c_set_mod_path(path.dirname(_path).encode())
@@ -21,11 +29,13 @@ cdef class Texture:
 
 
     def __dealloc__(self):
-        del self.c_class
+        RC_collect(self.c_class)
+
+ctypedef texture* texture_ptr
 
 cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering):
     ret = Texture()
-    ret.c_class = new texture(file_path.encode(), wrap, filtering)
+    ret.c_class = new RC[texture_ptr](new texture(file_path.encode(), wrap, filtering))
 
     return ret
 
@@ -74,33 +84,59 @@ cdef class MeshDict:
     def __init__(self, list[Mesh] meshes) -> None:
         cdef:
             Mesh m
-            map[string, mesh*] mc_map
+            mesh_dict md = mesh_dict()
         for m in meshes:
-            mc_map[m.c_class.name] = m.c_class
+            md.insert(m.c_class)
         
-        self.c_class = new mesh_dict(mc_map)
+        self.c_class = new mesh_dict(md)
+
+    def __repr__(self) -> str:
+        return "\n".join([
+            "MeshDict {",
+            *["\t{}: {}".format(m_n, m) for m_n, m in self],
+            "}"
+        ])
 
     def __dealloc__(self):
+        # Collect the mesh_dict and decrement each mesh's refcount
+        cdef:
+            pair[string, vector[RC[mesh*]*]] _pair
+            RC[mesh*]* m
+        for _pair in self.c_class.data:
+            for m in _pair.second:
+                RC_collect(m)
         del self.c_class
 
     cpdef void insert(self, Mesh m):
         self.c_class.insert(m.c_class)
 
-    cpdef Mesh get(self, str name):
-        return Mesh.from_cpp(self.c_class.get(name.encode()))
+    cpdef list[Mesh] get(self, str name):
+        cdef:
+            RC[mesh*]* m
+            list[Mesh] ret = []
+        for m in self.c_class.get(name.encode()):
+            ret.append(Mesh.from_cpp(m))
+        return ret
 
     cpdef void remove(self, str name):
         self.c_class.remove(name.encode())
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[(str, list[Mesh]), None, None]:
         cdef:
-            string key
-            mesh* value
-            map[string, mesh*].iterator map_it = self.c_class.begin()
-        while map_it != self.c_class.end():
-            yield (dereference(map_it).first, Mesh.from_cpp(dereference(map_it).second))
+            pair[string, vector[RC[mesh*]*]] _pair
+            RC[mesh*]* m
+            Mesh M
+            list[Mesh] M_list = []
+        for _pair in self.c_class.data:
+            for m in _pair.second:
+                M = Mesh.from_cpp(m)
+                M_list.append(M)
+            yield (
+                bytes(_pair.first).decode(), 
+                M_list
+            )
 
-    def __getitem__(self, str key) -> Mesh:
+    def __getitem__(self, str key) -> list[Mesh]:
         return self.get(key)
 
     @staticmethod
@@ -116,47 +152,55 @@ cdef class MeshDict:
         return ret
 
 cdef class Mesh:
+
+    def __repr__(self) -> str:
+        return "Mesh {{name: {}}}".format(self.name)
+
     def __dealloc__(self):
-        del self.c_class
+        RC_collect(self.c_class)
 
     @property
     def name(self) -> str:
-        return self.c_class.name
+        return bytes(self.c_class.data.name).decode()
 
     @staticmethod
-    cdef Mesh from_cpp(mesh* cppinst):
+    cdef Mesh from_cpp(RC[mesh*]* cppinst):
         cdef:
             Mesh ret = Mesh.__new__(Mesh)
-            texture* _tex
+            RC[texture*]* _tex
             list[Texture] diffuse_textures = []
             list[Texture] specular_textures = []
             list[Texture] normals_textures = []
             Texture tex_diff, tex_spec, tex_norm
         
         ret.c_class = cppinst
+        ret.c_class.inc()
 
         # register textures on the python heap so it can manage garbage collection for c++ memory
         
         # refcount diffuse
-        for _tex in ret.c_class.diffuse_textures:
+        for _tex in ret.c_class.data.diffuse_textures:
             tex_diff = Texture.__new__(Texture)
             tex_diff.c_class = _tex
+            tex_diff.c_class.inc()
             diffuse_textures.append(tex_diff)
         
         ret.diffuse_textures = diffuse_textures
 
         # refcount specular
-        for _tex in ret.c_class.specular_textures:
+        for _tex in ret.c_class.data.specular_textures:
             tex_spec = Texture.__new__(Texture)
             tex_spec.c_class = _tex
+            tex_diff.c_class.inc()
             specular_textures.append(tex_spec)
         
         ret.specular_textures = specular_textures
 
         # refcount normals
-        for _tex in ret.c_class.normals_textures:
+        for _tex in ret.c_class.data.normals_textures:
             tex_norm = Texture.__new__(Texture)
             tex_norm.c_class = _tex
+            tex_diff.c_class.inc()
             normals_textures.append(tex_norm)
         
         ret.normals_textures = normals_textures
@@ -631,7 +675,7 @@ cdef class Vec2:
 
     @angle.setter
     def angle(self, float value):
-        self.c_class[0] = self.c_class.from_angle(value) * self.c_class.get_magnitude()
+        self.c_class[0] = Vec2.from_angle(value) * self.c_class.get_magnitude()
 
     cpdef float to_angle(self):
         return self.c_class.to_angle()
@@ -887,7 +931,8 @@ cdef class Sprite:
 
 cpdef Sprite sprite_from_texture(Texture tex):
     cdef:
-            Sprite ret = Sprite.__new__(Sprite)
+        Sprite ret = Sprite.__new__(Sprite)
+    ret.c_class = new sprite(tex.c_class)
     ret.texture = tex
     ret.c_class.tex = tex.c_class
     return ret

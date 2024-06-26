@@ -33,7 +33,7 @@ void sprite::create_VAO() {
     //VBO
     glGenBuffers(1, &this->gl_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->gl_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quad_array), quad_array, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quad_array), quad_array, GL_STATIC_DRAW);
     
     //EBO
     glGenBuffers(1, &this->gl_EBO);

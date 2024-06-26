@@ -22,6 +22,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
     auto t_aivec3 = transform * aiVector3D(1.0f, 1.0f, 1.0f);
     for (size_t m_n = 0; m_n < node->mNumMeshes; m_n++) {
         auto msh = scene->mMeshes[node->mMeshes[m_n]];
+        auto mesh_name = string(msh->mName.C_Str());
         vector<mesh_material*> materials;
         vector<vec3>* _vertexes = new vector<vec3>();
         vector<vec3>* _diffuse_coordinates = new vector<vec3>();
@@ -31,6 +32,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
         // get texture data
+        
 
         get_textures(diffuse, aiTextureType_DIFFUSE);
         get_textures(specular, aiTextureType_SPECULAR);
@@ -52,33 +54,31 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
             auto fce = msh->mFaces[f_n];
             faces->push_back(make_tup<unsigned int, 3>({fce.mIndices[0], fce.mIndices[1], fce.mIndices[2]}));
         }
+
         for (unsigned int j = 0; j < msh->mNumVertices; ++j) {
             auto uv_coord = msh->mTextureCoords[0][j];// 0 = diffuse
             _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
         }
+        
 
         if (diffuse_textures.empty()) {
             // insert default texture
             diffuse_textures.push_back(
-                new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR)
+                new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR))
             );
         }
-        
-        if (!meshes.data.contains(string(msh->mName.C_Str()))) {
-            meshes.insert(new mesh(
-                string(msh->mName.C_Str()),
-                materials,
-                _vertexes,
-                _diffuse_coordinates,
-                _vertex_normals,
-                faces,
-                _transform,
-                diffuse_textures,
-                specular_textures,
-                normals_textures
-            ));
-        }
-            
+        meshes.insert(new RC(new mesh(
+            mesh_name,
+            materials,
+            _vertexes,
+            _diffuse_coordinates,
+            _vertex_normals,
+            faces,
+            _transform,
+            diffuse_textures,
+            specular_textures,
+            normals_textures
+        )));
     }
 }
 
@@ -115,12 +115,12 @@ void mesh::create_VAO() {
     //VBO
     glGenBuffers(1, &this->gl_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->gl_VBO);
-    glBufferData(GL_ARRAY_BUFFER, this->verticies_size * sizeof(GLfloat), &gl_verts[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, this->verticies_size * sizeof(GLfloat), &gl_verts[0], GL_STATIC_DRAW);
     
     //EBO
     glGenBuffers(1, &this->gl_EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_STATIC_DRAW);
 
     // Vertex attributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);

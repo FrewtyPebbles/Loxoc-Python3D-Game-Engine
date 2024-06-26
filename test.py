@@ -31,13 +31,14 @@ default_material = Material()
 #
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
-car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
+car_meshes = Mesh.from_file("./meshes/chevrolet_camaro_ss/D5UFXRJ9222WOZCIKIDU0Z36K.obj")
+
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object(car_meshes,
-    Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+    Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
 
 car2 = Object(car_meshes,
     Vec3(300,0,500), Vec3(10,3.57,23.2), material=default_material)
