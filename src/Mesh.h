@@ -15,6 +15,7 @@
 #include <assimp/postprocess.h>
 #include "Texture.h"
 #include <map>
+#include <iterator>
 
 using std::vector;
 using std::string;

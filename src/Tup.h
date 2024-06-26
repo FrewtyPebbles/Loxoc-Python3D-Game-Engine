@@ -1,6 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <iostream>
+#include <cstdint>
 
 
 template<typename T, size_t N>
