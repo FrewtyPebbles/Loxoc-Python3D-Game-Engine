@@ -1,5 +1,5 @@
 import time
-from Runespoor import (
+from Loxoc import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2

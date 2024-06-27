@@ -6,7 +6,7 @@ from Cython.Build import cythonize
 import pkgconfig as pcfg
 from setuptools.command.build_ext import build_ext
 
-MODULE_NAME = "Runespoor"
+MODULE_NAME = "Loxoc"
 
 DEV_VERSION = 20
 
@@ -95,7 +95,7 @@ setup(
     version=VERSION,
     author="William Lim",
     description = ""
-    "Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind."
+    "Loxoc is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind."
     "Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like."
     "",
     long_description=readme_src,
@@ -116,8 +116,8 @@ setup(
         },
     ),
     packages=find_packages(exclude=[
-        "./Runespoor/core.cp311-win_amd64.pyd",
-        "./Runespoor/core.cpp"
+        "./Loxoc/core.cp311-win_amd64.pyd",
+        "./Loxoc/core.cpp"
         "./test.py"
     ]),
     include_package_data=True,

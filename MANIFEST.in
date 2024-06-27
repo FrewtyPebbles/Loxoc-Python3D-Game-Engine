@@ -1,6 +1,6 @@
 graft src
 graft stb
-graft Runespoor
+graft Loxoc
 graft glad
 
 include LICENSE
@@ -12,7 +12,7 @@ include pyproject.toml
 global-exclude *.pyd
 
 exclude .env*
-exclude Runespoor/core.cpp
+exclude Loxoc/core.cpp
 
 prune __pycache__
 prune */__pycache__ 

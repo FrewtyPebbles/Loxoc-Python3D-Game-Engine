@@ -1,28 +1,30 @@
-# Runespoor Python 3D Game Engine
+# Loxoc Game Engine
+
+Important: This engine has been renamed from Runespoor to Loxoc.
 
 > A python 3D game engine written in c++ using SDL, Assimp, OpenGL(GLAD), and GLM.
 
 To install:
 
 ```
-pip install Runespoor
+pip install Loxoc
 ```
 
 Please note:
 
- - Runespoor is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
+ - Loxoc is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
 
  - When building from source `pkg-config` must be installed.  In addition to this, `GLM` must be installed and present in your c/c++ package manager's include directory.  Successful attempts to compile have been made on windows with `vcpkg` as the package manager.
 
 ## About:
 
-Runespoor is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.  Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like.
+Loxoc is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.  Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like.
 
 For a taste of the api check out the test file:
 
 ```py
 import time
-from Runespoor import (
+from Loxoc import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2
@@ -167,7 +169,7 @@ Then when we run it, it looks something like this:
 
 ![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/Sprite_jitter_fix.gif)
 
-# Important: How to Import 3D Assets:
+# How to Import 3D Assets:
 
 For now, your 3d assets. must be structured a specific way to be picked up by the asset importer.
 
