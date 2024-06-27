@@ -32,6 +32,8 @@ public:
     bool fullscreen = false;
     void update();
     double deltatime;
+    long long time_ns, time;
+
     inline void lock_mouse(bool lock) {
         SDL_SetRelativeMouseMode(SDLBOOL(lock));
     }
@@ -51,7 +53,7 @@ private:
     SDL_Renderer* renderer = NULL;
     SDL_Texture* texture = NULL;
     SDL_GLContext gl_context = NULL;
-    std::chrono::steady_clock::time_point old_time, new_time;
+    std::chrono::steady_clock::time_point old_time, new_time, starttime;
     std::set<object*> render_list;
     std::set<object2d*> render_list2d;
 };

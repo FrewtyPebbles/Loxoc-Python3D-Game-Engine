@@ -316,6 +316,18 @@ class Window:
         """
         The current deltatime for the window.
         """
+    
+    @property
+    def time_ns(self) -> int:
+        """
+        Time since the launch of the window in nanoseconds.
+        """
+
+    @property
+    def time(self) -> int:
+        """
+        Time since the launch of the window in seconds.
+        """
 
     def update(self) -> None:
         """

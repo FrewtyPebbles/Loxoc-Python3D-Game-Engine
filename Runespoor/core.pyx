@@ -803,7 +803,6 @@ cdef class Material:
             self.c_class.set_uniform(name, valu, type)
 
 
-
 cdef class Window:
 
     def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False) -> None:
@@ -822,6 +821,14 @@ cdef class Window:
     @property
     def dt(self) -> double:
         return self.c_class.deltatime
+
+    @property
+    def time_ns(self) -> int:
+        return self.c_class.time_ns
+
+    @property
+    def time(self) -> int:
+        return self.c_class.time
 
     def __dealloc__(self):
         del self.c_class

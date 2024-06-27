@@ -82,18 +82,16 @@ void window::create_window() {
     
     glViewport(0, 0, this->width, this->height);
     
-    this->old_time = std::chrono::high_resolution_clock::now();
-    glViewport(0, 0, this->width, this->height);
     
+    glViewport(0, 0, this->width, this->height);
+    this->old_time = this->starttime = std::chrono::steady_clock::now();
     return;
 }
 
 
 
 void window::update() {
-    this->new_time = std::chrono::high_resolution_clock::now();
-    this->deltatime = std::chrono::duration_cast<std::chrono::milliseconds>(this->new_time - this->old_time).count()/1000.0;// dt in seconds
-    this->old_time = this->new_time;
+    
     this->current_event.handle_events(this);
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -108,6 +106,11 @@ void window::update() {
     }
 
     SDL_GL_SwapWindow(this->app_window);
+    this->new_time = std::chrono::steady_clock::now();
+    this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
+    this->time = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
+    this->deltatime = std::chrono::duration_cast<std::chrono::nanoseconds>(this->new_time - this->old_time).count()/1000000000.0;// dt in seconds
+    this->old_time = this->new_time;
 }
 
 void window::add_object(object* obj) {

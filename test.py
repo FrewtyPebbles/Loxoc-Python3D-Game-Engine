@@ -1,3 +1,4 @@
+import time
 from Runespoor import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
@@ -41,7 +42,7 @@ car = Object(car_meshes,
     Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
 
 car2 = Object(car_meshes,
-    Vec3(300,0,500), Vec3(10,3.57,23.2), material=default_material)
+    Vec3(300,0,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
 
 teapot = Object(Mesh.from_file("./meshes/teapot/teapot.obj"),
     Vec3(-100,0,200), Vec3(0,0,0), material=default_material)
@@ -77,8 +78,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     else:
         print("FRAMERATE: inf fps")
     
-    doomguy.position.x = math.sin(counter/1.75 * window.dt)
-    doomguy.position.y = math.cos(counter/1.75 * window.dt)
+    doomguy.position.x = math.sin(window.time/1000000000)
+    doomguy.position.y = math.cos(window.time/1000000000)
+    
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
         # ROTATE RIGHT
@@ -103,7 +105,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # Clamp the velocity.
     vel = min(max(vel, -1000), 1000) if abs(vel) > frict else 0
     # Move the car forwards with its forwards vector with a magnitude of `vel` and apply friction
-    car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
+    # The right vector is the forward vector for this mesh because it is rotated 90 degrees by default.
+    car.position += car.rotation.right * vel * window.dt # window.dt is deltatime
     vel -= math.copysign(frict, vel)
     
 
@@ -135,3 +138,4 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     window.update()
     # This also refreshes window.current_event.
     counter += counter_speed
+    

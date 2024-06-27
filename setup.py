@@ -8,7 +8,7 @@ from setuptools.command.build_ext import build_ext
 
 MODULE_NAME = "Runespoor"
 
-DEV_VERSION = 19
+DEV_VERSION = 20
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 

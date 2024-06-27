@@ -536,6 +536,8 @@ cdef extern from "../src/Window.h":
         event current_event
         double deltatime
         bint fullscreen
+        long long time_ns
+        long long time
 
 cdef class Window:
     cdef window* c_class

@@ -21,9 +21,11 @@ Runespoor is a flexible, straight forward, multi-paradigm game engine that is bu
 For a taste of the api check out the test file:
 
 ```py
+import time
 from Runespoor import (
     Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
-    Material, Shader, ShaderType, EVENT_STATE, Quaternion
+    Material, Shader, ShaderType, EVENT_STATE, Quaternion,
+    Texture, Sprite, Object2D, Vec2
 )
 import math
 from copy import copy
@@ -39,6 +41,7 @@ window = Window("FBX Car Test", camera, *dim, False)
 # Materials are equivalent to shader programs.
 default_material = Material()
 
+
 # # If you wanted to create a new shader program, normally you would do something like this:
 #
 # default_material = Material(
@@ -52,13 +55,17 @@ default_material = Material()
 #
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
-car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
+car_meshes = Mesh.from_file("./meshes/chevrolet_camaro_ss/D5UFXRJ9222WOZCIKIDU0Z36K.obj")
+
+spr_doomguy = Sprite("./textures/doomguy.png")
+
+doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object(car_meshes,
-    Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+    Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
 
 car2 = Object(car_meshes,
-    Vec3(300,0,500), Vec3(10,3.57,23.2), material=default_material)
+    Vec3(300,0,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
 
 teapot = Object(Mesh.from_file("./meshes/teapot/teapot.obj"),
     Vec3(-100,0,200), Vec3(0,0,0), material=default_material)
@@ -71,6 +78,10 @@ window.add_object_list([
     car2,
     teapot,
     pirate_ship
+])
+
+window.add_object2d_list([
+    doomguy
 ])
 
 window.lock_mouse(True)
@@ -89,6 +100,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
     else:
         print("FRAMERATE: inf fps")
+    
+    doomguy.position.x = math.sin(window.time/1000000000)
+    doomguy.position.y = math.cos(window.time/1000000000)
     
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
@@ -114,7 +128,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # Clamp the velocity.
     vel = min(max(vel, -1000), 1000) if abs(vel) > frict else 0
     # Move the car forwards with its forwards vector with a magnitude of `vel` and apply friction
-    car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
+    # The right vector is the forward vector for this mesh because it is rotated 90 degrees by default.
+    car.position += car.rotation.right * vel * window.dt # window.dt is deltatime
     vel -= math.copysign(frict, vel)
     
 
@@ -144,14 +159,13 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         camera.position = car.position - (camera.rotation.forward * cam_dist)
     # Re-render the scene.
     window.update()
-    # This also refreshes window.event
+    # This also refreshes window.current_event.
     counter += counter_speed
-
 ```
 
 Then when we run it, it looks something like this:
 
-![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/the_quats_are_quatting.gif)
+![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/Sprite_jitter_fix.gif)
 
 # Important: How to Import 3D Assets:
 
