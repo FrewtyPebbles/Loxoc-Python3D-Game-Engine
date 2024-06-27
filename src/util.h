@@ -3,6 +3,7 @@
 #include <string>
 #include <cctype>
 #include <vector>
+#include <cmath>
 
 static std::string MOD_PATH;
 
