@@ -7,6 +7,7 @@
 #include <sstream>
 #include "Object2d.h"
 
+
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
     SDL_DestroyWindow(this->app_window);
@@ -34,7 +35,7 @@ void window::create_window() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	// SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     if (this->fullscreen) {
@@ -81,7 +82,7 @@ void window::create_window() {
     
     glViewport(0, 0, this->width, this->height);
     
-    this->old_time = SDL_GetTicks();
+    this->old_time = std::chrono::high_resolution_clock::now();
     glViewport(0, 0, this->width, this->height);
     
     return;
@@ -90,10 +91,10 @@ void window::create_window() {
 
 
 void window::update() {
-    this->new_time = SDL_GetTicks();
-    this->deltatime = (this->new_time - this->old_time)/1000.0f;// dt in seconds
+    this->new_time = std::chrono::high_resolution_clock::now();
+    this->deltatime = std::chrono::duration_cast<std::chrono::milliseconds>(this->new_time - this->old_time).count()/1000.0;// dt in seconds
+    this->old_time = this->new_time;
     this->current_event.handle_events(this);
-
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -105,9 +106,8 @@ void window::update() {
     for (object2d* ob : render_list2d) {
         ob->render(*this->cam);
     }
-    
+
     SDL_GL_SwapWindow(this->app_window);
-    this->old_time = new_time;
 }
 
 void window::add_object(object* obj) {

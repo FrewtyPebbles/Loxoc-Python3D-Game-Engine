@@ -10,6 +10,7 @@
 #include <vector>
 #include "Event.h"
 #include <set>
+#include <chrono>
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
@@ -30,7 +31,7 @@ public:
     event current_event;
     bool fullscreen = false;
     void update();
-    float deltatime;
+    double deltatime;
     inline void lock_mouse(bool lock) {
         SDL_SetRelativeMouseMode(SDLBOOL(lock));
     }
@@ -50,7 +51,7 @@ private:
     SDL_Renderer* renderer = NULL;
     SDL_Texture* texture = NULL;
     SDL_GLContext gl_context = NULL;
-    uint32_t old_time, new_time;
+    std::chrono::steady_clock::time_point old_time, new_time;
     std::set<object*> render_list;
     std::set<object2d*> render_list2d;
 };

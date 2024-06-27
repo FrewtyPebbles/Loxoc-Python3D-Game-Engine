@@ -14,8 +14,8 @@ public:
     :
         tex(tex),
         quad{
-            norm(vec2(-tex->data->width/2, tex->data->height/2)), norm(vec2(tex->data->width/2, tex->data->height/2)),
-            norm(vec2(-tex->data->width/2, -tex->data->height/2)), norm(vec2(tex->data->width/2, -tex->data->height/2))
+            norm(vec2(-tex->data->width/2.0f, tex->data->height/2.0f)), norm(vec2(tex->data->width/2.0f, tex->data->height/2.0f)),
+            norm(vec2(-tex->data->width/2.0f, -tex->data->height/2.0f)), norm(vec2(tex->data->width/2.0f, -tex->data->height/2.0f))
         }
     { create_VAO(); }
     

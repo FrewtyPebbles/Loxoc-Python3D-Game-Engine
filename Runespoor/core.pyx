@@ -431,7 +431,7 @@ cdef class Quaternion:
     def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:
         if isinstance(other, Quaternion):
             return self.quatmul(other)
-        if isinstance(other, Vec3):
+        elif isinstance(other, Vec3):
             return self.vecmul(other)
         else:
             return self.floatmul(other)
@@ -600,7 +600,7 @@ cdef class Vec3:
     def __mul__(self, other:Vec3 | float | Quaternion) -> Vec3:
         if isinstance(other, Vec3):
             return self.vecmul(other)
-        if isinstance(other, Quaternion):
+        elif isinstance(other, Quaternion):
             return self.quatmul(other)
         else:
             return self.floatmul(other)
@@ -675,7 +675,7 @@ cdef class Vec2:
 
     @angle.setter
     def angle(self, float value):
-        self.c_class[0] = Vec2.from_angle(value) * self.c_class.get_magnitude()
+        self.c_class[0] = vec2.from_angle(value) * self.c_class.get_magnitude()
 
     cpdef float to_angle(self):
         return self.c_class.to_angle()
@@ -695,7 +695,6 @@ cdef class Vec2:
     @y.setter
     def y(self, float value):
         self.c_class.set_y(value)
-
 
     # OPERATORS
 
@@ -817,11 +816,11 @@ cdef class Window:
         return ret
 
     @property
-    def deltatime(self) -> float:
+    def deltatime(self) -> double:
         return self.c_class.deltatime
 
     @property
-    def dt(self) -> float:
+    def dt(self) -> double:
         return self.c_class.deltatime
 
     def __dealloc__(self):

@@ -534,7 +534,7 @@ cdef extern from "../src/Window.h":
         void remove_object2d_list(vector[object2d*] objs)
 
         event current_event
-        float deltatime
+        double deltatime
         bint fullscreen
 
 cdef class Window:
