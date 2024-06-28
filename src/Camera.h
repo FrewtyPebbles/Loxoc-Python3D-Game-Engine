@@ -10,14 +10,13 @@
 
 using std::vector;
 using std::unordered_set;
-class object;
+class object3d;
 
 class camera {
 public:
     camera();
     camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov);
     ~camera();
-    void render(vector<object*> objects);
     vec3* position;
     quaternion* rotation;
     int view_width, view_height;

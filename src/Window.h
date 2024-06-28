@@ -11,19 +11,20 @@
 #include "Event.h"
 #include <set>
 #include <chrono>
+#include "PointLight.h"
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
 using std::string;
 using std::vector;
 class camera;
-class object;
+class object3d;
 class object2d;
 
 class window {
 public:
     window();
-    window(string title, camera* cam, int width, int height, bool fullscreen);
+    window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light);
     ~window();
     camera* cam;
     string title;
@@ -38,15 +39,22 @@ public:
         SDL_SetRelativeMouseMode(SDLBOOL(lock));
     }
 
-    void add_object(object* obj);
-    void remove_object(object* obj);
-    void add_object_list(vector<object*> objs);
-    void remove_object_list(vector<object*> objs);
+    void add_object(object3d* obj);
+    void remove_object(object3d* obj);
+    void add_object_list(vector<object3d*> objs);
+    void remove_object_list(vector<object3d*> objs);
 
     void add_object2d(object2d* obj);
     void remove_object2d(object2d* obj);
     void add_object2d_list(vector<object2d*> objs);
     void remove_object2d_list(vector<object2d*> objs);
+
+    void add_point_light(point_light* obj);
+    void remove_point_light(point_light* obj);
+    void add_point_light_list(vector<point_light*> objs);
+    void remove_point_light_list(vector<point_light*> objs);
+    std::set<point_light*> render_list_point_lights;
+    vec3* ambient_light;
 private:
     void create_window();
     SDL_Window* app_window = NULL;
@@ -54,6 +62,6 @@ private:
     SDL_Texture* texture = NULL;
     SDL_GLContext gl_context = NULL;
     std::chrono::steady_clock::time_point old_time, new_time, starttime;
-    std::set<object*> render_list;
+    std::set<object3d*> render_list;
     std::set<object2d*> render_list2d;
 };

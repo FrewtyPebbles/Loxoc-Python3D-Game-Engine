@@ -71,14 +71,6 @@ cdef class Camera:
             self._rotation = value
         self.c_class.rotation = self._rotation.c_class
 
-    cpdef void render(self, list[Object] objects):
-        cdef:
-            vector[object3d*] vec
-            Object obj
-        for obj in objects:
-            vec.push_back(obj.c_class)
-        self.c_class.render(vec)
-
 cdef class MeshDict:
 
     def __init__(self, list[Mesh] meshes) -> None:
@@ -214,7 +206,7 @@ cdef class Mesh:
 cpdef MeshDict mesh_from_file(str file_path):
     return MeshDict.from_cpp(mesh.from_file(file_path.encode()))
 
-cdef class Object:
+cdef class Object3D:
     def __init__(self, MeshDict mesh_data, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Material material = None) -> None:
@@ -241,8 +233,7 @@ cdef class Object:
 
     @position.setter
     def position(self, Vec3 value):
-        self._position = value
-        self.c_class.position = value.c_class
+        self._position.c_class[0] = value.c_class[0]
 
     @property
     def rotation(self) -> Quaternion:
@@ -250,11 +241,17 @@ cdef class Object:
 
     @rotation.setter
     def rotation(self, value: Vec3 | Quaternion):
+        cdef:
+            quaternion q
+            Quaternion Q
         if isinstance(value, Vec3):
-            self._rotation = value.to_quaternion()
+            Q = value.to_quaternion()
+            q = Q.c_class[0]
         elif isinstance(value, Quaternion):
-            self._rotation = value
-        self.c_class.rotation = self._rotation.c_class
+            Q = value
+            q = Q.c_class[0]
+
+        self._rotation.c_class[0] = q
 
     @property
     def scale(self) -> Vec3:
@@ -262,15 +259,10 @@ cdef class Object:
 
     @scale.setter
     def scale(self, Vec3 value):
-        self._scale = value
-        self.c_class.scale = value.c_class
+        self._scale.c_class[0] = value.c_class[0]
 
     def __dealloc__(self):
         del self.c_class
-
-
-    cpdef void render(self, Camera camera):
-        self.c_class.render(camera.c_class[0])
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
         cdef:
@@ -805,9 +797,18 @@ cdef class Material:
 
 cdef class Window:
 
-    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False) -> None:
-        self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen)
+    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0)) -> None:
+        self._ambient_light = ambient_light
+        self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
     
+    @property
+    def ambient_light(self) -> Vec3:
+        return self._ambient_light
+
+    @ambient_light.setter
+    def ambient_light(self, Vec3 value):
+        self._ambient_light.c_class[0] = value.c_class[0]
+
     @property
     def event(self) -> Event:
         ret = Event()
@@ -839,24 +840,24 @@ cdef class Window:
     cpdef void lock_mouse(self, bint lock):
         self.c_class.lock_mouse(lock)
 
-    cpdef void add_object(self, Object obj):
+    cpdef void add_object(self, Object3D obj):
         Py_INCREF(obj)
         self.c_class.add_object(obj.c_class)
 
-    cpdef void remove_object(self, Object obj):
+    cpdef void remove_object(self, Object3D obj):
         self.c_class.remove_object(obj.c_class)
         Py_DECREF(obj)
 
-    cpdef void add_object_list(self, list[Object] objs):
+    cpdef void add_object_list(self, list[Object3D] objs):
         cdef:
-            Object obj
+            Object3D obj
 
         for obj in objs:
             self.add_object(obj)
 
-    cpdef void remove_object_list(self, list[Object] objs):
+    cpdef void remove_object_list(self, list[Object3D] objs):
         cdef:
-            Object obj
+            Object3D obj
 
         for obj in objs:
             self.remove_object(obj)
@@ -882,6 +883,28 @@ cdef class Window:
 
         for obj in objs:
             self.remove_object2d(obj)
+
+    cpdef void add_point_light(self, PointLight obj):
+        Py_INCREF(obj)
+        self.c_class.add_point_light(obj.c_class)
+
+    cpdef void remove_point_light(self, PointLight obj):
+        self.c_class.remove_point_light(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_point_light_list(self, list[PointLight] objs):
+        cdef:
+            PointLight obj
+
+        for obj in objs:
+            self.add_point_light(obj)
+
+    cpdef void remove_point_light_list(self, list[PointLight] objs):
+        cdef:
+            PointLight obj
+
+        for obj in objs:
+            self.remove_point_light(obj)
 
 cdef class MouseDevice:
     pass
@@ -969,8 +992,7 @@ cdef class Object2D:
 
     @position.setter
     def position(self, Vec2 value):
-        self._position = value
-        self.c_class.position = value.c_class
+        self._position.c_class[0] = value.c_class[0]
 
     @property
     def rotation(self) -> float:
@@ -989,8 +1011,7 @@ cdef class Object2D:
 
     @scale.setter
     def scale(self, Vec2 value):
-        self._scale = value
-        self.c_class.scale = value.c_class
+        self._scale.c_class[0] = value.c_class[0]
 
     def __dealloc__(self):
         del self.c_class
@@ -1012,3 +1033,28 @@ cdef class Object2D:
                 uni_vec.push_back(val)
             valu = uni_vec
             self.c_class.set_uniform(name.encode(), valu, type.encode())
+
+cdef class PointLight:
+    def __init__(self, Vec3 position, float radius, Vec3 color) -> None:
+        self._position = position
+        self._color = color
+        self.c_class = new point_light(self._position.c_class, radius, self._color.c_class)
+    
+    @property
+    def position(self) -> Vec3:
+        return self._position
+
+    @position.setter
+    def position(self, Vec3 value):
+        self._position.c_class[0] = value.c_class[0]
+
+    @property
+    def color(self) -> Quaternion:
+        return self._color
+
+    @color.setter
+    def color(self, Vec3 value):
+        self._color.c_class[0] = value.c_class[0]
+
+    def __dealloc__(self):
+        del self.c_class

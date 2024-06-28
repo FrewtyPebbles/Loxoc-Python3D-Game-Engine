@@ -115,6 +115,10 @@ public:
         return vec3(glm::normalize(this->axis));
     }
 
+    inline float distance(vec3 const& other) {
+        return glm::distance(this->axis, other.axis);
+    }
+
     // Quaternion operations:
 
     quaternion to_quaternion();

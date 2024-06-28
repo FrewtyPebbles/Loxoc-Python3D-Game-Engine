@@ -75,7 +75,7 @@ class Material:
         Sets the value of a uniform for the shaders in the material.
         """
 
-class Object:
+class Object3D:
     """
     This class is your game object.
     """
@@ -293,11 +293,16 @@ class Vec2:
 
 
 class Window:
+
+    ambient_light:Vec3
     """
-    An application window that can be used as a render medium.
+    The ambient or "base" level of light before any lights are added
     """
 
-    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False) -> None:...
+    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0)) -> None:
+        """
+        An application window that can be used as a render medium.
+        """
     
     @property
     def event(self) -> Event:
@@ -339,24 +344,24 @@ class Window:
         Locks the mouse in the center of the window.
         """
 
-    def add_object(self, obj: Object) -> None:
+    def add_object(self, obj: Object3D) -> None:
         """
-        Adds the `Object` to the scene.  This ensures that the `Object` is rendered by the camera.
-        """
-
-    def remove_object(self, obj: Object) -> None:
-        """
-        Removes the `Object` from the scene.  Only `Object`s which are in the scene will be rendered by the camera.
+        Adds the `Object3D` to the scene.  This ensures that the `Object3D` is rendered by the camera.
         """
 
-    def add_object_list(self, objs: list[Object]) -> None:
+    def remove_object(self, obj: Object3D) -> None:
         """
-        Adds multiple `Object`s to the scene.  This ensures that they are rendered by the camera.
+        Removes the `Object3D` from the scene.  Only `Object3D`s which are in the scene will be rendered by the camera.
         """
 
-    def remove_object_list(self, objs: list[Object]) -> None:
+    def add_object_list(self, objs: list[Object3D]) -> None:
         """
-        Removes multiple `Object`s from the scene.  Only `Object`s which are in the scene will be rendered by the camera.
+        Adds multiple `Object3D`s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_object_list(self, objs: list[Object3D]) -> None:
+        """
+        Removes multiple `Object3D`s from the scene.  Only `Object3D`s which are in the scene will be rendered by the camera.
         """
 
     def add_object2d(self, obj: Object2D) -> None:
@@ -377,6 +382,26 @@ class Window:
     def remove_object2d_list(self, objs: list[Object2D]) -> None:
         """
         Removes multiple `Object2D`s from the scene.  Only `Object2D`s which are in the scene will be rendered by the camera.
+        """
+
+    def add_point_light(self, obj:PointLight) -> None:
+        """
+        Adds the `PointLight` to the scene.  This ensures that the `Object2D` is rendered by the camera.
+        """
+
+    def remove_point_light(self, obj:PointLight) -> None:
+        """
+        Removes the `PointLight` from the scene.  Only `PointLight`s which are in the scene will be rendered by the camera.
+        """
+
+    def add_point_light_list(self, objs:list[PointLight]) -> None:
+        """
+        Adds multiple `PointLight`s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_point_light_list(self, objs:list[PointLight]) -> None:
+        """
+        Removes multiple `PointLight`s from the scene.  Only `PointLight`s which are in the scene will be rendered by the camera.
         """
 
 class EVENT_FLAG(Enum):
@@ -749,4 +774,34 @@ class Object2D:
     def set_uniform(self, name:str, value:list[float] | int | float, type:str) -> None:
         """
         Sets the value of a uniform for the shaders in the object2d's material.
+        """
+
+class PointLight:
+    def __init__(self, position:Vec3, radius:float, color:Vec3) -> None:
+        """
+        A Light that radiates out from its position by `radius`
+        """
+
+    @property
+    def position(self) -> Vec3:
+        """
+        The `Vec3` position of the light.
+        """
+
+    @position.setter
+    def position(self, value:Vec3) -> None:
+        """
+        The `Vec3` position of the light.
+        """
+
+    @property
+    def color(self) -> Quaternion:
+        """
+        The Vec3 color of the light in rgb.
+        """
+
+    @color.setter
+    def color(self, value:Vec3) -> None:
+        """
+        The Vec3 color of the light in rgb.
         """

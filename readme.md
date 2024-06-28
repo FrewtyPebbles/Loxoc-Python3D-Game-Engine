@@ -25,9 +25,9 @@ For a taste of the api check out the test file:
 ```py
 import time
 from Loxoc import (
-    Vec3, Camera, Mesh, Object, Window, EVENT_FLAG,
+    Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
-    Texture, Sprite, Object2D, Vec2
+    Texture, Sprite, Object2D, Vec2, PointLight
 )
 import math
 from copy import copy
@@ -38,7 +38,7 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("FBX Car Test", camera, *dim, False)
+window = Window("FBX Car Test", camera, *dim, False, Vec3(0.2,0.2,0.2))
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -57,33 +57,45 @@ default_material = Material()
 #
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
-car_meshes = Mesh.from_file("./meshes/chevrolet_camaro_ss/D5UFXRJ9222WOZCIKIDU0Z36K.obj")
+car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
 
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
-car = Object(car_meshes,
-    Vec3(0.0,-100.0,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
+car = Object3D(car_meshes,
+    Vec3(0.0,0,500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
 
-car2 = Object(car_meshes,
-    Vec3(300,0,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
+car2 = Object3D(car_meshes,
+    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(1,1,1), material=default_material)
 
-teapot = Object(Mesh.from_file("./meshes/teapot/teapot.obj"),
+teapot = Object3D(Mesh.from_file("./meshes/teapot/teapot.obj"),
     Vec3(-100,0,200), Vec3(0,0,0), material=default_material)
 
-pirate_ship = Object(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
-    Vec3(-100,-100,300), Vec3(0,10,0), material=default_material)
+cube = Object3D(Mesh.from_file("./meshes/Ice/Ice.fbx"),
+    Vec3(0,0,0), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+
+pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
+    Vec3(-100,0,300), Vec3(0,10,0), material=default_material)
+
+test_light = PointLight(Vec3(0,0,0), 500.0, Vec3(1,1,1))
+test_light2 = PointLight(Vec3(20,0,0), 500.0, Vec3(0,0,2))
 
 window.add_object_list([
     car,
     car2,
     teapot,
+    cube,
     pirate_ship
 ])
 
 window.add_object2d_list([
     doomguy
+])
+
+window.add_point_light_list([
+    test_light,
+    test_light2
 ])
 
 window.lock_mouse(True)
@@ -121,6 +133,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         vel += accel
     # apply a quaternion rotation arround the vector vec3(1,1,0)
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
+
+    test_light.position = car.position
+    test_light.position.y += 150
     
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
@@ -131,7 +146,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     vel = min(max(vel, -1000), 1000) if abs(vel) > frict else 0
     # Move the car forwards with its forwards vector with a magnitude of `vel` and apply friction
     # The right vector is the forward vector for this mesh because it is rotated 90 degrees by default.
-    car.position += car.rotation.right * vel * window.dt # window.dt is deltatime
+    car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
     vel -= math.copysign(frict, vel)
     
 
@@ -167,7 +182,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
 Then when we run it, it looks something like this:
 
-![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/Sprite_jitter_fix.gif)
+![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/lighting_working.gif)
 
 # How to Import 3D Assets:
 
@@ -209,6 +224,8 @@ And voila!  Your 3D assets are now imported and ready to be used in objects and 
  - Add Matrix datastructures for GLM.
 
  - Add `Quaternion` type to `set_uniform`
+
+ - Add `PointLight` class
 
 # Future Plans:
 

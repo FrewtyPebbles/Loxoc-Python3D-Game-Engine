@@ -1,13 +1,8 @@
 #include "Camera.h"
 #include "Vec3.h"
-#include "Object.h"
+#include "Object3d.h"
 #include <algorithm>
 
-void camera::render(vector<object*> objects) {
-    for (object * obj : objects) {
-        obj->render(*this);
-    }
-}
 
 camera::camera() {}
 

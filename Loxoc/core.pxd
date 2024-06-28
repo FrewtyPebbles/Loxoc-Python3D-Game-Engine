@@ -456,9 +456,8 @@ cdef class Mesh:
     
 cpdef MeshDict mesh_from_file(str file_path)
 
-cdef extern from "../src/Object.h":
+cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:
-        # alias for cpp class object since name object is reserved by python
         object3d() except +
         object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale) except +
         object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
@@ -468,7 +467,7 @@ cdef extern from "../src/Object.h":
         vec3* scale
         material* mat
 
-        void render(camera& camera)
+        void render(camera& camera, window* window)
         
         vector[vec3] get_translation(vector[vec3] vertexes)
 
@@ -477,7 +476,7 @@ cdef extern from "../src/Object.h":
         void set_uniform(string name, uniform_type value, string type)
 
 
-cdef class Object:
+cdef class Object3D:
     cdef:
         object3d* c_class
         public MeshDict mesh_data
@@ -485,8 +484,6 @@ cdef class Object:
         Vec3 _position, _scale
         Quaternion _rotation
     
-    cpdef void render(self, Camera camera)
-
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 cdef extern from "../src/Camera.h":
@@ -494,7 +491,6 @@ cdef extern from "../src/Camera.h":
     cdef cppclass camera:
         camera() except +
         camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov) except +
-        void render(vector[object3d*] objects)
         vec3* position
         quaternion* rotation
         int view_width, view_height
@@ -509,14 +505,25 @@ cdef class Camera:
         Vec3 _position
         Quaternion _rotation
 
-    cpdef void render(self, list[Object] objects)
+
+cdef extern from "../src/PointLight.h":
+    cdef cppclass point_light:
+        point_light() except +
+        point_light(vec3* pos, float rad, vec3* col) except +
+        vec3* position
+        float radius
+        vec3* color
 
 
+cdef class PointLight:
+    cdef:
+        point_light* c_class
+        Vec3 _position, _color
 
 cdef extern from "../src/Window.h":
     cdef cppclass window:
         window() except +
-        window(string title, camera* cam, int width, int height, bint fullscreen) except +
+        window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light) except +
         camera* cam
         string title
         int width, height
@@ -533,26 +540,40 @@ cdef extern from "../src/Window.h":
         void add_object2d_list(vector[object2d*] objs)
         void remove_object2d_list(vector[object2d*] objs)
 
+        void add_point_light(point_light* obj)
+        void remove_point_light(point_light* obj)
+        void add_point_light_list(vector[point_light*] objs)
+        void remove_point_light_list(vector[point_light*] objs)
+
         event current_event
         double deltatime
         bint fullscreen
         long long time_ns
         long long time
+        vec3 * ambient_light
 
 cdef class Window:
-    cdef window* c_class
+    cdef:
+        window* c_class
+        Vec3 _ambient_light
+    
 
     cpdef void update(self)
 
-    cpdef void add_object(self, Object obj)
-    cpdef void remove_object(self, Object obj)
-    cpdef void add_object_list(self, list[Object] objs)
-    cpdef void remove_object_list(self, list[Object] objs)
+    cpdef void add_object(self, Object3D obj)
+    cpdef void remove_object(self, Object3D obj)
+    cpdef void add_object_list(self, list[Object3D] objs)
+    cpdef void remove_object_list(self, list[Object3D] objs)
 
     cpdef void add_object2d(self, Object2D obj)
     cpdef void remove_object2d(self, Object2D obj)
     cpdef void add_object2d_list(self, list[Object2D] objs)
     cpdef void remove_object2d_list(self, list[Object2D] objs)
+
+    cpdef void add_point_light(self, PointLight obj)
+    cpdef void remove_point_light(self, PointLight obj)
+    cpdef void add_point_light_list(self, list[PointLight] objs)
+    cpdef void remove_point_light_list(self, list[PointLight] objs)
 
     cpdef void lock_mouse(self, bint lock)
 
@@ -749,3 +770,6 @@ cdef class Object2D:
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
 cpdef Sprite sprite_from_texture(Texture tex)
+
+
+

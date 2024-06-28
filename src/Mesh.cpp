@@ -45,19 +45,27 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         get_textures(emissive, aiTextureType_EMISSIVE);
         get_textures(lightmap, aiTextureType_LIGHTMAP);
 
+
+        bool has_norms = msh->HasNormals();
         // get mesh data
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
             auto vert = transform * msh->mVertices[v_n];
             _vertexes->push_back(vec3(vert.x, vert.y, vert.z));
+
+            auto uv_coord = msh->mTextureCoords[0][v_n];// 0 = diffuse
+            _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
+
+            if (has_norms) {
+                auto norm_coord = msh->mNormals[v_n];// 0 = diffuse
+                _vertex_normals->push_back(vec3(norm_coord.x, norm_coord.y, norm_coord.z));
+            } else {
+                _vertex_normals->push_back(vec3(0.0f, 0.0f, 0.0f));
+            }
         }
+
         for (size_t f_n = 0; f_n < msh->mNumFaces; f_n++) {
             auto fce = msh->mFaces[f_n];
             faces->push_back(make_tup<unsigned int, 3>({fce.mIndices[0], fce.mIndices[1], fce.mIndices[2]}));
-        }
-
-        for (unsigned int j = 0; j < msh->mNumVertices; ++j) {
-            auto uv_coord = msh->mTextureCoords[0][j];// 0 = diffuse
-            _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
         }
         
 
@@ -122,14 +130,19 @@ void mesh::create_VAO() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_STATIC_DRAW);
 
-    // Vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    // Vertex attributes (verticies)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // Vertex attributes (normals)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     if (!this->faces->empty()) {
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-            (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
+        // Vertex attributes (texcoords)
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+            (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -143,6 +156,9 @@ void mesh::get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts) {
         mut_verts->push_back(vert.axis.x);
         mut_verts->push_back(vert.axis.y);
         mut_verts->push_back(vert.axis.z);
+        mut_verts->push_back((*this->vertex_normals)[i].axis.x);
+        mut_verts->push_back((*this->vertex_normals)[i].axis.y);
+        mut_verts->push_back((*this->vertex_normals)[i].axis.z);
         if (!this->diffuse_coordinates->empty()) {
             mut_verts->push_back((*this->diffuse_coordinates)[i].axis.x);
             mut_verts->push_back((*this->diffuse_coordinates)[i].axis.y);

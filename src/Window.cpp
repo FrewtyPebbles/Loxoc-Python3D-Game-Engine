@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include <iostream>
 #include <mutex>
-#include "Object.h"
+#include "Object3d.h"
 #include <sstream>
 #include "Object2d.h"
 
@@ -19,7 +19,7 @@ window::window() {
     this->create_window();
 }
 
-window::window(string title, camera* cam, int width, int height, bool fullscreen) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
     this->create_window();
 }
 
@@ -96,9 +96,9 @@ void window::update() {
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    for (object* ob : render_list) {
+    for (object3d* ob : render_list) {
         this->cam->recalculate_pv();
-        ob->render(*this->cam);
+        ob->render(*this->cam, this);
     }
 
     for (object2d* ob : render_list2d) {
@@ -113,22 +113,22 @@ void window::update() {
     this->old_time = this->new_time;
 }
 
-void window::add_object(object* obj) {
+void window::add_object(object3d* obj) {
     this->render_list.insert(obj);
 }
 
-void window::remove_object(object* obj) {
+void window::remove_object(object3d* obj) {
     this->render_list.erase(obj);
 }
 
-void window::add_object_list(vector<object*> objs) {
-    for (object * obj : objs) {
+void window::add_object_list(vector<object3d*> objs) {
+    for (object3d * obj : objs) {
         this->render_list.insert(obj);
     }
 }
 
-void window::remove_object_list(vector<object*> objs) {
-    for (object * obj : objs) {
+void window::remove_object_list(vector<object3d*> objs) {
+    for (object3d * obj : objs) {
         this->render_list.erase(obj);
     }
 }
@@ -150,5 +150,25 @@ void window::add_object2d_list(vector<object2d*> objs) {
 void window::remove_object2d_list(vector<object2d*> objs) {
     for (object2d * obj : objs) {
         this->render_list2d.erase(obj);
+    }
+}
+
+void window::add_point_light(point_light* obj) {
+    this->render_list_point_lights.insert(obj);
+}
+
+void window::remove_point_light(point_light* obj) {
+    this->render_list_point_lights.erase(obj);
+}
+
+void window::add_point_light_list(vector<point_light*> objs) {
+    for (point_light * obj : objs) {
+        this->render_list_point_lights.insert(obj);
+    }
+}
+
+void window::remove_point_light_list(vector<point_light*> objs) {
+    for (point_light * obj : objs) {
+        this->render_list_point_lights.erase(obj);
     }
 }
