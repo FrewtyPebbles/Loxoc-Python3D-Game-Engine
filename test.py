@@ -13,7 +13,7 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("FBX Car Test", camera, *dim, False, Vec3(0.2,0.2,0.2))
+window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.2,0.2,0.2))
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -32,23 +32,23 @@ default_material = Material()
 #
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
-car_meshes = Mesh.from_file("./meshes/fbx_car/svj_PACKED.fbx")
+car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object3D(car_meshes,
-    Vec3(0.0,0,500), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+    Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
 
 car2 = Object3D(car_meshes,
-    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(1,1,1), material=default_material)
+    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
 
-teapot = Object3D(Mesh.from_file("./meshes/teapot/teapot.obj"),
-    Vec3(-100,0,200), Vec3(0,0,0), material=default_material)
+teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
+    Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000), material=default_material)
 
-cube = Object3D(Mesh.from_file("./meshes/Ice/Ice.fbx"),
-    Vec3(0,0,0), Vec3(0,0,0), Vec3(1,1,1), material=default_material)
+cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
+    Vec3(0,0,0), Vec3(0,0,0), Vec3(20,20,20), material=default_material)
 
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,0,300), Vec3(0,10,0), material=default_material)

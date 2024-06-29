@@ -108,7 +108,7 @@ public:
     }
 
     inline float get_magnitude() {
-        return glm::length2(this->axis);
+        return glm::length(this->axis);
     }
     
     inline vec3 get_normalized() {

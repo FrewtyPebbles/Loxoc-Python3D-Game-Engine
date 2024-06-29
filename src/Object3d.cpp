@@ -48,7 +48,7 @@ void object3d::render(camera& camera, window* window) {
 
             i = 0;
             for (point_light* pl : window->render_list_point_lights) {
-                if (pl->position->distance(*this->position) <= pl->radius) {
+                if (pl->position->distance(*this->position) <= pl->radius + _mesh->data->radius * this->scale->get_magnitude()) {
                     pl->set_uniforms(this->mat->shader_program, i);
                     i++;
                 }

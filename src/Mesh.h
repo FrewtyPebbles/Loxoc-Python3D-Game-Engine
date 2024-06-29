@@ -105,7 +105,7 @@ public:
     vector<rc_texture> diffuse_textures;
     vector<rc_texture> specular_textures;
     vector<rc_texture> normals_textures;
-
+    float radius = 0;
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
 

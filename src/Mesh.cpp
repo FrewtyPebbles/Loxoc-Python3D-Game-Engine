@@ -37,20 +37,17 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         get_textures(diffuse, aiTextureType_DIFFUSE);
         get_textures(specular, aiTextureType_SPECULAR);
         get_textures(normals, aiTextureType_NORMALS);
-        get_textures(ambient, aiTextureType_AMBIENT);
-        get_textures(ambient_occlusion, aiTextureType_AMBIENT_OCCLUSION);
-        get_textures(base_color, aiTextureType_BASE_COLOR);
-        get_textures(height, aiTextureType_HEIGHT);
-        get_textures(displacement, aiTextureType_DISPLACEMENT);
-        get_textures(emissive, aiTextureType_EMISSIVE);
-        get_textures(lightmap, aiTextureType_LIGHTMAP);
 
-
+        float radius = 0;
         bool has_norms = msh->HasNormals();
         // get mesh data
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
             auto vert = transform * msh->mVertices[v_n];
             _vertexes->push_back(vec3(vert.x, vert.y, vert.z));
+            auto new_vert_mag = vec3(vert.x, vert.y, vert.z).get_magnitude();
+            if (radius < new_vert_mag) {
+                radius = new_vert_mag;
+            }
 
             auto uv_coord = msh->mTextureCoords[0][v_n];// 0 = diffuse
             _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
@@ -67,7 +64,6 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
             auto fce = msh->mFaces[f_n];
             faces->push_back(make_tup<unsigned int, 3>({fce.mIndices[0], fce.mIndices[1], fce.mIndices[2]}));
         }
-        
 
         if (diffuse_textures.empty()) {
             // insert default texture
@@ -75,7 +71,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
                 new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR))
             );
         }
-        meshes.insert(new RC(new mesh(
+        auto ret_mesh = new mesh(
             mesh_name,
             materials,
             _vertexes,
@@ -86,7 +82,9 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
             diffuse_textures,
             specular_textures,
             normals_textures
-        )));
+        );
+        ret_mesh->radius = radius;
+        meshes.insert(new RC(ret_mesh));
     }
 }
 
