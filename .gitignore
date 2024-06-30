@@ -15,4 +15,3 @@ dist/
 .eggs/
 .linuxvenv
 textures/
-/docs/build/

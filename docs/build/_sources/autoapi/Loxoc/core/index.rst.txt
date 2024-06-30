@@ -1,0 +1,1438 @@
+Loxoc.core
+==========
+
+.. py:module:: Loxoc.core
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   Loxoc.core.ShaderType
+   Loxoc.core.Camera
+   Loxoc.core.Mesh
+   Loxoc.core.MeshDict
+   Loxoc.core.Material
+   Loxoc.core.Object3D
+   Loxoc.core.Shader
+   Loxoc.core.Vec3
+   Loxoc.core.Vec2
+   Loxoc.core.Window
+   Loxoc.core.EVENT_FLAG
+   Loxoc.core.EVENT_STATE
+   Loxoc.core.MOUSE_EVENT_TYPE
+   Loxoc.core.MOUSE_BUTTON
+   Loxoc.core.MOUSE_WHEEL_DIRECTION
+   Loxoc.core.MouseWheel
+   Loxoc.core.MouseDevice
+   Loxoc.core.Event
+   Loxoc.core.Quaternion
+   Loxoc.core.TextureFiltering
+   Loxoc.core.TextureWraping
+   Loxoc.core.Texture
+   Loxoc.core.Sprite
+   Loxoc.core.Object2D
+   Loxoc.core.PointLight
+
+
+Module Contents
+---------------
+
+.. py:class:: ShaderType(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The shader type of a :class:`Shader` object.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: FRAGMENT
+      :type:  ShaderType
+
+
+   .. py:attribute:: VERTEX
+      :type:  ShaderType
+
+
+.. py:class:: Camera(position: Vec3, rotation: Vec3, view_width: int, view_height: int, focal_length: float, fov: float)
+
+   This class is the 3d perspective for a :class:`Window`.
+
+
+   .. py:property:: position
+      :type: Vec3
+
+      The current position of the :class:`Camera` as a :class:`Vec3` .
+
+
+
+   .. py:property:: rotation
+      :type: Quaternion
+
+      The current rotation of the :class:`Camera` as a :class:`Quaternion` .
+
+
+
+.. py:class:: Mesh
+
+   This class is used to create/load meshes.
+
+
+   .. py:method:: from_file(file_path: str) -> MeshDict
+      :staticmethod:
+
+
+      Returns all of the meshes from the supplied path to the 3d file.
+
+
+
+   .. py:property:: name
+      :type: str
+
+      Name of the mesh.
+
+      :rtype: str
+
+
+
+.. py:class:: MeshDict(meshes: list[Mesh])
+
+   A fast :class:`Mesh` container that can be used like a statically typed dict.
+
+
+   .. py:method:: insert(m: Mesh) -> None
+
+      Insert a Mesh.  It will use the Mesh name as a key.
+
+
+
+   .. py:method:: get(name: str) -> list[Mesh]
+
+      Get a Mesh from the dict by name.
+
+
+
+   .. py:method:: remove(name: str) -> None
+
+      Remove a Mesh from the dict by name.
+
+
+
+   .. py:method:: __iter__() -> Generator[tuple[str, list[Mesh]], None, None]
+
+      Itterates through the key value pairs of the dict.
+
+
+
+   .. py:method:: __getitem__(key: str) -> list[Mesh]
+
+      Get a Mesh from the dict by name.
+
+
+
+.. py:class:: Material(vertex: Shader = None, fragment: Shader = None)
+
+   This decides how to render an Object (:class:`Object3D` or :class:`Object2D`).
+
+   You may supply your own :class:`Shader` s to customize how Objects are rendered.
+
+
+   .. py:method:: set_uniform(name: str, value: list[float] | int | float, type: str) -> None
+
+      Sets the value of a uniform for the shaders in the material.
+
+
+
+.. py:class:: Object3D(mesh_data: MeshDict, position: Vec3 = Vec3(0.0, 0.0, 0.0), rotation: Vec3 = Vec3(0.0, 0.0, 0.0), scale: Vec3 = Vec3(1.0, 1.0, 1.0), material: Material | None = None)
+
+   This class is your 3D game object.
+
+
+   .. py:attribute:: mesh_data
+      :type:  MeshDict
+
+      The :class:`MeshDict` which stores all of the :class:`Mesh` s for the :class:`Object3D`
+
+
+
+   .. py:attribute:: material
+      :type:  Material
+
+      The :class:`Material` used to specify how to render the :class:`Object3D`
+
+
+
+   .. py:property:: position
+      :type: Vec3
+
+      The position of the object as a vec3.
+
+
+
+   .. py:property:: rotation
+      :type: Quaternion
+
+      The rotation of the object as a Quaternion.
+
+
+
+   .. py:property:: scale
+      :type: Vec3
+
+      The scale of the object as a :class:`Vec3`.
+
+
+
+   .. py:method:: set_uniform(name: str, value: list[float] | int | float, type: str) -> None
+
+      Sets the value of a uniform for the :class:`Shader` s in the object's :class:`Material`.
+
+
+
+.. py:class:: Shader(source: str, shader_type: ShaderType)
+
+   Used to import shader files (glsl) that can be used in :class:`Material` s.
+
+
+   .. py:method:: from_file(filepath: str, type: ShaderType) -> Shader
+      :classmethod:
+
+
+
+.. py:class:: Vec3(x: float, y: float, z: float)
+
+   A 3 float datastructure used to represent positional data, colors, or whatever you may need it for.
+   Contains useful linear algebra operators and functions.
+
+
+   .. py:method:: __repr__() -> str
+
+      Vec3 str representation.
+
+
+
+   .. py:property:: quaternion
+      :type: Quaternion
+
+      Get the :class:`Quaternion` form of the vector.  Can also be assigned to, but not mutated.
+
+
+
+   .. py:property:: x
+      :type: float
+
+
+
+   .. py:property:: y
+      :type: float
+
+
+
+   .. py:property:: z
+      :type: float
+
+
+
+   .. py:property:: up
+      :type: Vec3
+
+      The up directional vector from the Euler representation of the :class:`Vec3` .
+
+
+
+   .. py:property:: right
+      :type: Vec3
+
+      The right directional vector from the Euler representation of the :class:`Vec3` .
+
+
+
+   .. py:property:: forward
+      :type: Vec3
+
+      The forward directional vector from the Euler representation of the :class:`Vec3` .
+
+
+
+   .. py:method:: __neg__() -> Vec3
+
+      Negate a vector.
+
+
+
+   .. py:method:: __add__(other: Vec3 | float) -> Vec3
+
+      Add 2 vectors.
+
+
+
+   .. py:method:: __sub__(other: Vec3 | float) -> Vec3
+
+      Subtract 2 vectors.
+
+
+
+   .. py:method:: __mul__(other: Vec3 | float | Quaternion) -> Vec3
+
+      Multiply 2 vectors.
+
+
+
+   .. py:method:: __truediv__(other: Vec3 | float) -> Vec3
+
+      divide 2 vectors.
+
+
+
+   .. py:method:: dot(other: Vec3) -> float
+
+      Performs a dot product operation between two :class:`Vec3` s.
+
+
+
+   .. py:method:: cross(other: Quaternion | Vec3) -> Vec3
+
+      Performs a cross product operation between two :class:`Vec3` s.
+
+
+
+   .. py:method:: get_magnitude() -> float
+
+      Returns the magnitude of the vector.
+
+
+
+   .. py:method:: get_normalized() -> Vec3
+
+      Returns the normalized vector.
+
+
+
+   .. py:method:: to_quaternion() -> Quaternion
+
+      Constructs a :class:`Quaternion` from the given Euler Angle :class:`Vec3` (in radians).
+
+
+
+.. py:class:: Vec2(x: float, y: float)
+
+   A 2 float datastructure used to represent positional data, 2D rotation, or whatever you may need it for.
+   Contains useful linear algebra operators and functions.
+
+
+   .. py:method:: __repr__() -> str
+
+      :class:`Vec2` str representation.
+
+
+
+   .. py:method:: __neg__() -> Vec2
+
+
+   .. py:property:: angle
+      :type: float
+
+      The vector converted to an angle in radians.
+
+
+
+   .. py:method:: to_angle() -> float
+
+      Convert the vector to an angle in radians
+
+
+
+   .. py:property:: x
+      :type: float
+
+
+
+   .. py:property:: y
+      :type: float
+
+
+
+   .. py:method:: __add__(other: Vec2 | float) -> Vec2
+
+
+   .. py:method:: __sub__(other: Vec2 | float) -> Vec2
+
+
+   .. py:method:: __mul__(other: Vec2 | float) -> Vec2
+
+
+   .. py:method:: __truediv__(other: Vec2 | float) -> Vec2
+
+
+   .. py:method:: dot(other: Vec2) -> float
+
+      Calculate the dot product of 2 :class:`Vec2` s.
+
+
+
+   .. py:method:: get_magnitude() -> float
+
+      Calculate the :class:`Vec2` 's magnitude.
+
+
+
+   .. py:method:: get_normalized() -> Vec2
+
+      Calculate the normalized :class:`Vec2` of the :class:`Vec2` .
+
+
+
+   .. py:method:: from_angle(angle: float) -> Vec2
+      :classmethod:
+
+
+      Construct a normalized :class:`Vec2` given an angle.
+
+
+
+.. py:class:: Window(title: str, cam: Camera, width: int, height: int, fullscreen: bool = False, ambient_light: Vec3 = Vec3(1.0, 1.0, 1.0))
+
+   An application window for a game.  This class also keeps track of the state of the game engine runtime (ie. what to and not to render along with events and time).
+
+
+   .. py:attribute:: ambient_light
+      :type:  Vec3
+
+      The ambient or "base" level of light before any lights are added
+
+
+
+   .. py:property:: event
+      :type: Event
+
+      This is the most recent event that the window recieved durring :meth:`Window.update` .
+
+
+
+   .. py:property:: deltatime
+      :type: float
+
+      The current deltatime for the window.
+
+
+
+   .. py:property:: dt
+      :type: float
+
+      The current deltatime for the window.
+
+
+
+   .. py:property:: time_ns
+      :type: int
+
+      Time since the launch of the window in nanoseconds.
+
+
+
+   .. py:property:: time
+      :type: int
+
+      Time since the launch of the window in seconds.
+
+
+
+   .. py:method:: update() -> None
+
+      Re-renders and refreshes the :attr:`Window.event` on the application :class:`Window` .
+      Should be used in a render/gameloop like so:
+
+          .. code-block:: python
+
+              window = Window(...)
+
+              while ...:
+                  
+                  # render/gameloop code...
+
+                  window.update()
+
+      Whenever :meth:`Window.update` is called, a new frame is drawn to the :class:`Window` .
+      If the program ends, the window will be closed.
+
+
+
+   .. py:method:: lock_mouse(lock: bool) -> None
+
+      Locks the mouse in the center of the window.
+
+
+
+   .. py:method:: add_object(obj: Object3D) -> None
+
+      Adds the :class:`Object3D` to the scene.  This ensures that the :class:`Object3D` is rendered by the camera.
+
+
+
+   .. py:method:: remove_object(obj: Object3D) -> None
+
+      Removes the :class:`Object3D`  from the scene.  Only :class:`Object3D` s which are in the scene will be rendered by the camera.
+
+
+
+   .. py:method:: add_object_list(objs: list[Object3D]) -> None
+
+      Adds multiple :class:`Object3D` s to the scene.  This ensures that they are rendered by the camera.
+
+
+
+   .. py:method:: remove_object_list(objs: list[Object3D]) -> None
+
+      Removes multiple :class:`Object3D` s from the scene.  Only :class:`Object3D` s which are in the scene will be rendered by the camera.
+
+
+
+   .. py:method:: add_object2d(obj: Object2D) -> None
+
+      Adds the :class:`Object2D` to the scene.  This ensures that the :class:`Object2D` is rendered by the camera.
+
+
+
+   .. py:method:: remove_object2d(obj: Object2D) -> None
+
+      Removes the :class:`Object2D` from the scene.  Only :class:`Object2D` s which are in the scene will be rendered by the camera.
+
+
+
+   .. py:method:: add_object2d_list(objs: list[Object2D]) -> None
+
+      Adds multiple :class:`Object2D` s to the scene.  This ensures that they are rendered by the camera.
+
+
+
+   .. py:method:: remove_object2d_list(objs: list[Object2D]) -> None
+
+      Removes multiple :class:`Object2D` s from the scene.  Only :class:`Object2D` s which are in the scene will be rendered by the camera.
+
+
+
+   .. py:method:: add_point_light(obj: PointLight) -> None
+
+      Adds the :class:`PointLight` to the scene.  This ensures that the :class:`PointLight` is rendered by the camera.
+
+
+
+   .. py:method:: remove_point_light(obj: PointLight) -> None
+
+      Removes the :class:`PointLight` from the scene.  Only :class:`PointLight` s which are in the scene will be rendered by the camera.
+
+
+
+   .. py:method:: add_point_light_list(objs: list[PointLight]) -> None
+
+      Adds multiple :class:`PointLight` s to the scene.  This ensures that they are rendered by the camera.
+
+
+
+   .. py:method:: remove_point_light_list(objs: list[PointLight]) -> None
+
+      Removes multiple :class:`PointLight` s from the scene.  Only :class:`PointLight` s which are in the scene will be rendered by the camera.
+
+
+
+.. py:class:: EVENT_FLAG(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   An IO or engine event flag.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: WINDOW_MINIMIZE
+      :type:  EVENT_FLAG
+
+      Flagged when the window minimize button is clicked.
+
+
+
+   .. py:attribute:: WINDOW_CLOSE
+      :type:  EVENT_FLAG
+
+      Flagged when the window close button is clicked.
+
+
+
+   .. py:attribute:: QUIT
+      :type:  EVENT_FLAG
+
+      Flagged when the window close button is clicked.
+
+
+
+   .. py:attribute:: KEY_UP
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_DOWN
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_RIGHT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_LEFT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_SPACE
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_a
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_b
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_c
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_d
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_e
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_f
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_g
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_h
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_i
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_j
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_k
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_l
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_m
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_n
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_o
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_p
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_q
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_r
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_s
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_t
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_u
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_v
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_w
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_x
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_y
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_z
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_LSHIFT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_RSHIFT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_LCTRL
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_LALT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_ESCAPE
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_COMMA
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_PERIOD
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_FORWARDSLASH
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_BACKSLASH
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_OPEN_BRACKET
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_CLOSE_BRACKET
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_SEMICOLON
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_QUOTE
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_ENTER
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_BACKSPACE
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_TAB
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_BACKTICK
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_DASH
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_EQUALS
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_1
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_2
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_3
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_4
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_5
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_6
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_7
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_8
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_9
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_0
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_RCTRL
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: KEY_RALT
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: MOUSE_BUTTON_DOWN
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: MOUSE_BUTTON_UP
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: MOUSE_WHEEL
+      :type:  EVENT_FLAG
+
+
+   .. py:attribute:: MOUSE_MOTION
+      :type:  EVENT_FLAG
+
+
+.. py:class:: EVENT_STATE(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The state of an IO or engine event flag.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: NONE
+      :type:  EVENT_STATE
+
+
+   .. py:attribute:: PRESSED
+      :type:  EVENT_STATE
+
+
+   .. py:attribute:: RELEASED
+      :type:  EVENT_STATE
+
+
+.. py:class:: MOUSE_EVENT_TYPE(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The type of a mouse event.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: BUTTON_DOWN
+      :type:  MOUSE_EVENT_TYPE
+
+
+   .. py:attribute:: BUTTON_UP
+      :type:  MOUSE_EVENT_TYPE
+
+
+   .. py:attribute:: NONE
+      :type:  MOUSE_EVENT_TYPE
+
+
+.. py:class:: MOUSE_BUTTON(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The button of a mouse event.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: LEFT
+      :type:  MOUSE_BUTTON
+
+
+   .. py:attribute:: RIGHT
+      :type:  MOUSE_BUTTON
+
+
+   .. py:attribute:: MIDDLE
+      :type:  MOUSE_BUTTON
+
+
+.. py:class:: MOUSE_WHEEL_DIRECTION(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The wheel direction of a mouse wheel event.
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: FLIPPED
+      :type:  MOUSE_WHEEL_DIRECTION
+
+
+   .. py:attribute:: NORMAL
+      :type:  MOUSE_WHEEL_DIRECTION
+
+
+.. py:class:: MouseWheel
+
+   The mousewheel data for a mouse wheel event.
+
+
+   .. py:attribute:: int_x
+      :type:  int
+
+      The x value of the mouse wheel with integer precision.
+
+
+
+   .. py:attribute:: int_y
+      :type:  int
+
+      The y value of the mouse wheel with integer precision.
+
+
+
+   .. py:attribute:: x
+      :type:  float
+
+      The x value of the mouse wheel with full floating point precision.
+
+
+
+   .. py:attribute:: y
+      :type:  float
+
+      The y value of the mouse wheel with full floating point precision.
+
+
+
+   .. py:attribute:: direction
+      :type:  MOUSE_WHEEL_DIRECTION
+
+      The direction of the mouse wheel.
+
+
+
+.. py:class:: MouseDevice
+
+   The data for a mouse device populated durring a mouse event.
+
+
+   .. py:attribute:: id
+      :type:  int
+
+      The id of the mouse device.
+
+
+
+   .. py:attribute:: timestamp
+      :type:  int
+
+      The timestamp of the mouse event.
+
+
+
+   .. py:attribute:: x
+      :type:  int
+
+      The x position of the mouse in relation to the window.
+
+
+
+   .. py:attribute:: y
+      :type:  int
+
+      The y position of the mouse in relation to the window.
+
+
+
+   .. py:attribute:: rel_x
+      :type:  int
+
+      The x position of the mouse relative to its last position.  Also can be thought of as the mouse x delta.
+
+
+
+   .. py:attribute:: rel_y
+      :type:  int
+
+      The y position of the mouse relative to its last position.  Also can be thought of as the mouse y delta.
+
+
+
+   .. py:attribute:: clicks
+      :type:  int
+
+      The ammount of clicks recorded.
+
+
+
+   .. py:attribute:: type
+      :type:  MOUSE_EVENT_TYPE
+
+      The type of mouse event.
+
+
+
+   .. py:attribute:: state
+      :type:  EVENT_STATE
+
+      The state of the mouse event.
+
+
+
+   .. py:attribute:: button
+      :type:  MOUSE_BUTTON
+
+      The button pressed durring the mouse event.
+
+
+
+   .. py:attribute:: wheel
+      :type:  MouseWheel
+
+      The mouse wheel data for mouse wheel events.
+
+
+
+.. py:class:: Event
+
+   This non-constructable class contains all information pertaining to :class:`Window` events.  
+   This class can be accessed/read via :class:`Window` :class:`.event<Event>` .
+
+   To check if an :class:`EVENT_FLAG` has been triggered you can use :class:`Window` :class:`.event.check_flag(...)<Event.check_flag>`:
+
+       .. code-block:: python
+
+           window = Window(...)
+
+           while not window.event.check_flag(EVENT_FLAG.QUIT):
+               
+               # some game loop code...
+
+               window.update()
+       
+   This can be useful for events where you only need to chjeck if they have been triggered.  Such as quitting the game when you close the window.
+
+   To check the :class:`EVENT_STATE` of an :class:`EVENT_FLAG` you can use :class:`Window` :class:`.event.get_flag(...)<Event.get_flag>`:
+
+       .. code-block:: python
+
+           window = Window(...)
+
+           while not window.event.check_flag(EVENT_FLAG.QUIT):
+               
+               if window.event.get_flag(EVENT_FLAG.KEY_UP) == EVENT_STATE.PRESSED:
+                   # do some stuff when up is pressed...
+
+               window.update()
+
+   This can be useful for getting the :class:`EVENT_STATE` of specific :class:`EVENT_FLAG` s.  
+   It is recommended to do this before attempting to access data from the :class:`Event` that is related to the :class:`EVENT_FLAG` and its :class:`EVENT_STATE` .
+
+
+
+   .. py:method:: get_flag(_event: EVENT_FLAG) -> EVENT_STATE
+
+      Checks if the provided event flag is occuring.
+
+
+
+   .. py:method:: check_flag(_event: EVENT_FLAG) -> bool
+
+      Checks if the provided event flag is occuring.
+
+
+
+   .. py:property:: mouse
+      :type: MouseDevice
+
+      Gets the current mouse device. Contains current mouse events.
+
+
+
+   .. py:method:: get_mouse(id: int) -> MouseDevice
+
+      Gets the mouse device with the provided id.  Contains current mouse events.
+
+
+
+.. py:class:: Quaternion(w: float, x: float, y: float, z: float)
+
+   A *"4 dimensional"* rotation arround a developer defined :class:`Vec3` axis.
+
+   In simple terms, a Quaternion is just an angle (in radians) rotation arround some 3D vector.  
+   For example if we wanted to rotate arround the Euler y axis of an :class:`Object3D` 
+   or along "yaw" we would just rotate arroud the :class:`Object3D` :class:`.rotation.up<Quaternion.up>` vector:
+
+       .. code-block:: python
+
+           obj = Object3D(...)
+
+           yaw_rotation = math.radians(90)
+
+           quat = Quaternion.from_axis_angle(obj.rotation.up, yaw_rotation)
+
+   It is recommended to construct Quaternions with :meth:`Quaternion.from_axis_angle`.
+
+   Read more about Quaternions `here`_.
+
+   .. _here: https://en.wikipedia.org/wiki/Quaternion
+
+
+   .. py:method:: __repr__() -> str
+
+      The string representation of the Quaternion.
+
+
+
+   .. py:method:: __neg__() -> Quaternion
+
+
+   .. py:property:: w
+      :type: float
+
+
+
+   .. py:property:: x
+      :type: float
+
+
+
+   .. py:property:: y
+      :type: float
+
+
+
+   .. py:property:: z
+      :type: float
+
+
+
+   .. py:property:: up
+      :type: Vec3
+
+      The up directional vector.
+
+
+
+   .. py:property:: right
+      :type: Vec3
+
+      The right directional vector.
+
+
+
+   .. py:property:: forward
+      :type: Vec3
+
+      The forward directional vector.
+
+
+
+   .. py:property:: euler_angles
+      :type: Vec3
+
+      The Euler Angle Vec3 form of the Quaternion.  Can also be assigned to, but not mutated.
+
+      Use :meth:`Quaternion.rotate_pitch`, :meth:`Quaternion.rotate_yaw`, and :meth:`Quaternion.rotate_roll` for mutating Euler angle rotation.
+
+
+
+   .. py:property:: euler_pitch
+      :type: float
+
+      Rotation about the x axis.
+
+
+
+   .. py:method:: rotate_pitch(value: float) -> None
+
+      Rotates the Euler pitch (x) axis by the provided value.
+
+
+
+   .. py:property:: euler_yaw
+      :type: float
+
+      Rotation about the y axis.
+
+
+
+   .. py:method:: rotate_yaw(value: float) -> None
+
+      Rotates the Euler yaw (y) axis by the provided value.
+
+
+
+   .. py:property:: euler_roll
+      :type: float
+
+      Rotation about the z axis.
+
+
+
+   .. py:method:: rotate_roll(value: float) -> None
+
+      Rotates the Euler roll (z) axis by the provided value.
+
+
+
+   .. py:method:: __add__(other: Quaternion | float) -> Quaternion
+
+
+   .. py:method:: __sub__(other: Quaternion | float) -> Quaternion
+
+
+   .. py:method:: __mul__(other: Quaternion | float | Vec3) -> Quaternion
+
+
+   .. py:method:: __truediv__(other: Quaternion | float) -> Quaternion
+
+
+   .. py:method:: dot(other: Quaternion) -> float
+
+      The dot product of 2 :class:`Quaternion` s.
+
+
+
+   .. py:method:: cross(other: Quaternion | Vec3) -> float
+
+      The cross product of the :class:`Quaternion` and another compatible structure.
+
+
+
+   .. py:method:: get_magnitude() -> float
+
+      Returns the magnitude of the :class:`Quaternion` .
+
+
+
+   .. py:method:: get_normalized() -> Quaternion
+
+      Returns the normalized :class:`Quaternion` .
+
+
+
+   .. py:method:: to_euler() -> Vec3
+
+      Converts the :class:`Quaternion` to a Euler Angle :class:`Vec3` (in radians).
+
+
+
+   .. py:method:: from_euler(euler_vec: Vec3) -> Quaternion
+      :staticmethod:
+
+
+      Converts the provided Euler Angle :class:`Vec3` (in radians) to a :class:`Quaternion` .
+
+
+
+   .. py:method:: from_axis_angle(axis: Vec3, angle: float) -> Quaternion
+      :staticmethod:
+
+
+      Constructs a :class:`Quaternion` with a rotation of ``angle`` arround ``axis``. 
+
+      :arg Vec3 axis: A Euler Angle :class:`Vec3` (in radians).
+
+      :arg float angle: An angle in radians of which to rotate arround the ``axis``.
+
+
+
+   .. py:method:: rotate(axis: Vec3, angle: float) -> None
+
+      Mutably rotates the :class:`Quaternion` by `angle` arround `axis`.
+
+      :arg Vec3 axis: A Euler Angle :class:`Vec3` (in radians).
+
+      :arg float angle: An angle in radians of which to rotate arround the ``axis``.
+
+
+
+   .. py:method:: from_quat(quat: Quaternion) -> Quaternion
+      :staticmethod:
+
+
+      Used to construct a copy of a :class:`Quaternion` .
+
+
+
+   .. py:method:: lerp(other: Quaternion, ratio: float) -> Quaternion
+
+      Returns a lerped :class:`Quaternion` between two :class:`Quaternion` by the provided ratio.
+
+
+
+.. py:class:: TextureFiltering(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The texture filtering setting for a :class:`Texture` .
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: NEAREST
+      :type:  TextureFiltering
+
+
+   .. py:attribute:: LINEAR
+      :type:  TextureFiltering
+
+
+.. py:class:: TextureWraping(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The texture wrapping setting for a :class:`Texture` .
+
+   .. #pragma: ignore_inheritance
+
+
+   .. py:attribute:: REPEAT
+      :type:  TextureWraping
+
+
+   .. py:attribute:: MIRRORED_REPEAT
+      :type:  TextureWraping
+
+
+   .. py:attribute:: CLAMP_TO_EDGE
+      :type:  TextureWraping
+
+
+   .. py:attribute:: CLAMP_TO_BORDER
+      :type:  TextureWraping
+
+
+.. py:class:: Texture
+
+   A texture for a :class:`Mesh` or :class:`Sprite` .
+
+
+   .. py:method:: from_file(file_path: str, wrap: TextureWraping = TextureWraping.REPEAT, filtering: TextureFiltering = TextureFiltering.LINEAR) -> Texture
+      :classmethod:
+
+
+      Create a :class:`Texture` from the specified file.
+
+
+
+.. py:class:: Sprite(file_path: str)
+
+   The image asset which is used when rendering an :class:`Object2D` .  Serves a purpose similar to how :class:`Mesh` is used with :class:`Object3D` but for :class:`Object2D` .
+
+
+   .. py:attribute:: texture
+      :type:  Texture
+
+      The :class:`Texture` that is drawn when the :class:`Sprite` is rendered.
+
+
+
+   .. py:method:: from_texture(tex: Texture) -> Sprite
+      :classmethod:
+
+
+      Creates a sprite of the supplied texture.
+
+
+
+.. py:class:: Object2D(sprite: Sprite, position: Vec2 = Vec2(0.0, 0.0), rotation: float = 0.0, scale: Vec2 = Vec2(1.0, 1.0), material: Material = None)
+
+   An 2 Dimensional Object which is rendered infront of all :class:`Object3D` s on the screen.  Good for GUI, HUD interfaces, or anything else 2D.
+
+
+   .. py:property:: position
+      :type: Vec2
+
+      The position of the :class:`Object2D` on the screen as a :class:`Vec2`.
+
+
+
+   .. py:property:: rotation
+      :type: float
+
+      The rotation of the :class:`Object2D` on the screen as a :class:`Vec2`.
+
+
+
+   .. py:property:: scale
+      :type: Vec2
+
+      The scale of the :class:`Object2D` on the screen as a :class:`Vec2`.
+
+
+
+   .. py:method:: set_uniform(name: str, value: list[float] | int | float, type: str) -> None
+
+      Sets the value of a uniform for the shaders in the :class:`Object2D` 's :class:`Material`.
+
+
+
+.. py:class:: PointLight(position: Vec3, radius: float, color: Vec3)
+
+   A Object that emits light from a :class:`Vec3` point in 3D space.
+
+
+   .. py:property:: position
+      :type: Vec3
+
+      The :class:`Vec3` position of the light.
+
+
+
+   .. py:property:: color
+      :type: Quaternion
+
+      The :class:`Vec3` color of the light in rgb.
+
+
+
