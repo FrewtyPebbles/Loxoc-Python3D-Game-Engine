@@ -123,4 +123,9 @@ setup(
     package_data={
         MODULE_NAME: included_pkg_data
     },
+    project_urls={
+        "Documentation": "https://frewtypebbles.github.io/",
+        "Bug Reports": "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine/issues",
+        "Source": "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine"
+    }
 )
