@@ -95,7 +95,7 @@ setup(
     version=VERSION,
     author="William Lim",
     description = ""
-    "Loxoc is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind."
+    "Loxoc is a flexible, straight forward, multi-paradigm game engine that is built from the ground up with developer experience in mind.  "
     "Utilizing a game loop system similar to pygame, you are able to abstract elements of your game away from the game loop as much as you'd like."
     "",
     long_description=readme_src,
