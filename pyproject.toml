@@ -10,3 +10,6 @@ dynamic = ["version"]
 "Documentation" = "https://frewtypebbles.github.io/"
 "Bug Reports" = "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine/issues"
 "Source" = "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine"
+
+[tool.setuptools.dynamic]
+version = {attr = "setup.VERSION"}
