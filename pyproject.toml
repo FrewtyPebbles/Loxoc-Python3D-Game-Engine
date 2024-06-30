@@ -1,3 +1,11 @@
 [build-system]
 requires = ["wheel", "Cython", "setuptools", "pkgconfig"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "Loxoc"
+
+[project.urls]
+"Documentation" = "https://frewtypebbles.github.io/"
+"Bug Reports" = "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine/issues"
+"Source" = "https://github.com/FrewtyPebbles/Loxoc-Python3D-Game-Engine"

@@ -102,7 +102,6 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     keywords="game engine sdl opengl 3d quaternion glm vec3 vector3",
-    url="https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: MIT License",

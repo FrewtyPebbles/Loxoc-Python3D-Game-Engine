@@ -10,6 +10,8 @@ To install:
 pip install Loxoc
 ```
 
+Documentation Now Available [here](https://frewtypebbles.github.io/).
+
 Please note:
 
  - Loxoc is still in development and only dev versions are available right now.  Everything is subject to change, be fixed, and improve.
