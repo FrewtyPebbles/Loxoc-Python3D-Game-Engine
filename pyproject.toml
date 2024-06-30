@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Loxoc"
-dynamic = ["version"]
+dynamic = ["version", "description","readme","license","authors","keywords","classifiers"]
 
 [project.urls]
 "Documentation" = "https://frewtypebbles.github.io/"
