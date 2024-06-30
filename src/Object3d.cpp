@@ -15,7 +15,7 @@ void object3d::render(camera& camera, window* window) {
     // opengl renderer
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, this->position->axis);
-    model *= glm::toMat4(glm::inverse(this->rotation->quat));
+    model *= glm::toMat4(this->rotation->quat);
     model = glm::scale(model, this->scale->axis);
 
     glUseProgram(this->mat->shader_program);

@@ -12,7 +12,7 @@ from copy import copy
 dim = (1280, 720)
 focal_length = 10000
 
-camera = Camera(Vec3(0.0,0.0,0.0), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
+camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
 window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.2,0.2,0.2))
 
 # Materials are equivalent to shader programs.
@@ -110,11 +110,11 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
 
     test_light.position = car.position
-    test_light.position.y += 150
+    test_light.position.y += 200
     
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
-    car.rotation.rotate_yaw(-vel_yaw/magic_turn_dampener * window.dt)
+    car.rotation.rotate_yaw(vel_yaw/magic_turn_dampener * window.dt)
     vel_yaw -= math.copysign(frict, vel_yaw)
     
     # Clamp the velocity.
@@ -124,31 +124,24 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     car.position += -car.rotation.forward * vel * window.dt # window.dt is deltatime
     vel -= math.copysign(frict, vel)
     
+    mouse_scrolling = window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL)
 
-    # Rotate the camera
-    cam_rot = Quaternion.from_quat(camera.rotation)
-    yaw_rot = 0 # capture the yaw rot so we can apply it to the quat later in the case where the camera is clamped
+    cam_dist -= 100 * mouse_scrolling*window.event.mouse.wheel.y * window.dt
 
-    if window.event.check_flag(EVENT_FLAG.MOUSE_MOTION):
-        cam_rot.rotate_yaw(yaw_rot := -math.radians(window.event.mouse.rel_x * mouse_sensitivity * window.dt))
-
-        cam_rot.rotate(cam_rot.right, math.radians(window.event.mouse.rel_y * mouse_sensitivity * window.dt))
     
-    # zoom in and out
-    if window.event.check_flag(EVENT_FLAG.MOUSE_WHEEL):
-        cam_dist -= window.event.mouse.wheel.y * 10
+    cam_rot = copy(camera.rotation)
 
-
-    # apply/clamp, position, and camera rotation
-    if cam_rot.up.y >= 0.7:
-        # Position the camera behind the car based on its forward vector
-        camera.position = car.position - (cam_rot.forward * cam_dist)
-
+    mouse_moving = window.event.check_flag(EVENT_FLAG.MOUSE_MOTION)
+    
+    cam_rot.rotate(cam_rot.right, -mouse_moving*math.radians(window.event.mouse.rel_y * 10) * window.dt)
+    if abs(cam_rot.up.y) > 0.4:
         camera.rotation = cam_rot
-    else:
-        camera.rotation.rotate_yaw(yaw_rot)
-        # Position the camera behind the car based on its forward vector
-        camera.position = car.position - (camera.rotation.forward * cam_dist)
+    camera.rotation.rotate(car.rotation.up, mouse_moving*math.radians(window.event.mouse.rel_x * 10) * window.dt)
+    
+
+
+    camera.position = car.position - camera.rotation.forward * cam_dist
+
     # Re-render the scene.
     window.update()
     # This also refreshes window.current_event.

@@ -191,6 +191,7 @@ cdef extern from "../src/Vec3.h":
         quaternion cross(quaternion& other)
         float get_magnitude()
         quaternion get_normalized()
+        quaternion lerp(const quaternion& other, float ratio)
 
         vec3 cross(vec3& other)
 
@@ -232,6 +233,8 @@ cdef class Quaternion:
     cpdef Vec3 to_euler(self)
 
     cpdef void rotate(self, Vec3 axis, float angle)
+    
+    cpdef Quaternion lerp(self, Quaternion other, float ratio)
     
 cdef Quaternion quat_from_cpp(quaternion cppinst)
 

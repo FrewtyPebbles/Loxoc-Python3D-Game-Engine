@@ -302,6 +302,9 @@ cdef class Quaternion:
     def __init__(self, float w, float x, float y, float z) -> None:
         self.c_class = new quaternion(w,x,y,z)
 
+    def __copy__(self) -> Quaternion:
+        return Quaternion.from_quat(self)
+
     def __repr__(self) -> str:
         return f"<{{{self.w}, {self.x}, {self.y}, {self.z}}}>"
 
@@ -491,6 +494,9 @@ cdef class Quaternion:
         q.c_class = new quaternion(quat.c_class[0])
         return q
 
+    cpdef Quaternion lerp(self, Quaternion other, float ratio):
+        return quat_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
+
 cdef Quaternion quat_from_cpp(quaternion cppinst):
     cdef Quaternion ret = Quaternion.__new__(Quaternion)
     ret.c_class = new quaternion(cppinst)
@@ -499,6 +505,9 @@ cdef Quaternion quat_from_cpp(quaternion cppinst):
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
         self.c_class = new vec3(x,y,z)
+
+    def __copy__(self) -> Quaternion:
+        return vec3_from_cpp(self.c_class[0])
 
     def __repr__(self) -> str:
         return f"<{self.x}, {self.y}, {self.z}>"

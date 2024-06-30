@@ -15,7 +15,7 @@ class quaternion {
 public:
     quaternion(){}
     quaternion(float w, float x, float y, float z){
-        this->quat = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+        this->quat = glm::quat(w, x, y, z);
     }
     quaternion(const glm::quat& quat) : quat(quat) {}
     quaternion(const quaternion& q) : quat(q.quat) {}
@@ -122,6 +122,10 @@ public:
 
     inline quaternion get_normalized() {
         return quaternion(glm::normalize(this->quat));
+    }
+
+    inline quaternion lerp(const quaternion& other, float ratio) {
+        return glm::lerp(this->quat, other.quat, ratio);
     }
 
     // Vector operations:
