@@ -2,7 +2,7 @@ import time
 from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
-    Texture, Sprite, Object2D, Vec2, PointLight
+    Texture, Sprite, Object2D, Vec2, PointLight, MeshDict
 )
 import math
 from copy import copy
@@ -34,7 +34,7 @@ default_material = Material()
 
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 
-print(car_meshes)
+
 
 spr_doomguy = Sprite("./textures/doomguy.png")
 

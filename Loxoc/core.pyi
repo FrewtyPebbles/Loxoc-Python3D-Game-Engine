@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Generator
 
+
 class ShaderType(Enum):
     """
     The shader type of a :class:`Shader` object.
@@ -65,17 +66,17 @@ class Mesh:
 
 class MeshDict:
     """
-    :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh<Loxoc.Mesh>` by name.
-    This is nessicary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
-    asset file with more than one :class:`Mesh<Loxoc.Mesh>` inside of it, you can extract them from their :class:`MeshDict<Loxoc.MeshDict>`
-    to new individual :class:`MeshDict<Loxoc.MeshDict>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
+    :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh` by name.
+    This is nessicary because 3D asset files can have more than one :class:`Mesh` in them.  If you have a 3D
+    asset file with more than one :class:`Mesh` inside of it, you can extract them from their :class:`MeshDict`
+    to new individual :class:`MeshDict` s to be used in :class:`Object3D` s like so:
 
         .. code-block:: python
 
             my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
             # Import the 3D asset file.
             
-            player_model = MeshDict([my_assets["player_model"]])
+            player_model = MeshDict("player_model_mesh", [my_assets["player_model"]])
             # Extract the Mesh into its own group/MeshDict
 
             player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
@@ -88,9 +89,21 @@ class MeshDict:
     ``my_assets["group_name"]["player_model"]``
     """
 
-    def __init__(self, meshes: list[Mesh|MeshDict]) -> None:
+    def __init__(self, name: str, meshes: list[Mesh|MeshDict]) -> None:
         """
         A fast :class:`Mesh` container that can be used like a statically typed dict.
+        """
+
+    @property
+    def name(self):
+        """
+        The name associated with the :class:`MeshDict` .
+        """
+
+    @name.setter
+    def name(self, value: str):
+        """
+        The name associated with the :class:`MeshDict` .
         """
 
     def insert(self, m: Mesh|MeshDict) -> None:

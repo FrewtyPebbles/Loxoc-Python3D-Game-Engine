@@ -163,7 +163,7 @@ Now lets explain a few things:
         my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
         # Import the 3D asset file.
         
-        player_model = MeshDict([my_assets["player_model"]])
+        player_model = MeshDict("player_model_mesh", [my_assets["player_model"]])
         # Extract the Mesh into its own group/MeshDict
 
         player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))

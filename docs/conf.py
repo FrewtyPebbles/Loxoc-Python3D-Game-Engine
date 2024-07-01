@@ -1,6 +1,7 @@
 import os
 import sys
 from sphinx.ext.autodoc import ModuleDocumenter, between
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -12,7 +13,7 @@ from sphinx.ext.autodoc import ModuleDocumenter, between
 project = 'Loxoc'
 copyright = '2024, William A. Lim'
 author = 'William A. Lim'
-release = '1.0.0.dev25'
+release = '1.0.0.dev26'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

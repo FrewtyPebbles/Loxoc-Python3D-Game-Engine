@@ -169,8 +169,8 @@ public:
     typedef typename std::map<string, mesh_dict_child>::const_iterator const_meshmap_iterator;
 
     mesh_dict(){}
-    mesh_dict(string name, std::map<string, mesh_dict_child> data):data(data){}
-    mesh_dict(const mesh_dict& rhs) : data(rhs.data) {}
+    mesh_dict(string name, std::map<string, mesh_dict_child> data):data(data), name(name){}
+    mesh_dict(const mesh_dict& rhs) : data(rhs.data), name(rhs.name) {}
     inline void insert(mesh_dict_child m) {
         if (std::holds_alternative<rc_mesh>(m)) {
             auto msh = std::get<rc_mesh>(m);

@@ -80,19 +80,34 @@ cdef class MeshDict:
 
     def __init__(self, str name, meshes:list[Mesh | MeshDict]) -> None:
         cdef:
-            Mesh m
+            object m
+            Mesh _m
+            MeshDict _m_d
             mesh_dict md = mesh_dict()
         for m in meshes:
-            md.insert(mesh_dict_child(m.c_class))
+            if isinstance(m, Mesh):
+                _m = m
+                md.insert(mesh_dict_child(_m.c_class))
+            elif isinstance(m, MeshDict):
+                _m_d = m
+                md.insert(mesh_dict_child(_m_d.c_class))
 
         md.name = name.encode()
         
         self.c_class = new RC[mesh_dict_ptr](new mesh_dict(md))
 
+    @property
+    def name(self) -> str:
+        return bytes(self.c_class.data.name).decode()
+
+    @name.setter
+    def name(self, str value):
+        self.c_class.data.name = value.encode()
+
     def __repr__(self) -> str:
         return "".join([
-            "MeshDict {",
-            *["{}: {}".format(m_n, m) for m_n, m in self],
+            "MeshDict::`{}` {{".format(self.name),
+            ", ".join(["\"{}\": {}".format(m_n, m) for m_n, m in self]),
             "}"
         ])
 
@@ -166,7 +181,10 @@ cdef class MeshDict:
                 )
 
     def __getitem__(self, str key) -> list[Mesh]:
-        return self.get(key)
+        if self.c_class.data.data.contains(key.encode()):
+            return self.get(key)
+        else:
+            raise KeyError("Key or Mesh name `{}` could not be found in MeshDict::`{}`".format(key, self.name))
 
     @staticmethod
     cdef MeshDict from_cpp(mesh_dict cppinst):
@@ -184,7 +202,7 @@ cdef class MeshDict:
 cdef class Mesh:
 
     def __repr__(self) -> str:
-        return "Mesh {{name: {}}}".format(self.name)
+        return "Mesh {{name: \"{}\"}}".format(self.name)
 
     def __dealloc__(self):
         RC_collect(self.c_class)
