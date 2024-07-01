@@ -3,6 +3,7 @@
 #include "Quaternion.h"
 #include <vector>
 #include "Material.h"
+#include "RC.h"
 using std::vector;
 class mesh;
 class camera;
@@ -14,11 +15,11 @@ class window;
 class object3d : public TRAIT_has_uniform {
 public:
     object3d(){};
-    object3d(mesh_dict* mesh_data, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {}
+    object3d(RC<mesh_dict*>* mesh_data, vec3* position, quaternion* rotation, vec3* scale, material* mat) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {}
     
     ~object3d(){}
 
-    mesh_dict* mesh_data;
+    RC<mesh_dict*>* mesh_data;
     vec3* position;
     quaternion* rotation;
     vec3* scale;
@@ -27,4 +28,6 @@ public:
     void set_uniform(string name, uniform_type value, string type);
 
     void render(camera& camera, window* window);
+private:
+    void render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, window* window);
 };

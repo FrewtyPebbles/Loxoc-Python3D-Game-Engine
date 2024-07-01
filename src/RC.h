@@ -23,7 +23,9 @@ public:
 template<typename T>
 constexpr void RC_collect(RC<T*>* rc) {
     rc->dec();
-    if (rc->refcount == 0)
+    if (rc->refcount == 0) {
         delete rc;
+    }
+        
 }
     

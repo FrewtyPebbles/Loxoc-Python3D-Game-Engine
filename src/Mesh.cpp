@@ -13,11 +13,8 @@ string fix_texture_path(string file_path, string file) {
     return std::filesystem::absolute(std::filesystem::path(str_tool::rem_file_from_path(file_path) + "/textures/" + str_tool::rem_path_from_file(file))).string();
 }
 
-void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, const aiMatrix4x4& transform, string file_path) {
-    // traverse to deeper nodes
-    for (size_t c_n = 0; c_n < node->mNumChildren; c_n++) {
-        process_node(node->mChildren[c_n], scene, meshes, transform * node->mChildren[c_n]->mTransformation, file_path);
-    }
+void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path) {
+    
     // itterate meshes for the node
     auto t_aivec3 = transform * aiVector3D(1.0f, 1.0f, 1.0f);
     for (size_t m_n = 0; m_n < node->mNumMeshes; m_n++) {
@@ -32,7 +29,6 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
         // get texture data
-        
 
         get_textures(diffuse, aiTextureType_DIFFUSE);
         get_textures(specular, aiTextureType_SPECULAR);
@@ -71,7 +67,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
                 new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR))
             );
         }
-        auto ret_mesh = new mesh(
+        auto ret_mesh = new RC(new mesh(
             mesh_name,
             materials,
             _vertexes,
@@ -82,14 +78,30 @@ void mesh::process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, c
             diffuse_textures,
             specular_textures,
             normals_textures
-        );
-        ret_mesh->radius = radius;
-        meshes.insert(new RC(ret_mesh));
+        ));
+        ret_mesh->data->radius = radius;
+        last_mesh_dict->data->insert(ret_mesh);
+    }
+    
+    // traverse to deeper nodes
+    for (size_t c_n = 0; c_n < node->mNumChildren; c_n++) {
+        auto child_mesh_dict = new RC(new mesh_dict());
+        child_mesh_dict->data->name = node->mChildren[c_n]->mName.C_Str();
+        process_node(node->mChildren[c_n], scene, child_mesh_dict, transform * node->mChildren[c_n]->mTransformation, file_path);
+        
+        if (child_mesh_dict->data->data.size() == 1 && // Check if it is duplicating the name with the dict
+                    child_mesh_dict->data->data.contains(child_mesh_dict->data->name)) {
+            last_mesh_dict->data->insert(child_mesh_dict->data->data[child_mesh_dict->data->name]);
+            delete child_mesh_dict->data;
+            delete child_mesh_dict;
+        }    
+        else
+            last_mesh_dict->data->insert(child_mesh_dict);
     }
 }
 
 
-mesh_dict mesh::from_file(string file_path) {
+rc_mesh_dict mesh::from_file(string file_path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -98,11 +110,13 @@ mesh_dict mesh::from_file(string file_path) {
         ss << "Failed to import model at \"" << file_path << "\"\nLOG:\n" << importer.GetErrorString() << "\n";
         throw std::runtime_error(ss.str());
     }
-    mesh_dict meshes;
+    auto curren_mesh_dict = new RC(new mesh_dict());
+
+    curren_mesh_dict->data->name = file_path;
     
-    process_node(scene->mRootNode, scene, meshes, scene->mRootNode->mTransformation, file_path);
+    process_node(scene->mRootNode, scene, curren_mesh_dict, scene->mRootNode->mTransformation, file_path);
     
-    return meshes;
+    return curren_mesh_dict;
 }
 
 void mesh::create_VAO() {

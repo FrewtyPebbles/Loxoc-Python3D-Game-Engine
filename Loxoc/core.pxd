@@ -3,6 +3,43 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map
 
+cdef extern from "<variant>" namespace "std" nogil:
+    cdef cppclass variant:
+        variant& operator=(variant&)
+
+        # value status
+        bint valueless_by_exception()
+        size_t index()
+
+    cdef struct monostate:
+        pass
+
+    cdef T get_if[T](...)
+
+    cdef T get[T](...)
+
+    cdef Z holds_alternative[Z](...)
+
+cdef extern from "../src/util.h" namespace "std" nogil:
+    cdef cppclass variant2[T,A]:
+        variant2() except +
+        variant2(T) except +
+        variant2(A) except +
+        variant2[T,A]& operator=(variant2[T,A]&)
+
+        # value status
+        bint valueless_by_exception()
+        size_t index()
+
+    cdef struct monostate:
+        pass
+
+    cdef Z get_if[Z](...)
+
+    cdef Z get[Z](...)
+
+    cdef Z holds_alternative[Z](...)
+
 cdef extern from "../src/RC.h":
     cdef cppclass RC[T]:
         RC() except +
@@ -10,6 +47,7 @@ cdef extern from "../src/RC.h":
         T inc()
         void dec()
         T data
+        int refcount
 
     cdef void RC_collect[T](RC[T*]* rc)
 
@@ -57,18 +95,7 @@ cdef class Shader:
     cdef shader* c_class
     
 
-cdef extern from "<variant>" namespace "std" nogil:
-    cdef cppclass variant:
-        variant& operator=(variant&)
 
-        # value status
-        bint valueless_by_exception()
-        size_t index()
-
-    cdef struct monostate:
-        pass
-
-    cdef T* get_if[T](...)
 
 cdef extern from "../src/Material.h":
 
@@ -383,6 +410,7 @@ cdef Vec2 vec2_from_cpp(vec2 cppinst)
  
 
 cdef extern from "../src/Mesh.h":
+
     cdef enum illum_model:
         CONSTANT_COLOR, 
         DIFFUSE,
@@ -404,7 +432,7 @@ cdef extern from "../src/Mesh.h":
         mesh(const mesh& rhs) except +
         mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[RC[texture*]*] diffuse_textures, vector[RC[texture*]*] specular_textures, vector[RC[texture*]*] normals_textures) except +
         @staticmethod
-        mesh_dict from_file(string file_path) except +
+        RC[mesh_dict*]* from_file(string file_path) except +
         string name
         vector[mesh_material*] materials
         vector[vec3]* vertexes
@@ -416,36 +444,35 @@ cdef extern from "../src/Mesh.h":
         vector[RC[texture*]*] specular_textures
         vector[RC[texture*]*] normals_textures
 
-    
+
+    ctypedef variant2[RC[mesh*]*, RC[mesh_dict*]*] mesh_dict_child
 
     cdef cppclass mesh_dict:
-        ctypedef map[string, vector[RC[mesh*]*]].iterator meshmap_iterator
-        ctypedef map[string, vector[RC[mesh*]*]].const_iterator const_meshmap_iterator
-        
+        ctypedef map[string, mesh_dict_child].iterator meshmap_iterator
+        ctypedef map[string, mesh_dict_child].const_iterator const_meshmap_iterator
+        #
         mesh_dict() except +
-        mesh_dict(map[string, vector[RC[mesh*]*]] data) except +
+        mesh_dict(string name, map[string, mesh_dict_child] data) except +
         mesh_dict(mesh_dict& rhs) except +
-        void insert(RC[mesh*]* m)
-        vector[RC[mesh*]*] get(string name)
+        void insert(mesh_dict_child m)
+        mesh_dict_child get(string name)
         void remove(string name)
-        vector[RC[mesh*]*] operator[](string name)
+        mesh_dict_child operator[](string name)
         meshmap_iterator begin() noexcept
         const_meshmap_iterator cbegin() noexcept
         meshmap_iterator end() noexcept
         const_meshmap_iterator cend()
-
-        map[string, vector[RC[mesh*]*]] data
+        string name
+        map[string, mesh_dict_child] data
 
 cdef class MeshDict:
-    cdef mesh_dict* c_class
-    cpdef void insert(self, Mesh m)
-    cpdef list[Mesh] get(self, str name)
+    cdef RC[mesh_dict*]* c_class
     cpdef void remove(self, str name)
 
     @staticmethod
     cdef MeshDict from_cpp(mesh_dict cppinst)
     @staticmethod
-    cdef MeshDict from_cpp_ptr(mesh_dict* cppinst)
+    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst)
 
 
 cdef class Mesh:
@@ -462,9 +489,9 @@ cpdef MeshDict mesh_from_file(str file_path)
 cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:
         object3d() except +
-        object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale) except +
-        object3d(mesh_dict* mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
-        mesh_dict* mesh_data
+        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale) except +
+        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
+        RC[mesh_dict*]* mesh_data
         vec3* position
         quaternion* rotation
         vec3* scale

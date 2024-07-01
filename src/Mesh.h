@@ -17,11 +17,19 @@
 #include <map>
 #include <iterator>
 #include "RC.h"
+#include <variant>
 
 using std::vector;
 using std::string;
 using std::map;
 class mesh_dict;
+class mesh;
+
+typedef RC<mesh*>* rc_mesh;
+
+typedef RC<mesh_dict*>* rc_mesh_dict;
+
+typedef std::variant<rc_mesh, rc_mesh_dict> mesh_dict_child;
 
 enum illum_model {
     CONSTANT_COLOR,
@@ -93,7 +101,7 @@ public:
             delete mat;
         }
     }
-    static mesh_dict from_file(string file_path);
+    static rc_mesh_dict from_file(string file_path);
     string name;
     vector<mesh_material*> materials;
     // VVV THESE SHOULD BE HEAP ALLOCATED
@@ -114,7 +122,7 @@ public:
     size_t verticies_size;
 private:
     // RETURNS A HEAP ALLOCATED POINTER
-    static void process_node(aiNode* node, const aiScene* scene, mesh_dict& meshes, const aiMatrix4x4& transform, string file_path);
+    static void process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path);
     void create_VAO();
 };
 
@@ -152,37 +160,42 @@ inline size_t sub_str_ind(const std::string& haystack, const std::string& needle
     return pos;
 }
 
-typedef RC<mesh*>* rc_mesh;
+
+
 
 class mesh_dict {
 public:
-    typedef typename std::map<string, vector<rc_mesh>>::iterator meshmap_iterator;
-    typedef typename std::map<string, vector<rc_mesh>>::const_iterator const_meshmap_iterator;
+    typedef typename std::map<string, mesh_dict_child>::iterator meshmap_iterator;
+    typedef typename std::map<string, mesh_dict_child>::const_iterator const_meshmap_iterator;
 
     mesh_dict(){}
-    mesh_dict(std::map<string, vector<rc_mesh>> data):data(data){}
+    mesh_dict(string name, std::map<string, mesh_dict_child> data):data(data){}
     mesh_dict(const mesh_dict& rhs) : data(rhs.data) {}
-    inline void insert(rc_mesh m) {
-        if (this->data.contains(m->data->name))
-            this->data[m->data->name].push_back(m);
-        else {
-            this->data.insert_or_assign(m->data->name, vector({m}));
+    inline void insert(mesh_dict_child m) {
+        if (std::holds_alternative<rc_mesh>(m)) {
+            auto msh = std::get<rc_mesh>(m);
+            this->data.insert_or_assign(msh->data->name, msh);
+        } else if (std::holds_alternative<rc_mesh_dict>(m)) {
+            auto msh_d = std::get<rc_mesh_dict>(m);
+            
+            this->data.insert_or_assign(msh_d->data->name, msh_d);
         }
     }
-    inline vector<rc_mesh> get(string name) {
+    inline mesh_dict_child get(string name) {
         return this->data[name];
     }
     inline void remove(string name) {
         this->data.erase(name);
     }
-    inline vector<rc_mesh> operator[](string name) {
+    inline mesh_dict_child operator[](string name) {
         return this->data[name];
     }
     inline meshmap_iterator begin() noexcept { return this->data.begin(); }
     inline const_meshmap_iterator cbegin() const noexcept { return this->data.cbegin(); }
     inline meshmap_iterator end() noexcept { return this->data.end(); }
     inline const_meshmap_iterator cend() const noexcept { return this->data.cend(); }
-    std::map<string, vector<rc_mesh>> data;
+    std::map<string, mesh_dict_child> data;
+    string name;
 };
 
 

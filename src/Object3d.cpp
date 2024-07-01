@@ -38,9 +38,16 @@ void object3d::render(camera& camera, window* window) {
 
     this->mat->register_uniforms();
     this->register_uniforms(); // register object level uniforms
+
+    // render mesh tree
+    this->render_meshdict(this->mesh_data, camera, window);
+}
+
+void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, window* window) {
     size_t i;
-    for (auto [_mesh_name, _meshes] : *this->mesh_data) {
-        for (auto _mesh : _meshes) {
+    for (auto [_mesh_name, _mesh_variant] : *_mesh_data->data) {
+        if (std::holds_alternative<rc_mesh>(_mesh_variant)) {
+            auto _mesh = std::get<rc_mesh>(_mesh_variant);
             for(size_t t_n = 0; t_n < _mesh->data->diffuse_textures.size(); t_n++) {
                 glActiveTexture(GL_TEX_N_ITTER[0]);
                 _mesh->data->diffuse_textures[t_n]->data->bind();
@@ -62,6 +69,9 @@ void object3d::render(camera& camera, window* window) {
             glDrawElements(GL_TRIANGLES, _mesh->data->indicies_size, GL_UNSIGNED_INT, 0);
             
             glBindVertexArray(0);
+        } else if (std::holds_alternative<rc_mesh_dict>(_mesh_variant)) {
+            auto _mesh_dict = std::get<rc_mesh_dict>(_mesh_variant);
+            this->render_meshdict(_mesh_dict, camera, window);
         }
     }
 }

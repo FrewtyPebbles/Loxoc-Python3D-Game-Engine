@@ -34,6 +34,8 @@ default_material = Material()
 
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 
+print(car_meshes)
+
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
@@ -85,10 +87,10 @@ mouse_sensitivity = 10
 counter = 0
 counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
-    if window.dt > 0:
-        print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
-    else:
-        print("FRAMERATE: inf fps")
+    # if window.dt > 0:
+    #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
+    # else:
+    #     print("FRAMERATE: inf fps")
     
     doomguy.position.x = math.sin(window.time/1000000000)
     doomguy.position.y = math.cos(window.time/1000000000)

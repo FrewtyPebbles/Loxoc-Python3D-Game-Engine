@@ -71,62 +71,99 @@ cdef class Camera:
             self._rotation = value
         self.c_class.rotation = self._rotation.c_class
 
+ctypedef mesh_dict* mesh_dict_ptr
+ctypedef RC[mesh*]* rc_mesh
+ctypedef RC[mesh_dict*]* rc_mesh_dict
+ctypedef mesh* mesh_ptr
+
 cdef class MeshDict:
 
-    def __init__(self, list[Mesh] meshes) -> None:
+    def __init__(self, str name, meshes:list[Mesh | MeshDict]) -> None:
         cdef:
             Mesh m
             mesh_dict md = mesh_dict()
         for m in meshes:
-            md.insert(m.c_class)
+            md.insert(mesh_dict_child(m.c_class))
+
+        md.name = name.encode()
         
-        self.c_class = new mesh_dict(md)
+        self.c_class = new RC[mesh_dict_ptr](new mesh_dict(md))
 
     def __repr__(self) -> str:
-        return "\n".join([
+        return "".join([
             "MeshDict {",
-            *["\t{}: {}".format(m_n, m) for m_n, m in self],
+            *["{}: {}".format(m_n, m) for m_n, m in self],
             "}"
         ])
 
     def __dealloc__(self):
         # Collect the mesh_dict and decrement each mesh's refcount
         cdef:
-            pair[string, vector[RC[mesh*]*]] _pair
-            RC[mesh*]* m
-        for _pair in self.c_class.data:
-            for m in _pair.second:
-                RC_collect(m)
-        del self.c_class
+            pair[string, mesh_dict_child] _pair
+            mesh_dict_child m
+            rc_mesh _m
+            rc_mesh_dict _m_d
+        RC_collect(self.c_class)
+        
 
-    cpdef void insert(self, Mesh m):
-        self.c_class.insert(m.c_class)
-
-    cpdef list[Mesh] get(self, str name):
+    def insert(self, m: Mesh | MeshDict) -> None:
         cdef:
-            RC[mesh*]* m
-            list[Mesh] ret = []
-        for m in self.c_class.get(name.encode()):
-            ret.append(Mesh.from_cpp(m))
-        return ret
+            Mesh msh
+            MeshDict msh_d
+        if isinstance(m, Mesh):
+            msh = m
+            msh.c_class.inc()
+            self.c_class.data.insert(mesh_dict_child(msh.c_class))
+        elif isinstance(m, MeshDict):
+            msh_d = m
+            msh_d.c_class.inc()
+            self.c_class.data.insert(mesh_dict_child(msh_d.c_class))
+
+    def get(self, str name) -> Mesh|MeshDict :
+        cdef:
+            mesh_dict_child m = self.c_class.data.get(name.encode())
+            RC[mesh*]* _m
+            RC[mesh_dict*]* _m_d
+        if holds_alternative[rc_mesh](m):
+            _m = get[rc_mesh](m)
+            return Mesh.from_cpp(_m)
+        elif holds_alternative[rc_mesh_dict](m):
+            _m_d = get[rc_mesh_dict](m)
+            return MeshDict.from_cpp_ptr(_m_d)
 
     cpdef void remove(self, str name):
-        self.c_class.remove(name.encode())
-
-    def __iter__(self) -> Generator[(str, list[Mesh]), None, None]:
         cdef:
-            pair[string, vector[RC[mesh*]*]] _pair
-            RC[mesh*]* m
-            Mesh M
-            list[Mesh] M_list = []
-        for _pair in self.c_class.data:
-            for m in _pair.second:
-                M = Mesh.from_cpp(m)
-                M_list.append(M)
-            yield (
-                bytes(_pair.first).decode(), 
-                M_list
-            )
+            mesh_dict_child m = self.c_class.data.data[name]
+            RC[mesh*]* _m
+            RC[mesh_dict*]* _m_d
+        self.c_class.data.remove(name.encode())
+        if holds_alternative[rc_mesh](m):
+            _m = get[rc_mesh](m)
+            _m.dec()
+        elif holds_alternative[rc_mesh_dict](m):
+            _m_d = get[rc_mesh_dict](m)
+            _m_d.dec()
+
+    def __iter__(self) -> Generator[(str, Mesh|MeshDict), None, None]:
+        cdef:
+            pair[string, mesh_dict_child] _pair
+            RC[mesh*]* _m
+            RC[mesh_dict*]* _m_d
+            mesh_dict_child m
+        for _pair in self.c_class.data[0]:
+            m = _pair.second
+            if holds_alternative[rc_mesh](m):
+                _m = get[rc_mesh](m)
+                yield (
+                    bytes(_pair.first).decode(), 
+                    Mesh.from_cpp(_m)
+                )
+            elif holds_alternative[rc_mesh_dict](m):
+                _m_d = get[rc_mesh_dict](m)
+                yield (
+                    bytes(_pair.first).decode(), 
+                    MeshDict.from_cpp_ptr(_m_d)
+                )
 
     def __getitem__(self, str key) -> list[Mesh]:
         return self.get(key)
@@ -134,13 +171,14 @@ cdef class MeshDict:
     @staticmethod
     cdef MeshDict from_cpp(mesh_dict cppinst):
         cdef MeshDict ret = MeshDict.__new__(MeshDict)
-        ret.c_class = new mesh_dict(cppinst)
+        ret.c_class = new RC[mesh_dict_ptr](new mesh_dict(cppinst))
         return ret
 
     @staticmethod
-    cdef MeshDict from_cpp_ptr(mesh_dict* cppinst):
+    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst):
         cdef MeshDict ret = MeshDict.__new__(MeshDict)
         ret.c_class = cppinst
+        ret.c_class.inc()
         return ret
 
 cdef class Mesh:
@@ -183,7 +221,7 @@ cdef class Mesh:
         for _tex in ret.c_class.data.specular_textures:
             tex_spec = Texture.__new__(Texture)
             tex_spec.c_class = _tex
-            tex_diff.c_class.inc()
+            tex_spec.c_class.inc()
             specular_textures.append(tex_spec)
         
         ret.specular_textures = specular_textures
@@ -192,11 +230,10 @@ cdef class Mesh:
         for _tex in ret.c_class.data.normals_textures:
             tex_norm = Texture.__new__(Texture)
             tex_norm.c_class = _tex
-            tex_diff.c_class.inc()
+            tex_norm.c_class.inc()
             normals_textures.append(tex_norm)
         
         ret.normals_textures = normals_textures
-
         return ret
 
     @staticmethod
@@ -204,7 +241,7 @@ cdef class Mesh:
         return mesh_from_file(file_path)
 
 cpdef MeshDict mesh_from_file(str file_path):
-    return MeshDict.from_cpp(mesh.from_file(file_path.encode()))
+    return MeshDict.from_cpp_ptr(mesh.from_file(file_path.encode()))
 
 cdef class Object3D:
     def __init__(self, MeshDict mesh_data, Vec3 position = Vec3(0.0,0.0,0.0),

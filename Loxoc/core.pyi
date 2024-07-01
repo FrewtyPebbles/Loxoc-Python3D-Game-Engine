@@ -65,20 +65,40 @@ class Mesh:
 
 class MeshDict:
     """
-    A fast :class:`Mesh` container that can be used like a statically typed dict.
+    :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh<Loxoc.Mesh>` by name.
+    This is nessicary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
+    asset file with more than one :class:`Mesh<Loxoc.Mesh>` inside of it, you can extract them from their :class:`MeshDict<Loxoc.MeshDict>`
+    to new individual :class:`MeshDict<Loxoc.MeshDict>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
+
+        .. code-block:: python
+
+            my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
+            # Import the 3D asset file.
+            
+            player_model = MeshDict([my_assets["player_model"]])
+            # Extract the Mesh into its own group/MeshDict
+
+            player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
+            # Now our model is ready to be used.
+
+    We can extract the :class:`Mesh` s we need from the ``my_assets``  :class:`MeshDict` by name.
+    Hence we use ``my_assets["player_model"]``.  This is assuming your desired :class:`Mesh`
+    is at the top level of your imported 3D file/asset's heirarchy.  if it is in a group inside
+    the 3D file/asset you imported you could do something like:
+    ``my_assets["group_name"]["player_model"]``
     """
 
-    def __init__(self, meshes: list[Mesh]) -> None:
+    def __init__(self, meshes: list[Mesh|MeshDict]) -> None:
         """
         A fast :class:`Mesh` container that can be used like a statically typed dict.
         """
 
-    def insert(self, m: Mesh) -> None:
+    def insert(self, m: Mesh|MeshDict) -> None:
         """
         Insert a Mesh.  It will use the Mesh name as a key.
         """
 
-    def get(self, name: str) -> list[Mesh]:
+    def get(self, name: str) -> Mesh|MeshDict:
         """
         Get a Mesh from the dict by name.
         """
@@ -88,12 +108,12 @@ class MeshDict:
         Remove a Mesh from the dict by name.
         """
 
-    def __iter__(self) -> Generator[tuple[str, list[Mesh]], None, None]:
+    def __iter__(self) -> Generator[tuple[str, Mesh|MeshDict], None, None]:
         """
         Itterates through the key value pairs of the dict.
         """
 
-    def __getitem__(self, key: str) -> list[Mesh]:
+    def __getitem__(self, key: str) -> Mesh|MeshDict:
         """
         Get a Mesh from the dict by name.
         """

@@ -4,6 +4,7 @@
 #include <cctype>
 #include <vector>
 #include <cmath>
+#include <variant>
 
 static std::string MOD_PATH;
 
@@ -58,3 +59,6 @@ namespace str_tool
       return path.substr(0, path.find_last_of("\\/"));
     }
 };
+
+template<typename T, typename A>
+using variant2 = std::variant<T,A>;

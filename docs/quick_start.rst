@@ -161,17 +161,19 @@ Now lets explain a few things:
     .. code-block:: python
 
         my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
-
-        player_model = MeshDict([my_assets["player_model"][0]])
-        # We can extract the meshes we need by name.  We index the list returned by `my_assets["player_model"]`
-        # with `[0]` to get the `Mesh` object. `my_assets["player_model"]` stores a list incase there
-        # are more than one `Mesh` with the same name.
-        #
-        # We then create a new `MeshDict` which contains the models we need.
-        # This can now be used in an Object3D.
+        # Import the 3D asset file.
+        
+        player_model = MeshDict([my_assets["player_model"]])
+        # Extract the Mesh into its own group/MeshDict
 
         player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
         # Now our model is ready to be used.
+
+    We can extract the :class:`Mesh<Loxoc.Mesh>` s we need from the ``my_assets``  :class:`MeshDict<Loxoc.MeshDict>` by name.
+    Hence we use ``my_assets["player_model"]``.  This is assuming your desired :class:`Mesh<Loxoc.Mesh>`
+    is at the top level of your imported 3D file/asset's heirarchy.  if it is in a group inside
+    the 3D file/asset you imported you could do something like:
+    ``my_assets["group_name"]["player_model"]``
 
 * :class:`Object3D<Loxoc.Object3D>` :
 
