@@ -13,7 +13,7 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.2,0.2,0.2))
+window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.1,0.1,0.1))
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -41,21 +41,21 @@ spr_doomguy = Sprite("./textures/doomguy.png")
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object3D(car_meshes,
-    Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
+    Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
 
 car2 = Object3D(car_meshes,
-    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
+    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100))
 
 teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
-    Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000), material=default_material)
+    Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000))
 
 cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
-    Vec3(0,0,0), Vec3(0,0,0), Vec3(20,20,20), material=default_material)
+    Vec3(100,0,0), Vec3(0,0,0), Vec3(20,20,20))
 
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
-    Vec3(-100,0,300), Vec3(0,10,0), material=default_material)
+    Vec3(-100,0,300), Vec3(0,10,0))
 
-test_light = PointLight(Vec3(0,0,0), 500.0, Vec3(1,1,1))
+test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1))
 test_light2 = PointLight(Vec3(20,0,0), 500.0, Vec3(0,0,2))
 
 window.add_object_list([
@@ -111,8 +111,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # apply a quaternion rotation arround the vector vec3(1,1,0)
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
 
-    test_light.position = car.position
-    test_light.position.y += 200
+    # test_light.position = car.position
+    # test_light.position.y += 200
     
     # Clamp and rotate, then apply friction.
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
@@ -148,4 +148,5 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     window.update()
     # This also refreshes window.current_event.
     counter += counter_speed
+    
     

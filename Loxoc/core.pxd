@@ -92,8 +92,10 @@ cdef extern from "../src/Shader.h":
         from_file(string filepath, ShaderType type)
  
 cdef class Shader:
-    cdef shader* c_class
+    cdef RC[shader*]* c_class
     
+    @staticmethod
+    cdef Shader from_cpp(RC[shader*]* cppinst)
 
 
 
@@ -104,18 +106,32 @@ cdef extern from "../src/Material.h":
 
     cdef cppclass material:
         material() except +
-        material(shader* vertex) except +
-        material(shader* vertex, shader* fragment) except +
+        material(RC[shader*]* vertex, RC[shader*]* fragment) except +
         void set_uniform(string name, uniform_type value, string type)
         void register_uniforms()
         void link_shaders()
         void use_material()
+        RC[shader*]* vertex
+        RC[shader*]* fragment
+        RC[texture*]* diffuse_texture
+        RC[texture*]* specular_texture
+        RC[texture*]* normals_texture
+        string name
+        vec3 ambient
+        vec3 diffuse
+        vec3 specular
+        float shine
     
 cdef class Material:
-    cdef material* c_class
+    cdef RC[material*]* c_class
     cdef public Shader vertex_shader, fragment_shader
+    cdef public Texture diffuse_texture
+    cdef public Texture specular_texture
+    cdef public Texture normals_texture
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
 
+    @staticmethod
+    cdef Material from_cpp(RC[material*]* cppinst)
 
 ctypedef unsigned char uint8
 
@@ -415,34 +431,23 @@ cdef extern from "../src/Mesh.h":
         CONSTANT_COLOR, 
         DIFFUSE,
         DIFFUSE_AND_SPECULAR
-
-    cdef cppclass mesh_material:
-        obj_material() except +
-        tup3f ambient, diffuse, specular, emissive_coeficient
-        float specular_exponent, optical_density, transparency
-        illum_model illumination_model
-        string ambient_tex_file, diffuse_tex_file, specular_highlight_file
-        unsigned char* ambient_texture
-        unsigned char* diffuse_texture
-        unsigned char* specular_highlight_texture
         
 
     cdef cppclass mesh:
         mesh() except +
         mesh(const mesh& rhs) except +
-        mesh(vector[mesh_material*] materials, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform, vector[RC[texture*]*] diffuse_textures, vector[RC[texture*]*] specular_textures, vector[RC[texture*]*] normals_textures) except +
+        mesh(string name, RC[material*]* mesh_material, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform) except +
         @staticmethod
         RC[mesh_dict*]* from_file(string file_path) except +
         string name
-        vector[mesh_material*] materials
+        RC[material*]* mesh_material
         vector[vec3]* vertexes
         vector[vec3]* diffuse_coordinates
         vector[vec3]* vertex_normals
         vector[tup3ui]* faces
         vec3 transform
-        vector[RC[texture*]*] diffuse_textures
-        vector[RC[texture*]*] specular_textures
-        vector[RC[texture*]*] normals_textures
+        float radius
+        
 
 
     ctypedef variant2[RC[mesh*]*, RC[mesh_dict*]*] mesh_dict_child
@@ -477,9 +482,7 @@ cdef class MeshDict:
 
 cdef class Mesh:
     cdef RC[mesh*]* c_class
-    cdef public list[Texture] diffuse_textures
-    cdef public list[Texture] specular_textures
-    cdef public list[Texture] normals_textures
+    cdef public Material material
 
     @staticmethod
     cdef Mesh from_cpp(RC[mesh*]* cppinst)
@@ -490,7 +493,7 @@ cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:
         object3d() except +
         object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale) except +
-        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, material* mat) except +
+        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except +
         RC[mesh_dict*]* mesh_data
         vec3* position
         quaternion* rotation
@@ -780,7 +783,7 @@ cpdef Sprite sprite_from_texture(Texture tex)
 cdef extern from "../src/Object2d.h":
     cdef cppclass object2d:
         object2d() except +
-        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, material* mat) except +
+        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat) except +
         
         sprite* spr
         vec2* position

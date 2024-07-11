@@ -11,7 +11,7 @@ class camera;
 class object2d : public TRAIT_has_uniform {
 public:
     object2d(){};
-    object2d(sprite* spr, vec2* position, float rotation, vec2* scale, material* mat)
+    object2d(sprite* spr, vec2* position, float rotation, vec2* scale, rc_material mat)
     :
         spr(spr),
         position(position),
@@ -24,7 +24,7 @@ public:
     vec2* position;
     float rotation;
     vec2* scale;
-    material* mat;
+    rc_material mat;
     void set_uniform(string name, uniform_type value, string type);
     void render(camera& camera);
 };

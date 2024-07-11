@@ -7,23 +7,23 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void object2d::set_uniform(string name, uniform_type value, string type) {
-    int loc = glGetUniformLocation(this->mat->shader_program, name.c_str());
+    int loc = glGetUniformLocation(this->mat->data->shader_program, name.c_str());
     this->inner_set_uniform(loc, name, value, type);
 }
 
 void object2d::render(camera& camera) {
     // opengl renderer
     glm::mat4 transform2D = glm::mat4(1.0f);
-    glUseProgram(this->mat->shader_program);
+    glUseProgram(this->mat->data->shader_program);
     transform2D = glm::translate(transform2D, glm::vec3(this->position->axis, 0.0f));
     transform2D = glm::rotate(transform2D, this->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     transform2D = glm::scale(transform2D, glm::vec3(this->scale->axis, 1.0f));
 
-    int transform2D_loc = glGetUniformLocation(this->mat->shader_program, "transform2D");
+    int transform2D_loc = glGetUniformLocation(this->mat->data->shader_program, "transform2D");
 
     glUniformMatrix4fv(transform2D_loc, 1, GL_FALSE, glm::value_ptr(transform2D));
 
-    this->mat->register_uniforms();
+    this->mat->data->register_uniforms();
     this->register_uniforms(); // register object level uniforms
 
     this->spr->tex->data->bind();

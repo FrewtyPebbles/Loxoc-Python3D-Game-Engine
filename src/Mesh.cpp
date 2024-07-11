@@ -20,7 +20,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
     for (size_t m_n = 0; m_n < node->mNumMeshes; m_n++) {
         auto msh = scene->mMeshes[node->mMeshes[m_n]];
         auto mesh_name = string(msh->mName.C_Str());
-        vector<mesh_material*> materials;
+        rc_material mesh_material = new RC(new material(new RC(shader::from_file(get_mod_path() + "/default_vertex.glsl", ShaderType::VERTEX)), new RC(shader::from_file(get_mod_path() + "/default_fragment.glsl", ShaderType::FRAGMENT))));
         vector<vec3>* _vertexes = new vector<vec3>();
         vector<vec3>* _diffuse_coordinates = new vector<vec3>();
         vector<vec3>* _vertex_normals = new vector<vec3>();
@@ -28,8 +28,34 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
         vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
-        // get texture data
 
+        aiString name;
+        ai_mat->Get(AI_MATKEY_NAME, name);
+        mesh_material->data->name = name.C_Str();
+
+        aiColor3D diffuseColor(0.0f, 0.0f, 0.0f);
+        ai_mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+        mesh_material->data->diffuse.set_x(diffuseColor.r);
+        mesh_material->data->diffuse.set_y(diffuseColor.g);
+        mesh_material->data->diffuse.set_z(diffuseColor.b);
+
+        aiColor3D specularColor(0.0f, 0.0f, 0.0f);
+        ai_mat->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
+        mesh_material->data->specular.set_x(specularColor.r);
+        mesh_material->data->specular.set_y(specularColor.g);
+        mesh_material->data->specular.set_z(specularColor.b);
+
+        aiColor3D ambientColor(0.0f, 0.0f, 0.0f);
+        ai_mat->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
+        mesh_material->data->ambient.set_x(ambientColor.r);
+        mesh_material->data->ambient.set_y(ambientColor.g);
+        mesh_material->data->ambient.set_z(ambientColor.b);
+
+        float shininess = 0.0f;
+        ai_mat->Get(AI_MATKEY_SHININESS, shininess);
+        mesh_material->data->shine = shininess;
+
+        // get texture data
         get_textures(diffuse, aiTextureType_DIFFUSE);
         get_textures(specular, aiTextureType_SPECULAR);
         get_textures(normals, aiTextureType_NORMALS);
@@ -61,23 +87,18 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
             faces->push_back(make_tup<unsigned int, 3>({fce.mIndices[0], fce.mIndices[1], fce.mIndices[2]}));
         }
 
-        if (diffuse_textures.empty()) {
+        if (mesh_material->data->diffuse_texture == nullptr) {
             // insert default texture
-            diffuse_textures.push_back(
-                new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR))
-            );
+            mesh_material->data->diffuse_texture = new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR));
         }
         auto ret_mesh = new RC(new mesh(
             mesh_name,
-            materials,
+            mesh_material,
             _vertexes,
             _diffuse_coordinates,
             _vertex_normals,
             faces,
-            _transform,
-            diffuse_textures,
-            specular_textures,
-            normals_textures
+            _transform
         ));
         ret_mesh->data->radius = radius;
         last_mesh_dict->data->insert(ret_mesh);

@@ -18,6 +18,7 @@
 #include <iterator>
 #include "RC.h"
 #include <variant>
+#include "Material.h"
 
 using std::vector;
 using std::string;
@@ -37,16 +38,6 @@ enum illum_model {
     DIFFUSE_AND_SPECULAR
 };
 
-struct mesh_material {
-    mesh_material(){};
-    string name;
-    tup<float, 3> ambient, diffuse, specular, emissive_coeficient;
-    float specular_exponent, optical_density, transparency;
-    illum_model illumination_model;
-    string ambient_tex_file, diffuse_tex_file, specular_highlight_file;
-    unsigned char * ambient_texture, diffuse_texture, specular_highlight_texture;
-};
-
 typedef RC<texture*>* rc_texture; 
 
 class mesh {
@@ -54,38 +45,29 @@ public:
     mesh(){}
     mesh(const mesh& rhs):
     name(rhs.name),
-    materials(rhs.materials),
+    mesh_material(rhs.mesh_material),
     vertexes(rhs.vertexes),
     diffuse_coordinates(rhs.diffuse_coordinates),
     vertex_normals(rhs.vertex_normals),
     faces(rhs.faces),
-    transform(rhs.transform),
-    diffuse_textures(rhs.diffuse_textures),
-    specular_textures(rhs.specular_textures),
-    normals_textures(rhs.normals_textures)
+    transform(rhs.transform)
     {}
     mesh(
         string name,
-        vector<mesh_material*> materials,
+        rc_material mesh_material,
         vector<vec3>* vertexes,
         vector<vec3>* diffuse_coordinates,
         vector<vec3>* vertex_normals,
         vector<tup<unsigned int, 3>>* faces,
-        vec3 transform,
-        vector<rc_texture> diffuse_textures,
-        vector<rc_texture> specular_textures,
-        vector<rc_texture> normals_textures
+        vec3 transform
     ):
     name(name),
-    materials(materials),
+    mesh_material(mesh_material),
     vertexes(vertexes),
     diffuse_coordinates(diffuse_coordinates),
     vertex_normals(vertex_normals),
     faces(faces),
-    transform(transform),
-    diffuse_textures(diffuse_textures),
-    specular_textures(specular_textures),
-    normals_textures(normals_textures)
+    transform(transform)
     {
         this->create_VAO();
     }
@@ -97,22 +79,16 @@ public:
         delete diffuse_coordinates;
         delete vertex_normals;
         delete faces;
-        for (auto mat : materials) {
-            delete mat;
-        }
     }
     static rc_mesh_dict from_file(string file_path);
     string name;
-    vector<mesh_material*> materials;
+    rc_material mesh_material;
     // VVV THESE SHOULD BE HEAP ALLOCATED
     vector<vec3>* vertexes;
     vector<vec3>* diffuse_coordinates;
     vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
     vec3 transform;
-    vector<rc_texture> diffuse_textures;
-    vector<rc_texture> specular_textures;
-    vector<rc_texture> normals_textures;
     float radius = 0;
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
@@ -201,15 +177,12 @@ public:
 
 // Texture assimp macro
 
-#define get_textures(type_name, aitype) vector<RC<texture*>*> type_name##_textures;\
-        for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aitype); t_n++) {\
+#define get_textures(type_name, aitype) for (size_t t_n = 0; t_n < ai_mat->GetTextureCount(aitype); t_n++) {\
             aiString path;\
             if (ai_mat->GetTexture(aitype, t_n, &path) == AI_SUCCESS) {\
                 if (str_tool::rem_path_from_file(string(path.C_Str())).find(".") != std::string::npos) {\
                     try {\
-                        type_name##_textures.push_back(\
-                            new RC(new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR))\
-                        );\
+                        mesh_material->data->type_name##_texture = new RC(new texture(fix_texture_path(file_path, string(path.C_Str())), TextureWraping::REPEAT, TextureFiltering::LINEAR));\
                     } catch ( std::runtime_error e ) {\
                         std::cerr << e.what();\
                     }\

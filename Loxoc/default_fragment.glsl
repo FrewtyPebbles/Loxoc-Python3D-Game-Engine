@@ -1,9 +1,17 @@
 #version 450 core
 
+
 struct PointLight {
     vec3 position;
     vec3 color;
 	float radius;
+};
+
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shine;
 };
 
 #define MAX_POINT_LIGHTS 25
@@ -13,6 +21,8 @@ uniform int total_point_lights;
 
 uniform vec3 viewPos;
 uniform vec3 ambient_light;
+
+uniform Material material;
 
 uniform sampler2D diffuse_map;
 uniform sampler2D normal_map;
@@ -25,6 +35,7 @@ in vec2 TexCoord;
 
 out vec4 FragColor;
 
+
 vec4 LOXOC_get_lighting(vec4 base_col) {
 	vec3 ambient = vec3(0.0);
     vec3 diffuse = vec3(0.0);
@@ -35,23 +46,22 @@ vec4 LOXOC_get_lighting(vec4 base_col) {
 		float distance_ratio = max(0.0, length(FragPos - current_l.position)/current_l.radius);
 
         // Ambient
-        float ambientStrength = 0.1;
-        vec3 am_t = ambientStrength * current_l.color;
+        vec3 am_t = current_l.color * material.ambient;
         ambient += mix(am_t, vec3(0.0), distance_ratio);
         
         // Diffuse 
         vec3 norm = normalize(Normal);
         vec3 lightDir = normalize(current_l.position - FragPos);
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 dif_t = diff * current_l.color;
+        vec3 dif_t = current_l.color * (diff * material.diffuse);
         diffuse += mix(dif_t, vec3(0.0), distance_ratio);
         
         // Specular
         float specularStrength = 0.5;
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);  
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-        vec3 sp_t = specularStrength * spec * current_l.color;
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shine);
+        vec3 sp_t = current_l.color * (spec * material.specular);
         specular += mix(sp_t, vec3(0.0), distance_ratio);
     }
 

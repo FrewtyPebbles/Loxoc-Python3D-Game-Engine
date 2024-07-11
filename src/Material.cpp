@@ -1,6 +1,7 @@
 #include "Material.h"
 #include "util.h"
 #include <sstream>
+#include "Texture.h"
 
 void material::set_uniform(string name, uniform_type value, string type) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
@@ -127,11 +128,11 @@ void TRAIT_has_uniform::register_uniforms() {
 } 
 
 void material::link_shaders() {
-    this->vertex->compile();
-    this->fragment->compile();
+    this->vertex->data->compile();
+    this->fragment->data->compile();
     this->shader_program = glCreateProgram();
-    glAttachShader(this->shader_program, this->vertex->shader_handle);
-    glAttachShader(this->shader_program, this->fragment->shader_handle);
+    glAttachShader(this->shader_program, this->vertex->data->shader_handle);
+    glAttachShader(this->shader_program, this->fragment->data->shader_handle);
     glLinkProgram(this->shader_program);
     
     // Check for linking errors
@@ -146,6 +147,22 @@ void material::link_shaders() {
     }
     // glDetachShader(this->shader_program, this->vertex_shader.shader_handle);
     // glDetachShader(this->shader_program, this->fragment_shader.shader_handle);
-    glDeleteShader(this->vertex->shader_handle);
-    glDeleteShader(this->fragment->shader_handle);
+    glDeleteShader(this->vertex->data->shader_handle);
+    glDeleteShader(this->fragment->data->shader_handle);
+}
+
+void material::set_material() {
+    string prefix = "material.";
+    // set struct parameters
+    GLuint ambient_loc = glGetUniformLocation(this->shader_program, (prefix + "ambient").c_str());
+    glUniform3fv(ambient_loc, 1, glm::value_ptr(this->ambient.axis));
+
+    GLuint diffuse_loc = glGetUniformLocation(this->shader_program, (prefix + "diffuse").c_str());
+    glUniform3fv(diffuse_loc, 1, glm::value_ptr(this->diffuse.axis));
+
+    GLuint specular_loc = glGetUniformLocation(this->shader_program, (prefix + "specular").c_str());
+    glUniform3fv(specular_loc, 1, glm::value_ptr(this->specular.axis));
+
+    GLuint shine_loc = glGetUniformLocation(this->shader_program, (prefix + "shine").c_str());
+    glUniform1f(shine_loc, this->shine);
 }

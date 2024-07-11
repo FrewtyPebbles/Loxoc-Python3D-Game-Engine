@@ -96,8 +96,8 @@ void window::update() {
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+    this->cam->recalculate_pv();
     for (object3d* ob : render_list) {
-        this->cam->recalculate_pv();
         ob->render(*this->cam, this);
     }
 

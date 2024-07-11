@@ -112,12 +112,6 @@ cdef class MeshDict:
         ])
 
     def __dealloc__(self):
-        # Collect the mesh_dict and decrement each mesh's refcount
-        cdef:
-            pair[string, mesh_dict_child] _pair
-            mesh_dict_child m
-            rc_mesh _m
-            rc_mesh_dict _m_d
         RC_collect(self.c_class)
         
 
@@ -215,43 +209,16 @@ cdef class Mesh:
     cdef Mesh from_cpp(RC[mesh*]* cppinst):
         cdef:
             Mesh ret = Mesh.__new__(Mesh)
-            RC[texture*]* _tex
-            list[Texture] diffuse_textures = []
-            list[Texture] specular_textures = []
-            list[Texture] normals_textures = []
-            Texture tex_diff, tex_spec, tex_norm
         
         ret.c_class = cppinst
         ret.c_class.inc()
 
-        # register textures on the python heap so it can manage garbage collection for c++ memory
+        # register material
         
-        # refcount diffuse
-        for _tex in ret.c_class.data.diffuse_textures:
-            tex_diff = Texture.__new__(Texture)
-            tex_diff.c_class = _tex
-            tex_diff.c_class.inc()
-            diffuse_textures.append(tex_diff)
-        
-        ret.diffuse_textures = diffuse_textures
+        ret.material = Material.from_cpp(cppinst.data.mesh_material)
 
-        # refcount specular
-        for _tex in ret.c_class.data.specular_textures:
-            tex_spec = Texture.__new__(Texture)
-            tex_spec.c_class = _tex
-            tex_spec.c_class.inc()
-            specular_textures.append(tex_spec)
-        
-        ret.specular_textures = specular_textures
+        ret.c_class.data.mesh_material = ret.material.c_class
 
-        # refcount normals
-        for _tex in ret.c_class.data.normals_textures:
-            tex_norm = Texture.__new__(Texture)
-            tex_norm.c_class = _tex
-            tex_norm.c_class.inc()
-            normals_textures.append(tex_norm)
-        
-        ret.normals_textures = normals_textures
         return ret
 
     @staticmethod
@@ -279,8 +246,7 @@ cdef class Object3D:
             self.material = material
             self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
         else:
-            self.material = Material()
-            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
+            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
 
     @property
     def position(self) -> Vec3:
@@ -337,21 +303,29 @@ cdef class Object3D:
             self.c_class.set_uniform(name, valu, type)
 
 
-
+ctypedef shader* shader_ptr
 
 cdef class Shader:
     
     def __init__(self, str source, ShaderType shader_type) -> None:
-        self.c_class = new shader(source.encode(), shader_type)
+        self.c_class = new RC[shader_ptr](new shader(source.encode(), shader_type))
 
     def __dealloc__(self):
-        del self.c_class
+        RC_collect(self.c_class)
 
     @classmethod
     def from_file(cls, str filepath, ShaderType type) -> Shader:
         with open(filepath, 'r') as fp:
             src = fp.read()
         return cls(src, type)
+
+    @staticmethod
+    cdef Shader from_cpp(RC[shader*]* cppinst):
+        cdef:
+            Shader ret = Shader.__new__(Shader)
+        ret.c_class = cppinst
+        ret.c_class.inc()
+        return ret
 
 cdef class Quaternion:
     def __init__(self, float w, float x, float y, float z) -> None:
@@ -824,6 +798,8 @@ cdef Vec2 vec2_from_cpp(vec2 cppinst):
     ret.c_class = v
     return ret
 
+ctypedef material* material_ptr
+
 cdef class Material:
     def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
         if vertex:
@@ -836,10 +812,10 @@ cdef class Material:
         else:
             self.fragment_shader = Shader.from_file(path.join(path.dirname(__file__), "default_fragment.glsl"), ShaderType.FRAGMENT)
 
-        self.c_class = new material(self.vertex_shader.c_class, self.fragment_shader.c_class)
+        self.c_class = new RC[material_ptr](new material(self.vertex_shader.c_class, self.fragment_shader.c_class))
         
     def __dealloc__(self):
-        del self.c_class
+        RC_collect(self.c_class)
     
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
         cdef:
@@ -848,15 +824,34 @@ cdef class Material:
 
         if isinstance(value, float):
             valu = <float>value
-            self.c_class.set_uniform(name, valu, type)
+            self.c_class.data.set_uniform(name, valu, type)
         elif isinstance(value, int):
             valu = <int>value
-            self.c_class.set_uniform(name.encode(), valu, type.encode())
+            self.c_class.data.set_uniform(name.encode(), valu, type.encode())
         else:
             for val in value:
                 uni_vec.push_back(val)
             valu = uni_vec
-            self.c_class.set_uniform(name, valu, type)
+            self.c_class.data.set_uniform(name, valu, type)
+
+    @staticmethod
+    cdef Material from_cpp(RC[material*]* cppinst):
+        cdef:
+            Material ret = Material.__new__(Material)
+
+        ret.c_class = cppinst
+        ret.c_class.inc()
+
+        # register material
+        
+        ret.vertex_shader = Shader.from_cpp(cppinst.data.vertex)
+        ret.fragment_shader = Shader.from_cpp(cppinst.data.fragment)
+
+        ret.c_class.data.vertex = ret.vertex_shader.c_class
+        ret.c_class.data.fragment = ret.fragment_shader.c_class
+
+        return ret
+        
 
 
 cdef class Window:

@@ -7,6 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <vector>
+#include "RC.h"
+#include "Vec3.h"
+#include "Texture.h"
 
 using std::string;
 using std::map;
@@ -40,13 +43,18 @@ protected:
     void inner_set_uniform(int loc, string name, uniform_type value, string type);
 };
 
+typedef RC<texture*>* rc_texture;
+typedef RC<shader*>* rc_shader;
+
 class material : public TRAIT_has_uniform {
 public:
-    material(shader* vertex, shader* fragment)
+    
+    material(rc_shader vertex, rc_shader fragment)
     : vertex(vertex), fragment(fragment)
     {
         this->link_shaders();
     }
+
     ~material(){}
     void set_uniform(string name, uniform_type value, string type);
     void link_shaders();
@@ -54,7 +62,20 @@ public:
     // calls use shader program
     void use_material();
 
-    shader* vertex;
-    shader* fragment;
+    void set_material();
+
+    rc_shader vertex;
+    rc_shader fragment;
     GLuint shader_program;
+    string name;
+    vec3 ambient = vec3(0.1f, 0.1f, 0.1f);
+    vec3 diffuse = vec3(1.0f, 1.0f, 1.0f);
+    vec3 specular = vec3(1.0f, 1.0f, 1.0f);
+    float shine = 32.0;
+    float specular_exponent, optical_density, transparency;
+    rc_texture diffuse_texture = nullptr;
+    rc_texture specular_texture = nullptr;
+    rc_texture normals_texture = nullptr;
 };
+
+typedef RC<material*>* rc_material;
