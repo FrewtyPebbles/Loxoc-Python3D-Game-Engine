@@ -55,8 +55,8 @@ cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,0,300), Vec3(0,10,0))
 
-test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1))
-test_light2 = PointLight(Vec3(20,0,0), 500.0, Vec3(0,0,2))
+test_light = PointLight(Vec3(-100,200,300), 500.0, Vec3(1,1,1))
+test_light2 = PointLight(Vec3(20,200,0), 500.0, Vec3(0,0,2))
 
 window.add_object_list([
     car,

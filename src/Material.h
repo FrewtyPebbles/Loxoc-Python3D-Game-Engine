@@ -71,7 +71,7 @@ public:
     vec3 ambient = vec3(0.1f, 0.1f, 0.1f);
     vec3 diffuse = vec3(1.0f, 1.0f, 1.0f);
     vec3 specular = vec3(1.0f, 1.0f, 1.0f);
-    float shine = 32.0;
+    float shine = 1.0f;
     float specular_exponent, optical_density, transparency;
     rc_texture diffuse_texture = nullptr;
     rc_texture specular_texture = nullptr;

@@ -26,6 +26,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
         vector<vec3>* _vertex_normals = new vector<vec3>();
         vector<tup<unsigned int, 3>>* faces = new vector<tup<unsigned int, 3>>();
         vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
+        
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
 
@@ -51,9 +52,8 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
         mesh_material->data->ambient.set_y(ambientColor.g);
         mesh_material->data->ambient.set_z(ambientColor.b);
 
-        float shininess = 0.0f;
-        ai_mat->Get(AI_MATKEY_SHININESS, shininess);
-        mesh_material->data->shine = shininess;
+        ai_mat->Get(AI_MATKEY_SHININESS, mesh_material->data->shine);
+        mesh_material->data->shine = std::max(mesh_material->data->shine, 1.0f);
 
         // get texture data
         get_textures(diffuse, aiTextureType_DIFFUSE);
