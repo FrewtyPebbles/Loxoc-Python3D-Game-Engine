@@ -12,6 +12,7 @@
 #include <set>
 #include <chrono>
 #include "PointLight.h"
+#include "DirectionalLight.h"
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
@@ -53,7 +54,13 @@ public:
     void remove_point_light(point_light* obj);
     void add_point_light_list(vector<point_light*> objs);
     void remove_point_light_list(vector<point_light*> objs);
+
+    void add_directional_light(directional_light* obj);
+    void remove_directional_light(directional_light* obj);
+    void add_directional_light_list(vector<directional_light*> objs);
+    void remove_directional_light_list(vector<directional_light*> objs);
     std::set<point_light*> render_list_point_lights;
+    std::set<directional_light*> render_list_directional_lights;
     vec3* ambient_light;
 private:
     void create_window();

@@ -11,6 +11,9 @@ public:
     vec3* position;
     float radius;
     vec3* color;
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
     void set_uniforms(GLuint shader_prog, size_t index);
     friend inline std::ostream& operator<<(std::ostream& os, const point_light& self){
         os << "point_light{ position: " << *self.position << ", radius: " << self.radius << ", color: " << *self.color << " }";

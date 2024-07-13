@@ -153,6 +153,8 @@ void window::remove_object2d_list(vector<object2d*> objs) {
     }
 }
 
+// Point lights
+
 void window::add_point_light(point_light* obj) {
     this->render_list_point_lights.insert(obj);
 }
@@ -170,5 +172,27 @@ void window::add_point_light_list(vector<point_light*> objs) {
 void window::remove_point_light_list(vector<point_light*> objs) {
     for (point_light * obj : objs) {
         this->render_list_point_lights.erase(obj);
+    }
+}
+
+// Directional lights
+
+void window::add_directional_light(directional_light* obj) {
+    this->render_list_directional_lights.insert(obj);
+}
+
+void window::remove_directional_light(directional_light* obj) {
+    this->render_list_directional_lights.erase(obj);
+}
+
+void window::add_directional_light_list(vector<directional_light*> objs) {
+    for (directional_light * obj : objs) {
+        this->render_list_directional_lights.insert(obj);
+    }
+}
+
+void window::remove_directional_light_list(vector<directional_light*> objs) {
+    for (directional_light * obj : objs) {
+        this->render_list_directional_lights.erase(obj);
     }
 }

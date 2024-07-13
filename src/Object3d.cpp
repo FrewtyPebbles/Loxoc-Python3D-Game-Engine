@@ -58,7 +58,8 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 this->mat->data->diffuse_texture->data->bind();
             }
 
-            if (this->mat == nullptr) {
+            if (this->mat == nullptr) { // Use mesh material.
+
                 glUseProgram(_mesh->data->mesh_material->data->shader_program);
 
                 glm::mat4 model = glm::mat4(1.0f);
@@ -86,7 +87,9 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
 
                 _mesh->data->mesh_material->data->register_uniforms();
                 this->register_uniforms(); // register object level uniforms
-            
+                
+                // Point Lights:
+                
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
                     if (pl->position->distance(*this->position) <= pl->radius + _mesh->data->radius * this->scale->get_magnitude()) {
@@ -98,7 +101,22 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 int total_point_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_point_lights");
 
                 glUniform1i(total_point_lights_loc, i);
-            } else {
+                
+                // Directional Lights:
+                
+                i = 0;
+                for (directional_light* dl : window->render_list_directional_lights) {
+                    dl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
+                    i++;
+                }
+
+                int total_directional_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_directional_lights");
+
+                glUniform1i(total_directional_lights_loc, i);
+            } else { // Use object material.
+
+                // Point Lights:
+
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
                     if (pl->position->distance(*this->position) <= pl->radius + _mesh->data->radius * this->scale->get_magnitude()) {
@@ -110,6 +128,19 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 int total_point_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_point_lights");
 
                 glUniform1i(total_point_lights_loc, i);
+                
+
+                // Directional Lights:
+                
+                i = 0;
+                for (directional_light* dl : window->render_list_directional_lights) {
+                    dl->set_uniforms(this->mat->data->shader_program, i);
+                    i++;
+                }
+
+                int total_directional_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_directional_lights");
+
+                glUniform1i(total_directional_lights_loc, i);
             }
             
             glBindVertexArray(_mesh->data->gl_VAO);
