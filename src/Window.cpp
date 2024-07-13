@@ -31,7 +31,7 @@ void window::create_window() {
     }
     atexit(SDL_Quit);
 
-
+    SDL_GL_SetSwapInterval(0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -97,6 +97,7 @@ void window::update() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     this->cam->recalculate_pv();
+    
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
     }
