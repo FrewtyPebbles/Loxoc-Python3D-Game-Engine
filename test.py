@@ -84,16 +84,14 @@ accel = 5
 cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
-counter = 0
-counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
     if window.dt > 0:
         print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
     else:
         print("FRAMERATE: inf fps")
     
-    doomguy.position.x = math.sin(window.time/1000000000)
-    doomguy.position.y = math.cos(window.time/1000000000)
+    doomguy.position.x = math.sin(window.time_ns/1000000000)
+    doomguy.position.y = math.cos(window.time_ns/1000000000)
     
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
@@ -109,7 +107,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         # FORWARD
         vel += accel
     # apply a quaternion rotation arround the vector vec3(1,1,0)
-    teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
+    teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(window.time_ns/10000000))
 
     # test_light.position = car.position
     # test_light.position.y += 200
@@ -147,6 +145,5 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # Re-render the scene.
     window.update()
     # This also refreshes window.current_event.
-    counter += counter_speed
     
     

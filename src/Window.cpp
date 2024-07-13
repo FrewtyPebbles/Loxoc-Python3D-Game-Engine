@@ -109,7 +109,7 @@ void window::update() {
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();
     this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
-    this->time = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
+    this->time = std::chrono::duration_cast<std::chrono::seconds>(this->starttime - this->old_time).count();
     this->deltatime = std::chrono::duration_cast<std::chrono::nanoseconds>(this->new_time - this->old_time).count()/1000000000.0;// dt in seconds
     this->old_time = this->new_time;
 }
