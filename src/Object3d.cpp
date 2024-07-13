@@ -56,12 +56,6 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
             if (this->mat != nullptr) if (this->mat->data->diffuse_texture != nullptr) {
                 glActiveTexture(GL_TEX_N_ITTER[0]);
                 this->mat->data->diffuse_texture->data->bind();
-            } else {
-                glActiveTexture(GL_TEX_N_ITTER[0]);
-                _mesh->data->mesh_material->data->diffuse_texture->data->bind();
-            } else {
-                glActiveTexture(GL_TEX_N_ITTER[0]);
-                _mesh->data->mesh_material->data->diffuse_texture->data->bind();
             }
 
             if (this->mat == nullptr) {
@@ -92,8 +86,6 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
 
                 _mesh->data->mesh_material->data->register_uniforms();
                 this->register_uniforms(); // register object level uniforms
-                glActiveTexture(GL_TEX_N_ITTER[0]);
-                _mesh->data->mesh_material->data->diffuse_texture->data->bind();
             
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {

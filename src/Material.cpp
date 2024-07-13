@@ -154,15 +154,19 @@ void material::link_shaders() {
 void material::set_material() {
     string prefix = "material.";
     // set struct parameters
+    
     GLuint ambient_loc = glGetUniformLocation(this->shader_program, (prefix + "ambient").c_str());
     glUniform3fv(ambient_loc, 1, glm::value_ptr(this->ambient.axis));
-
-    GLuint diffuse_loc = glGetUniformLocation(this->shader_program, (prefix + "diffuse").c_str());
-    glUniform3fv(diffuse_loc, 1, glm::value_ptr(this->diffuse.axis));
-
-    GLuint specular_loc = glGetUniformLocation(this->shader_program, (prefix + "specular").c_str());
-    glUniform3fv(specular_loc, 1, glm::value_ptr(this->specular.axis));
-
+    
+    glActiveTexture(GL_TEX_N_ITTER[0]);
+    this->diffuse_texture->data->bind();
+    
+    if (this->specular_texture != nullptr) {
+        glActiveTexture(GL_TEX_N_ITTER[1]);
+        this->specular_texture->data->bind();
+    }
+    
+    
     GLuint shine_loc = glGetUniformLocation(this->shader_program, (prefix + "shine").c_str());
     glUniform1f(shine_loc, this->shine);
 }

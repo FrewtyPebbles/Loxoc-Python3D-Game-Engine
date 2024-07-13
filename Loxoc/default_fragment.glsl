@@ -9,8 +9,8 @@ struct PointLight {
 
 struct Material {
     vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    sampler2D diffuse_map;
+    sampler2D specular_map;
     float shine;
 };
 
@@ -24,10 +24,6 @@ uniform vec3 ambient_light;
 
 uniform Material material;
 
-uniform sampler2D diffuse_map;
-uniform sampler2D normal_map;
-uniform sampler2D specular_map;
-uniform sampler2D emissive_map;
 
 in vec3 FragPos;  
 in vec3 Normal;
@@ -36,7 +32,7 @@ in vec2 TexCoord;
 out vec4 FragColor;
 
 
-vec4 LOXOC_get_lighting(vec4 base_col) {
+vec4 LOXOC_default(vec4 base_color) {
 	vec3 ambient = vec3(0.0);
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
@@ -46,14 +42,14 @@ vec4 LOXOC_get_lighting(vec4 base_col) {
 		float distance_ratio = max(0.0, length(FragPos - current_l.position)/current_l.radius);
 
         // Ambient
-        vec3 am_t = current_l.color * material.ambient;
+        vec3 am_t = current_l.color * vec3(texture(material.diffuse_map, TexCoord));
         ambient += mix(am_t, vec3(0.0), distance_ratio);
         
         // Diffuse 
         vec3 norm = normalize(Normal);
         vec3 lightDir = normalize(current_l.position - FragPos);
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 dif_t = current_l.color * (diff * material.diffuse);
+        vec3 dif_t = current_l.color * (diff * vec3(texture(material.diffuse_map, TexCoord)));
         diffuse += mix(dif_t, vec3(0.0), distance_ratio);
         
         // Specular
@@ -61,16 +57,16 @@ vec4 LOXOC_get_lighting(vec4 base_col) {
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);  
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shine);
-        vec3 sp_t = current_l.color * (spec * material.specular);
+        vec3 sp_t = current_l.color * (spec * vec3(texture(material.specular_map, TexCoord)));
         specular += mix(sp_t, vec3(0.0), distance_ratio);
     }
 
-    return vec4(max(ambient_light, ambient + diffuse + specular), 1.0);
+    return vec4(max(ambient_light * base_color.xyz, ambient + diffuse + specular), 1.0);
 }
 
 void main() {
 	
-    vec4 texColor = texture(diffuse_map, TexCoord);
-    vec4 lighting = LOXOC_get_lighting(texColor);
-    FragColor = lighting * texColor;
+    vec4 texColor = texture(material.diffuse_map, TexCoord);
+    vec4 default_render = LOXOC_default(texColor);
+    FragColor = default_render;
 }
