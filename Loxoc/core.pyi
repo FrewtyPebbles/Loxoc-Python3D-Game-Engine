@@ -533,6 +533,26 @@ class Window:
         Removes multiple :class:`PointLight` s from the scene.  Only :class:`PointLight` s which are in the scene will be rendered by the camera.
         """
 
+    def add_directional_light(self, obj:DirectionalLight) -> None:
+        """
+        Adds the :class:`DirectionalLight` to the scene.  This ensures that the :class:`DirectionalLight` is rendered by the camera.
+        """
+
+    def remove_directional_light(self, obj:DirectionalLight) -> None:
+        """
+        Removes the :class:`DirectionalLight` from the scene.  Only :class:`DirectionalLight` s which are in the scene will be rendered by the camera.
+        """
+
+    def add_directional_light_list(self, objs:list[DirectionalLight]) -> None:
+        """
+        Adds multiple :class:`DirectionalLight` s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_directional_light_list(self, objs:list[DirectionalLight]) -> None:
+        """
+        Removes multiple :class:`DirectionalLight` s from the scene.  Only :class:`DirectionalLight` s which are in the scene will be rendered by the camera.
+        """
+
 class EVENT_FLAG(Enum):
     """
     An IO or engine event flag.
@@ -1081,7 +1101,7 @@ class PointLight:
     """
     A Object that emits light from a :class:`Vec3` point in 3D space.
     """
-    def __init__(self, position:Vec3, radius:float, color:Vec3) -> None:
+    def __init__(self, position:Vec3, radius:float, color:Vec3, intensity:float) -> None:
         """
         A Light that radiates out from its position by `radius`
         """
@@ -1099,7 +1119,7 @@ class PointLight:
         """
 
     @property
-    def color(self) -> Quaternion:
+    def color(self) -> Vec3:
         """
         The :class:`Vec3` color of the light in rgb.
         """
@@ -1108,4 +1128,108 @@ class PointLight:
     def color(self, value:Vec3) -> None:
         """
         The :class:`Vec3` color of the light in rgb.
+        """
+
+    @property
+    def intensity(self) -> float:
+        """
+        The intensity of the light.
+        """
+
+    @intensity.setter
+    def intensity(self, value:float):
+        """
+        The intensity of the light.
+        """
+
+    @property
+    def radius(self) -> float:
+        """
+        The radius of the light
+        """
+
+    @radius.setter
+    def radius(self, value:float):
+        """
+        The radius of the light
+        """
+
+
+class DirectionalLight:
+    def __init__(self, rotation:Vec3 = None, color:Vec3 = None, ambient:Vec3 = None,
+    diffuse:Vec3 = None, specular:Vec3 = None, intensity:float = 1.0) -> None:
+        """
+        A light that shines on everything globally from a specified angle.
+        """
+    
+    @property
+    def rotation(self) -> Quaternion:
+        """
+        The :class:`Quaternion` rotation of the :class:`DirectionalLight`
+        """
+
+    @rotation.setter
+    def rotation(self, value:Quaternion):
+        """
+        The :class:`Quaternion` rotation of the :class:`DirectionalLight`
+        """
+
+    @property
+    def ambient(self) -> Vec3:
+        """
+        The :class:`Vec3` ambient property of the :class:`DirectionalLight`
+        """
+
+    @ambient.setter
+    def ambient(self, value:Vec3):
+        """
+        The :class:`Vec3` ambient property of the :class:`DirectionalLight`
+        """
+
+    @property
+    def diffuse(self) -> Vec3:
+        """
+        The :class:`Vec3` diffuse property of the :class:`DirectionalLight`
+        """
+
+    @diffuse.setter
+    def diffuse(self, value:Vec3):
+        """
+        The :class:`Vec3` diffuse property of the :class:`DirectionalLight`
+        """
+
+    @property
+    def specular(self) -> Vec3:
+        """
+        The :class:`Vec3` specular property of the :class:`DirectionalLight`
+        """
+
+    @specular.setter
+    def specular(self, value:Vec3):
+        """
+        The :class:`Vec3` specular property of the :class:`DirectionalLight`
+        """
+
+    @property
+    def intensity(self) -> float:
+        """
+        The intensity property of the :class:`DirectionalLight`
+        """
+
+    @intensity.setter
+    def intensity(self, value:float):
+        """
+        The intensity property of the :class:`DirectionalLight`
+        """
+
+    @property
+    def color(self) -> Vec3:
+        """
+        The :class:`Vec3` color property of the :class:`DirectionalLight`
+        """
+
+    @color.setter
+    def color(self, value:Vec3):
+        """
+        The :class:`Vec3` color property of the :class:`DirectionalLight`
         """

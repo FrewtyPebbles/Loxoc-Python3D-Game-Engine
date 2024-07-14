@@ -20,4 +20,7 @@ void directional_light::set_uniforms(GLuint shader_prog, size_t index) {
 
     GLuint specular_loc = glGetUniformLocation(shader_prog, (prefix + "specular").c_str());
     glUniform3fv(specular_loc, 1, glm::value_ptr(this->specular->axis));
+
+    GLuint intensity_loc = glGetUniformLocation(shader_prog, (prefix + "intensity").c_str());
+    glUniform1f(intensity_loc, this->intensity);
 }

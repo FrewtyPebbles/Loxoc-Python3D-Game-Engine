@@ -943,6 +943,8 @@ cdef class Window:
         for obj in objs:
             self.remove_object2d(obj)
 
+    # POINT LIGHTS
+
     cpdef void add_point_light(self, PointLight obj):
         Py_INCREF(obj)
         self.c_class.add_point_light(obj.c_class)
@@ -964,6 +966,30 @@ cdef class Window:
 
         for obj in objs:
             self.remove_point_light(obj)
+
+    # DIRECTIONAL LIGHTS
+
+    cpdef void add_directional_light(self, DirectionalLight obj):
+        Py_INCREF(obj)
+        self.c_class.add_directional_light(obj.c_class)
+
+    cpdef void remove_directional_light(self, DirectionalLight obj):
+        self.c_class.remove_directional_light(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_directional_light_list(self, list[DirectionalLight] objs):
+        cdef:
+            DirectionalLight obj
+
+        for obj in objs:
+            self.add_directional_light(obj)
+
+    cpdef void remove_directional_light_list(self, list[DirectionalLight] objs):
+        cdef:
+            DirectionalLight obj
+
+        for obj in objs:
+            self.remove_directional_light(obj)
 
 cdef class MouseDevice:
     pass
@@ -1094,10 +1120,10 @@ cdef class Object2D:
             self.c_class.set_uniform(name.encode(), valu, type.encode())
 
 cdef class PointLight:
-    def __init__(self, Vec3 position, float radius, Vec3 color) -> None:
+    def __init__(self, Vec3 position, float radius, Vec3 color, float intensity = 1.0) -> None:
         self._position = position
         self._color = color
-        self.c_class = new point_light(self._position.c_class, radius, self._color.c_class)
+        self.c_class = new point_light(self._position.c_class, radius, self._color.c_class, intensity)
     
     @property
     def position(self) -> Vec3:
@@ -1108,7 +1134,84 @@ cdef class PointLight:
         self._position.c_class[0] = value.c_class[0]
 
     @property
-    def color(self) -> Quaternion:
+    def intensity(self) -> float:
+        return self.c_class.intensity
+
+    @intensity.setter
+    def intensity(self, float value):
+        self.c_class.intensity = value
+
+    @property
+    def radius(self) -> float:
+        return self.c_class.radius
+
+    @radius.setter
+    def radius(self, float value):
+        self.c_class.radius = value
+
+    @property
+    def color(self) -> Vec3:
+        return self._color
+
+    @color.setter
+    def color(self, Vec3 value):
+        self._color.c_class[0] = value.c_class[0]
+
+    def __dealloc__(self):
+        del self.c_class
+
+cdef class DirectionalLight:
+    def __init__(self, Vec3 rotation = None, Vec3 color = None, Vec3 ambient = None,
+    Vec3 diffuse = None, Vec3 specular = None, float intensity = 1.0) -> None:
+        self._rotation = rotation.to_quaternion() if rotation else Vec3(0.0,0.0,0.0).to_quaternion()
+        self._color = color if color else Vec3(0.333,0.333,0.333)
+        self._ambient = ambient if ambient else Vec3(0.0,0.0,0.0)
+        self._diffuse = diffuse if diffuse else Vec3(0.0,0.0,0.0)
+        self._specular = specular if specular else Vec3(0.0,0.0,0.0)
+        self.c_class = new directional_light(self._rotation.c_class, self._color.c_class, self._ambient.c_class, self._diffuse.c_class, self._specular.c_class, intensity)
+    
+    @property
+    def rotation(self) -> Quaternion:
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, Quaternion value):
+        self._rotation.c_class[0] = value.c_class[0]
+
+    @property
+    def ambient(self) -> Vec3:
+        return self._ambient
+
+    @ambient.setter
+    def ambient(self, Vec3 value):
+        self._ambient.c_class[0] = value.c_class[0]
+
+    @property
+    def diffuse(self) -> Vec3:
+        return self._diffuse
+
+    @diffuse.setter
+    def diffuse(self, Vec3 value):
+        self._diffuse.c_class[0] = value.c_class[0]
+
+    @property
+    def specular(self) -> Vec3:
+        return self._specular
+
+    @specular.setter
+    def specular(self, Vec3 value):
+        self._specular.c_class[0] = value.c_class[0]
+
+    @property
+    def intensity(self) -> float:
+        return self.c_class.intensity
+
+    @intensity.setter
+    def intensity(self, float value):
+        self.c_class.intensity = value
+
+    @property
+    def color(self) -> Vec3:
         return self._color
 
     @color.setter

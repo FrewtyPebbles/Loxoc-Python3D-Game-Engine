@@ -6,8 +6,8 @@
 class point_light {
 public:
     point_light(){}
-    point_light(vec3* position, float radius, vec3* color)
-        : position(position), radius(radius), color(color) {}
+    point_light(vec3* position, float radius, vec3* color, float intensity)
+        : position(position), radius(radius), color(color), intensity(intensity) {}
     vec3* position;
     float radius;
     vec3* color;

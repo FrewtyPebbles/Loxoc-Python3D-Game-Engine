@@ -23,4 +23,7 @@ void point_light::set_uniforms(GLuint shader_prog, size_t index) {
 
     GLuint quadratic_loc = glGetUniformLocation(shader_prog, (prefix + "quadratic").c_str());
     glUniform1f(quadratic_loc, 1/(this->radius*this->radius));
+
+    GLuint intensity_loc = glGetUniformLocation(shader_prog, (prefix + "intensity").c_str());
+    glUniform1f(intensity_loc, this->intensity);
 }

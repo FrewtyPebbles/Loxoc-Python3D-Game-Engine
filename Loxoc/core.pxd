@@ -542,16 +542,38 @@ cdef class Camera:
 cdef extern from "../src/PointLight.h":
     cdef cppclass point_light:
         point_light() except +
-        point_light(vec3* pos, float rad, vec3* col) except +
+        point_light(vec3* pos, float rad, vec3* col, float intensity) except +
         vec3* position
         float radius
         vec3* color
+        float intensity
+        float constant
+        float linear
+        float quadratic
 
 
 cdef class PointLight:
     cdef:
         point_light* c_class
         Vec3 _position, _color
+
+cdef extern from "../src/DirectionalLight.h":
+    cdef cppclass directional_light:
+        directional_light() except +
+        directional_light(quaternion* rotation, vec3* color, vec3* ambient, vec3* diffuse, vec3* specular, float intensity) except +
+        quaternion* rotation
+        vec3* color
+        vec3* ambient
+        vec3* diffuse
+        vec3* specular
+        float intensity
+
+
+cdef class DirectionalLight:
+    cdef:
+        directional_light* c_class
+        Quaternion _rotation
+        Vec3 _color, _ambient, _diffuse, _specular
 
 cdef extern from "../src/Window.h":
     cdef cppclass window:
@@ -577,6 +599,11 @@ cdef extern from "../src/Window.h":
         void remove_point_light(point_light* obj)
         void add_point_light_list(vector[point_light*] objs)
         void remove_point_light_list(vector[point_light*] objs)
+
+        void add_directional_light(directional_light* obj)
+        void remove_directional_light(directional_light* obj)
+        void add_directional_light_list(vector[directional_light*] objs)
+        void remove_directional_light_list(vector[directional_light*] objs)
 
         event current_event
         double deltatime
@@ -607,6 +634,11 @@ cdef class Window:
     cpdef void remove_point_light(self, PointLight obj)
     cpdef void add_point_light_list(self, list[PointLight] objs)
     cpdef void remove_point_light_list(self, list[PointLight] objs)
+
+    cpdef void add_directional_light(self, DirectionalLight obj)
+    cpdef void remove_directional_light(self, DirectionalLight obj)
+    cpdef void add_directional_light_list(self, list[DirectionalLight] objs)
+    cpdef void remove_directional_light_list(self, list[DirectionalLight] objs)
 
     cpdef void lock_mouse(self, bint lock)
 

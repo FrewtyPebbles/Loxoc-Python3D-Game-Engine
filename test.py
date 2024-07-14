@@ -2,7 +2,8 @@ import time
 from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
-    Texture, Sprite, Object2D, Vec2, PointLight, MeshDict
+    Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
+    DirectionalLight
 )
 import math
 from copy import copy
@@ -55,8 +56,10 @@ cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,0,300), Vec3(0,10,0))
 
-test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1) * 2.5)
-test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2) * 3)
+test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1), 2.5)
+test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2), 3)
+
+dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
 
 window.add_object_list([
     car,
@@ -73,6 +76,10 @@ window.add_object2d_list([
 window.add_point_light_list([
     test_light,
     test_light2
+])
+
+window.add_directional_light_list([
+    dir_light
 ])
 
 window.lock_mouse(True)
