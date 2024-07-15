@@ -92,6 +92,8 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
+                    // TODO: calculate when to remove light by having an attenuation threshhold.
+                    // Calculate attenuation of light from distance to mesh.  if the attenuation is below 0.0001 omit point light
                     if (pl->position->distance(*this->position) <= pl->radius + pl->intensity + _mesh->data->radius * this->scale->get_magnitude()) {
                         pl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
                         i++;
@@ -119,6 +121,8 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
 
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
+                    // TODO: calculate when to remove light by having an attenuation threshhold.
+                    // Calculate attenuation of light from distance to mesh.  if the attenuation is below 0.0001 omit point light
                     if (pl->position->distance(*this->position) <= pl->radius * pl->intensity + _mesh->data->radius * this->scale->get_magnitude()) {
                         pl->set_uniforms(this->mat->data->shader_program, i);
                         i++;
