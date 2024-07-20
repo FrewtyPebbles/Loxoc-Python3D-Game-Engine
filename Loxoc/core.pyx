@@ -991,6 +991,30 @@ cdef class Window:
         for obj in objs:
             self.remove_directional_light(obj)
 
+    # SPOT LIGHTS
+
+    cpdef void add_spot_light(self, SpotLight obj):
+        Py_INCREF(obj)
+        self.c_class.add_spot_light(obj.c_class)
+
+    cpdef void remove_spot_light(self, SpotLight obj):
+        self.c_class.remove_spot_light(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_spot_light_list(self, list[SpotLight] objs):
+        cdef:
+            SpotLight obj
+
+        for obj in objs:
+            self.add_spot_light(obj)
+
+    cpdef void remove_spot_light_list(self, list[SpotLight] objs):
+        cdef:
+            SpotLight obj
+
+        for obj in objs:
+            self.remove_spot_light(obj)
+
 cdef class MouseDevice:
     pass
 
@@ -1217,6 +1241,85 @@ cdef class DirectionalLight:
     @color.setter
     def color(self, Vec3 value):
         self._color.c_class[0] = value.c_class[0]
+
+    def __dealloc__(self):
+        del self.c_class
+
+
+cdef class SpotLight:
+    def __init__(self, Vec3 position, Vec3 rotation = None, Vec3 color = None, float cutoff = 0.2181662, float outer_cutoff = 0.3054326, float intensity = 1.0, float reach = 100.0, Texture cookie = None) -> None:
+        self._position = position
+        self._rotation = rotation.to_quaternion() if rotation else Vec3(0.0,0.0,0.0).to_quaternion()
+        self._color = color if color else Vec3(0.333,0.333,0.333)
+        self._cookie = cookie
+        if cookie:
+            self.c_class = new spot_light(self._position.c_class, self._rotation.c_class, self._color.c_class, cutoff, outer_cutoff, intensity, reach, True, self._cookie.c_class)
+        else:
+            self.c_class = new spot_light(self._position.c_class, self._rotation.c_class, self._color.c_class, cutoff, outer_cutoff, intensity, reach, False)
+    
+    @property
+    def rotation(self) -> Quaternion:
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, Quaternion value):
+        self._rotation.c_class[0] = value.c_class[0]
+
+    @property
+    def cookie(self) -> Texture:
+        return self._cookie
+
+    @cookie.setter
+    def cookie(self, Texture value):
+        self._cookie.c_class[0] = value.c_class[0]
+
+    @property
+    def position(self) -> Vec3:
+        return self._position
+
+    @position.setter
+    def position(self, Vec3 value):
+        self._position.c_class[0] = value.c_class[0]
+
+    @property
+    def color(self) -> Vec3:
+        return self._color
+
+    @color.setter
+    def color(self, Vec3 value):
+        self._color.c_class[0] = value.c_class[0]
+
+    @property
+    def intensity(self) -> float:
+        return self.c_class.intensity
+
+    @intensity.setter
+    def intensity(self, float value):
+        self.c_class.intensity = value
+
+    @property
+    def cutoff(self) -> float:
+        return self.c_class.cutOff
+
+    @cutoff.setter
+    def cutoff(self, float value):
+        self.c_class.cutOff = value
+
+    @property
+    def outer_cutoff(self) -> float:
+        return self.c_class.outerCutOff
+
+    @outer_cutoff.setter
+    def outer_cutoff(self, float value):
+        self.c_class.outerCutOff = value
+
+    @property
+    def reach(self) -> float:
+        return self.c_class.reach
+
+    @reach.setter
+    def reach(self, float value):
+        self.c_class.reach = value
 
     def __dealloc__(self):
         del self.c_class

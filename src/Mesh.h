@@ -166,10 +166,10 @@ public:
     inline mesh_dict_child operator[](string name) {
         return this->data[name];
     }
-    inline meshmap_iterator begin() noexcept { return this->data.begin(); }
-    inline const_meshmap_iterator cbegin() const noexcept { return this->data.cbegin(); }
-    inline meshmap_iterator end() noexcept { return this->data.end(); }
-    inline const_meshmap_iterator cend() const noexcept { return this->data.cend(); }
+    inline meshmap_iterator begin() { return this->data.begin(); }
+    inline const_meshmap_iterator cbegin() const { return this->data.cbegin(); }
+    inline meshmap_iterator end() { return this->data.end(); }
+    inline const_meshmap_iterator cend() const { return this->data.cend(); }
     std::map<string, mesh_dict_child> data;
     string name;
 };

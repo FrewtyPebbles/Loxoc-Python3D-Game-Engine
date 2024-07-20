@@ -197,3 +197,25 @@ void window::remove_directional_light_list(vector<directional_light*> objs) {
         this->render_list_directional_lights.erase(obj);
     }
 }
+
+// Spot lights
+
+void window::add_spot_light(spot_light* obj) {
+    this->render_list_spot_lights.insert(obj);
+}
+
+void window::remove_spot_light(spot_light* obj) {
+    this->render_list_spot_lights.erase(obj);
+}
+
+void window::add_spot_light_list(vector<spot_light*> objs) {
+    for (spot_light * obj : objs) {
+        this->render_list_spot_lights.insert(obj);
+    }
+}
+
+void window::remove_spot_light_list(vector<spot_light*> objs) {
+    for (spot_light * obj : objs) {
+        this->render_list_spot_lights.erase(obj);
+    }
+}

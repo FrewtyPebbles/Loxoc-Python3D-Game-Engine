@@ -143,6 +143,7 @@ void material::link_shaders() {
         glGetProgramInfoLog(this->shader_program, 512, NULL, infoLog);
         std::stringstream ss;
         ss << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << "\n";
+        std::cerr << ss.str();
         throw std::runtime_error(ss.str());
     }
     // glDetachShader(this->shader_program, this->vertex_shader.shader_handle);

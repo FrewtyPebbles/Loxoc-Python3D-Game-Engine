@@ -3,7 +3,7 @@ from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
-    DirectionalLight
+    DirectionalLight, SpotLight
 )
 import math
 from copy import copy
@@ -61,6 +61,8 @@ test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2), 3)
 
 dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
 
+spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
+
 window.add_object_list([
     car,
     car2,
@@ -79,7 +81,11 @@ window.add_point_light_list([
 ])
 
 window.add_directional_light_list([
-    dir_light
+    # dir_light
+])
+
+window.add_spot_light_list([
+    spot_light
 ])
 
 window.lock_mouse(True)
@@ -148,6 +154,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
 
     camera.position = car.position - camera.rotation.forward * cam_dist
+
+    spot_light.position = car.position + Vec3(0,60,0)
+    spot_light.rotation = car.rotation
 
     # Re-render the scene.
     window.update()

@@ -553,6 +553,26 @@ class Window:
         Removes multiple :class:`DirectionalLight` s from the scene.  Only :class:`DirectionalLight` s which are in the scene will be rendered by the camera.
         """
 
+    def add_spot_light(self, obj:SpotLight) -> None:
+        """
+        Adds the :class:`SpotLight` to the scene.  This ensures that the :class:`SpotLight` is rendered by the camera.
+        """
+
+    def remove_spot_light(self, obj:SpotLight) -> None:
+        """
+        Removes the :class:`SpotLight` from the scene.  Only :class:`SpotLight` s which are in the scene will be rendered by the camera.
+        """
+
+    def add_spot_light_list(self, objs:list[SpotLight]) -> None:
+        """
+        Adds multiple :class:`SpotLight` s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_spot_light_list(self, objs:list[SpotLight]) -> None:
+        """
+        Removes multiple :class:`SpotLight` s from the scene.  Only :class:`SpotLight` s which are in the scene will be rendered by the camera.
+        """
+
 class EVENT_FLAG(Enum):
     """
     An IO or engine event flag.
@@ -1232,4 +1252,107 @@ class DirectionalLight:
     def color(self, value:Vec3):
         """
         The :class:`Vec3` color property of the :class:`DirectionalLight`
+        """
+
+
+class SpotLight:
+    def __init__(self, position:Vec3, rotation:Vec3 = None, color:Vec3 = None, cutoff:float = 12.5, outer_cutoff:float = 17.5, intensity:float = 1.0, reach:float = 100.0, cookie:Texture = None) -> None:
+        """
+        A spot-light object.
+        """
+
+    @property
+    def position(self) -> Vec3:
+        """
+        The :class:`Vec3` position of the light.
+        """
+
+    @position.setter
+    def position(self, value:Vec3) -> None:
+        """
+        The :class:`Vec3` position of the light.
+        """
+
+    @property
+    def rotation(self) -> Quaternion:
+        """
+        The direction of the spotlight as a :class:`Quaternion` .
+        """
+
+    @rotation.setter
+    def rotation(self, value:Quaternion):
+        """
+        The direction of the spotlight as a :class:`Quaternion` .
+        """
+
+    @property
+    def cookie(self) -> Texture:
+        """
+        The :class:`Texture` of the light cookie the spotlight will cast if provided.
+        """
+
+    @cookie.setter
+    def cookie(self, value: Texture):
+        """
+        The :class:`Texture` of the light cookie the spotlight will cast if provided.
+        """
+
+    @property
+    def color(self) -> Vec3:
+        """
+        The :class:`Vec3` color of the light.
+        """
+
+    @color.setter
+    def color(self, value: Vec3):
+        """
+        The :class:`Vec3` color of the light.
+        """
+
+    @property
+    def intensity(self) -> float:
+        """
+        The intensity of the light.
+        """
+
+    @intensity.setter
+    def intensity(self, value: float):
+        """
+        The intensity of the light.
+        """
+
+    @property
+    def cutoff(self) -> float:
+        """
+        the cutoff of the light cookie as an angle from the center.
+        """
+
+    @cutoff.setter
+    def cutoff(self, value: float):
+        """
+        the cutoff of the light cookie as an angle from the center.
+        """
+
+    @property
+    def outer_cutoff(self) -> float:
+        """
+        the cutoff of the light cookie smoothing as an angle from the center.
+        """
+
+    @outer_cutoff.setter
+    def outer_cutoff(self, value: float):
+        """
+        the cutoff of the light cookie smoothing as an angle from the center.
+        """
+
+    @property
+    def reach(self) -> float:
+        """
+        The distance the light is able to travel.
+        """
+
+    @reach.setter
+    def reach(self, value:float):
+        """
+        The distance the light is able to travel.
         """

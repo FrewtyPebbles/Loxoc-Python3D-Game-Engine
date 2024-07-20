@@ -9,7 +9,9 @@
 #include "Texture.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include "Window.h"
+#include "SpotLight.h"
 
+#define ATTENUATION_THRESHOLD 0.003
 
 void object3d::render(camera& camera, window* window) {
     // opengl renderer
@@ -92,13 +94,15 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
-                    // TODO: calculate when to remove light by having an attenuation threshhold.
-                    // Calculate attenuation of light from distance to mesh.  if the attenuation is below 0.0001 omit point light
-                    if (pl->position->distance(*this->position) <= pl->radius + pl->intensity + _mesh->data->radius * this->scale->get_magnitude()) {
+                    // calculate when to remove light by having an attenuation threshhold.
+                    float l_distance = pl->position->distance(*this->position);
+                    float attenuation = 1.0 / (pl->constant + pl->linear * l_distance + (1/(pl->radius*pl->radius)) * (l_distance * l_distance));
+                    if (attenuation > ATTENUATION_THRESHOLD) {
                         pl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
                         i++;
                     }
                 }
+
 
                 int total_point_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_point_lights");
 
@@ -115,15 +119,35 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 int total_directional_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_directional_lights");
 
                 glUniform1i(total_directional_lights_loc, i);
+
+                // Spot Lights:
+
+                i = 0;
+                for (spot_light* sl : window->render_list_spot_lights) {
+                    // calculate when to remove light by having an attenuation threshhold.
+                    float l_distance = sl->position->distance(*this->position);
+                    float attenuation = 1.0 / (sl->constant + sl->linear * l_distance + (1/(sl->reach*sl->reach)) * (l_distance * l_distance));
+                    if (attenuation > ATTENUATION_THRESHOLD) {
+                        sl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
+                        i++;
+                    }
+                }
+                
+                int total_spot_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_spot_lights");
+
+                glUniform1i(total_spot_lights_loc, i);
+
+
             } else { // Use object material.
 
                 // Point Lights:
 
                 i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
-                    // TODO: calculate when to remove light by having an attenuation threshhold.
-                    // Calculate attenuation of light from distance to mesh.  if the attenuation is below 0.0001 omit point light
-                    if (pl->position->distance(*this->position) <= pl->radius * pl->intensity + _mesh->data->radius * this->scale->get_magnitude()) {
+                    // calculate when to remove light by having an attenuation threshhold.
+                    float l_distance = pl->position->distance(*this->position);
+                    float attenuation = 1.0 / (pl->constant + pl->linear * l_distance + (1/(pl->radius*pl->radius)) * (l_distance * l_distance));
+                    if (attenuation > ATTENUATION_THRESHOLD) {
                         pl->set_uniforms(this->mat->data->shader_program, i);
                         i++;
                     }
@@ -145,6 +169,23 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 int total_directional_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_directional_lights");
 
                 glUniform1i(total_directional_lights_loc, i);
+
+                // Spot Lights:
+
+                i = 0;
+                for (spot_light* sl : window->render_list_spot_lights) {
+                    // calculate when to remove light by having an attenuation threshhold.
+                    float l_distance = sl->position->distance(*this->position);
+                    float attenuation = 1.0 / (sl->constant + sl->linear * l_distance + (1/(sl->reach*sl->reach)) * (l_distance * l_distance));
+                    if (attenuation > ATTENUATION_THRESHOLD) {
+                        sl->set_uniforms(this->mat->data->shader_program, i);
+                        i++;
+                    }
+                }
+                
+                int total_spot_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_spot_lights");
+
+                glUniform1i(total_spot_lights_loc, i);
             }
             
             glBindVertexArray(_mesh->data->gl_VAO);

@@ -43,6 +43,7 @@ void shader::compile() {
         glGetShaderInfoLog(this->shader_handle, 512, NULL, infoLog);
         std::stringstream ss;
         ss << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
+        std::cerr << ss.str();
         throw std::runtime_error(ss.str());
     }
 }
