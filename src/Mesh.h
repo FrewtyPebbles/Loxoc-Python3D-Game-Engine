@@ -96,6 +96,8 @@ public:
     unsigned int gl_VAO, gl_VBO, gl_EBO;
     size_t indicies_size;
     size_t verticies_size;
+    vec3 aabb_max = vec3(0,0,0);
+    vec3 aabb_min = vec3(0,0,0);
 private:
     // RETURNS A HEAP ALLOCATED POINTER
     static void process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path);

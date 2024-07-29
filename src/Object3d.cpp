@@ -13,21 +13,22 @@
 
 #define ATTENUATION_THRESHOLD 0.003
 
+std::ostream& operator<<(std::ostream& os, const object3d& self){
+    os << "object3d< \"" << self.mesh_data->data->name << "\" { position: " << *self.position << "} >";
+    return os;
+}
+
 void object3d::render(camera& camera, window* window) {
     // opengl renderer
+    this->get_model_matrix();
     if (this->mat != nullptr) {
         glUseProgram(this->mat->data->shader_program);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, this->position->axis);
-        model *= glm::toMat4(this->rotation->quat);
-        model = glm::scale(model, this->scale->axis);
 
         int model_loc = glGetUniformLocation(this->mat->data->shader_program, "model");
         int view_loc = glGetUniformLocation(this->mat->data->shader_program, "view");
         int projection_loc = glGetUniformLocation(this->mat->data->shader_program, "projection");
 
-        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix));
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
 
@@ -64,16 +65,11 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
 
                 glUseProgram(_mesh->data->mesh_material->data->shader_program);
 
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, this->position->axis);
-                model *= glm::toMat4(this->rotation->quat);
-                model = glm::scale(model, this->scale->axis);
-
                 int model_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "model");
                 int view_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "view");
                 int projection_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "projection");
 
-                glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
+                glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix));
                 glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
                 glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
 

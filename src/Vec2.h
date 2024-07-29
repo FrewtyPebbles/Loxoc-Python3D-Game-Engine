@@ -12,6 +12,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include "Quaternion.h"
 
+#define xy_comp(sign)  self.axis.x sign other.axis.x && self.axis.y sign other.axis.y
+
 // cpp class names are camelcase, python class names are title case
 typedef glm::vec2 glmvec2;
 
@@ -24,6 +26,30 @@ public:
     vec2(const glm::vec2& axis) : axis(axis) {}
     vec2(const vec2& rhs) : axis(rhs.axis) {}
     glm::vec2 axis;
+
+    friend inline std::strong_ordering operator<=>(const vec2& self, const vec2& other) {
+        if (xy_comp(>))
+            return std::strong_ordering::greater;
+        if (xy_comp(<))
+            return std::strong_ordering::less;
+        return std::strong_ordering::equal;
+    }
+
+    friend inline bool operator<=(const vec2& lhs, const vec2& rhs) {
+        return lhs.axis.x <= rhs.axis.x && lhs.axis.y <= rhs.axis.y;
+    }
+
+    friend inline bool operator>=(const vec2& lhs, const vec2& rhs) {
+        return lhs.axis.x >= rhs.axis.x && lhs.axis.y >= rhs.axis.y;
+    }
+
+    friend inline bool operator<(const vec2& lhs, const vec2& rhs) {
+        return lhs.axis.x <= rhs.axis.x && lhs.axis.y <= rhs.axis.y;
+    }
+
+    friend inline bool operator>(const vec2& lhs, const vec2& rhs) {
+        return lhs.axis.x >= rhs.axis.x && lhs.axis.y >= rhs.axis.y;
+    }
 
     friend inline std::ostream& operator<<(std::ostream& os, const vec2& self){
         os << "vec2<" << self.axis.x << ", " << self.axis.y << '>';

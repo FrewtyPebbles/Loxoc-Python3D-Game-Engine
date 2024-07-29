@@ -26,6 +26,8 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
         vector<vec3>* _vertex_normals = new vector<vec3>();
         vector<tup<unsigned int, 3>>* faces = new vector<tup<unsigned int, 3>>();
         vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
+        vec3 aabb_max = vec3(0,0,0);
+        vec3 aabb_min = vec3(0,0,0);
         
         // get material data
         auto ai_mat = scene->mMaterials[msh->mMaterialIndex];
@@ -70,6 +72,20 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
             if (radius < new_vert_mag) {
                 radius = new_vert_mag;
             }
+            // get max and min aabb
+            if (vert.x > aabb_max.get_x())
+                aabb_max.axis.x = vert.x;
+            if (vert.y > aabb_max.get_y())
+                aabb_max.axis.y = vert.y;
+            if (vert.z > aabb_max.get_z())
+                aabb_max.axis.z = vert.z;
+
+            if (vert.x < aabb_min.get_x())
+                aabb_min.axis.x = vert.x;
+            if (vert.y < aabb_min.get_y())
+                aabb_min.axis.y = vert.y;
+            if (vert.z < aabb_min.get_z())
+                aabb_min.axis.z = vert.z;
 
             auto uv_coord = msh->mTextureCoords[0][v_n];// 0 = diffuse
             _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
@@ -101,6 +117,8 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
             _transform
         ));
         ret_mesh->data->radius = radius;
+        ret_mesh->data->aabb_max = aabb_max;
+        ret_mesh->data->aabb_min = aabb_min;
         last_mesh_dict->data->insert(ret_mesh);
     }
     

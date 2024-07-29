@@ -6,7 +6,8 @@
 #include "Object3d.h"
 #include <sstream>
 #include "Object2d.h"
-
+#include "Octree.h"
+#include "Mesh.h"
 
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
@@ -86,7 +87,7 @@ void window::create_window() {
     glViewport(0, 0, this->width, this->height);
     this->old_time = this->starttime = std::chrono::steady_clock::now();
     return;
-}
+} 
 
 
 
@@ -97,22 +98,27 @@ void window::update() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     this->cam->recalculate_pv();
-    
+
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
+        for (object3d* co : render_list) {
+            if (ob->check_collision_object(co) && ob != co)
+                std::cout << ob->mesh_data->data->name << " collided with " << co->mesh_data->data->name << std::endl;
+        }
     }
+    
 
     for (object2d* ob : render_list2d) {
         ob->render(*this->cam);
     }
-
+   
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();
     this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
     this->time = std::chrono::duration_cast<std::chrono::seconds>(this->starttime - this->old_time).count();
     this->deltatime = std::chrono::duration_cast<std::chrono::nanoseconds>(this->new_time - this->old_time).count()/1000000000.0;// dt in seconds
     this->old_time = this->new_time;
-}
+} 
 
 void window::add_object(object3d* obj) {
     this->render_list.insert(obj);

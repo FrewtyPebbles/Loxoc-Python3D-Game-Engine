@@ -65,7 +65,7 @@ spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
 
 window.add_object_list([
     car,
-    car2,
+    # car2,
     teapot,
     cube,
     pirate_ship
