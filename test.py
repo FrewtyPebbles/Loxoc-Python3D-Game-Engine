@@ -3,7 +3,7 @@ from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
-    DirectionalLight, SpotLight
+    DirectionalLight, SpotLight, BoxCollider
 )
 import math
 from copy import copy
@@ -90,6 +90,12 @@ window.add_spot_light_list([
 
 window.lock_mouse(True)
 
+car_collider = BoxCollider.from_object(car)
+car.add_collider(car_collider)
+
+pirate_ship_collider = BoxCollider.from_object(pirate_ship)
+pirate_ship.add_collider(pirate_ship_collider)
+
 vel_yaw = 0.0
 vel = 0.0
 frict = 0.1
@@ -103,6 +109,9 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     else:
         print("FRAMERATE: inf fps")
     
+    if car.check_collision(pirate_ship):
+        pirate_ship.rotation.rotate_yaw(math.radians(30 * window.dt))
+
     doomguy.position.x = math.sin(window.time_ns/1000000000)
     doomguy.position.y = math.cos(window.time_ns/1000000000)
     

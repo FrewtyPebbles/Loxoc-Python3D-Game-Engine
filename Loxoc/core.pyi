@@ -156,7 +156,22 @@ class Object3D:
     """
     The :class:`Material` used to specify how to render the :class:`Object3D`
     """
-    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), material:Material | None = None) -> None:...
+    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), collider:Collider | None = None, material:Material | None = None) -> None:...
+
+    def add_collider(self, collider:Collider) -> None:
+        """
+        Adds a :class:`Collider` to the object.
+        """
+
+    def remove_collider(self, collider:Collider) -> None:
+        """
+        Removes a :class:`Collider` from the object.
+        """
+
+    def check_collision(self, intersection: Vec3 | Object3D) -> bool:
+        """
+        Checks for a collision between this :class:`Object3D` and another :class:`Object3D` or :class:`Vec3` .
+        """
 
     @property
     def position(self) -> Vec3:
@@ -1355,4 +1370,26 @@ class SpotLight:
     def reach(self, value:float):
         """
         The distance the light is able to travel.
+        """
+
+class Collider:
+    """
+    The Collider base class.
+    """
+    def check_collision(self, intersection: Vec3 | Collider) -> bool:
+        """
+        Checks for a collision between this :class:`Collider`  and another :class:`Collider` or :class:`Vec3` .
+        """
+
+class BoxCollider(Collider):
+    """
+    An Oriented Box Collider.
+    """
+    def __init__(self, upper_bound:Vec3 = Vec3(0.0,0.0,0.0), lower_bound:Vec3 = Vec3(-100,-100,-100), offset:Vec3 = Vec3(0,0,0), rotation_offset: Vec3 | Quaternion = Vec3(0,0,0)) -> None:
+        ...
+
+    @classmethod
+    def from_object(cls, object: Object3D) -> BoxCollider:
+        """
+        Constructs an :class:`BoxCollider` from an instance of :class:`Object3D` .
         """

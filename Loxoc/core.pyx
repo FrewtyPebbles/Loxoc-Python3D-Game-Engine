@@ -6,6 +6,7 @@ from cpython.ref cimport Py_INCREF, Py_DECREF
 from cython.operator import dereference, preincrement, postincrement
 from typing import Generator
 from libcpp.pair cimport pair
+from libcpp.algorithm cimport remove
 
 # IMPORTANT: All data must be written saved within the CPP classes.
 # All classes here just wrap CPP class pointers.
@@ -231,7 +232,7 @@ cpdef MeshDict mesh_from_file(str file_path):
 cdef class Object3D:
     def __init__(self, MeshDict mesh_data, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
-    Material material = None) -> None:
+    Collider collider = None, Material material = None) -> None:
         self._position = position
         self._rotation = rotation.to_quaternion()
         self._scale = scale
@@ -244,9 +245,38 @@ cdef class Object3D:
         
         if material:
             self.material = material
-            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
+            if collider is not None:
+                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class, collider.c_class)
+            else:
+                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
         else:
-            self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+            if collider is not None:
+                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+                collider.c_class.inc()
+                self.c_class.colliders.push_back(collider.c_class)
+            else:
+                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+
+    cpdef void add_collider(self, Collider collider):
+        collider.c_class.inc()
+        self.c_class.colliders.push_back(collider.c_class)
+
+    cpdef void remove_collider(self, Collider collider):
+        self.c_class.colliders.erase(remove(self.c_class.colliders.begin(), self.c_class.colliders.end(), collider.c_class), self.c_class.colliders.end())
+        RC_collect(collider.c_class)
+
+    def check_collision(self, intersection: Vec3 | Object3D) -> bool:
+        cdef:
+            Vec3 argvec
+            Object3D argobj
+        if isinstance(intersection, Vec3):
+            argvec = intersection
+            return self.c_class.check_collision_point(argvec.c_class[0])
+        elif isinstance(intersection, Object3D):
+            argobj = intersection
+            return self.c_class.check_collision_object(argobj.c_class)
+        
+        return False
 
     @property
     def position(self) -> Vec3:
@@ -283,7 +313,11 @@ cdef class Object3D:
         self._scale.c_class[0] = value.c_class[0]
 
     def __dealloc__(self):
+        cdef RC[collider*]* col
+        for col in self.c_class.colliders:
+            RC_collect(col)
         del self.c_class
+
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
         cdef:
@@ -1323,3 +1357,42 @@ cdef class SpotLight:
 
     def __dealloc__(self):
         del self.c_class
+
+cdef class Collider:
+    def check_collision(self, intersection: Vec3 | Collider) -> bool:
+        cdef:
+            Vec3 argvec
+            Collider argcol
+        if isinstance(intersection, Vec3):
+            argvec = intersection
+            return self.c_class.data.check_collision(argvec.c_class[0])
+        elif isinstance(intersection, Collider):
+            argcol = intersection
+            return self.c_class.data.check_collision(argcol.c_class.data)
+        
+        return False
+
+# my_collider = BoxCollider(upper_bound=Vec3(100,100,100), lower_bound=Vec3(-100,-100,-100), offset=Vec3(10,0,0), rotation_offset=Vec3(0,0,0) or Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(30)))
+# my_object.add_collider(my_collider)
+
+# my_collider2 = BoxCollider.from_object(my_object2)
+# my_object2.add_collider(my_collider2)
+
+# if my_object.check_collision(my_object2 or my_collider2) or my_collider.check_collision(my_object2 or my_collider2):
+#   pass
+
+ctypedef collider* collider_ptr
+
+cdef class BoxCollider(Collider):
+    def __init__(self, Vec3 upper_bound = Vec3(0.0,0.0,0.0), Vec3 lower_bound = Vec3(-100,-100,-100), Vec3 offset = Vec3(0,0,0), rotation_offset: Vec3 | Quaternion = Vec3(0,0,0)) -> None:
+        self.c_class = new RC[collider_ptr](new collider_box(upper_bound.c_class[0], lower_bound.c_class[0]))
+
+    @classmethod
+    def from_object(cls, Object3D object) -> BoxCollider:
+        cdef:
+            BoxCollider ret = BoxCollider.__new__(BoxCollider)
+        ret.c_class = new RC[collider_ptr](new collider_box(object.c_class))
+        return ret
+
+    def __dealloc__(self):
+        RC_collect(self.c_class)

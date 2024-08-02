@@ -2,6 +2,7 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map
+from libcpp.pair cimport pair
 
 cdef extern from "<variant>" namespace "std" nogil:
     cdef cppclass variant:
@@ -494,11 +495,13 @@ cdef extern from "../src/Object3d.h":
         object3d() except *
         object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale) except *
         object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except *
+        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat, RC[collider*]* collider) except *
         RC[mesh_dict*]* mesh_data
         vec3* position
         quaternion* rotation
         vec3* scale
         material* mat
+        vector[RC[collider*]*] colliders
 
         void render(camera& camera, window* window)
         
@@ -507,6 +510,10 @@ cdef extern from "../src/Object3d.h":
         vector[vec3] get_rotation(vector[vec3] vertexes)
 
         void set_uniform(string name, uniform_type value, string type)
+
+        inline bint check_collision_point(vec3 point)
+
+        inline bint check_collision_object(object3d* obj)
 
 
 cdef class Object3D:
@@ -518,6 +525,8 @@ cdef class Object3D:
         Quaternion _rotation
     
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
+    cpdef void add_collider(self, Collider collider)
+    cpdef void remove_collider(self, Collider collider)
 
 cdef extern from "../src/Camera.h":
 
@@ -873,4 +882,32 @@ cdef class Object2D:
 cpdef Sprite sprite_from_texture(Texture tex)
 
 
+cdef extern from "../src/Colliders.h":
+    cdef cppclass collider:
+        collider() except *
+        bint check_collision(vec3 intersection)
+        bint check_collision(collider* intersection)
+        pair[float, float] minmax_vertex_SAT(const vec3 & axis)
+        bint check_SAT(vec3 axis, collider *other)
+        object3d* owner
 
+    cdef cppclass collider_box(collider):
+        collider_box() except *
+        collider_box(object3d* owner) except *
+        collider_box(vec3 upper_bounds, vec3 lower_bounds) except *
+        bint check_collision(vec3 intersection)
+        bint check_collision(collider* other)
+        bint check_collision(collider_box* collider)
+        pair[float, float] minmax_vertex_SAT(const vec3 & axis)
+        vec3 upper_bounds
+        vec3 lower_bounds
+        vec3[8] bounds
+        
+
+cdef class Collider:
+    cdef:
+        RC[collider*]* c_class
+
+
+cdef class BoxCollider(Collider):
+    pass

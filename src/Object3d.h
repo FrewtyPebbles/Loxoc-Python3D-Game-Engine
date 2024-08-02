@@ -18,12 +18,11 @@ class window;
 
 class object3d : public TRAIT_has_uniform {
 public:
-    object3d(){
-        colliders = {new collider_box(this)};
-    };
-    object3d(RC<mesh_dict*>* mesh_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat = nullptr) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {
+    object3d(){};
+    object3d(RC<mesh_dict*>* mesh_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat = nullptr, RC<collider*>* collider = nullptr) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {
         this->mesh_data = mesh_data;
-        colliders = {new collider_box(this)};
+        if (collider)
+            this->colliders.push_back(collider);
     }
     
     ~object3d(){}
@@ -34,8 +33,8 @@ public:
     vec3* scale;
     rc_material mat;
     map<int, uniform_type> uniforms;
-    vector<collider*> colliders;
-    octree<collider*>* all_colliders;
+    vector<RC<collider*>*> colliders;
+    octree<RC<collider*>*>* all_colliders;
     glm::mat4 model_matrix = get_model_matrix();
 
     void set_uniform(string name, uniform_type value, string type);
@@ -57,7 +56,7 @@ public:
 
     inline bool check_collision_point(vec3 point) {
         for (auto collider : this->colliders) {
-            if (collider->check_collision(point))
+            if (collider->data->check_collision(point))
                 return true;
         }
         return false;
@@ -66,7 +65,7 @@ public:
     inline bool check_collision_object(object3d* obj) {
         for (auto collider : this->colliders) {
             for (auto other_collider : obj->colliders) {
-                if (collider->check_collision(other_collider))
+                if (collider->data->check_collision(other_collider->data))
                     return true;
             }
         }

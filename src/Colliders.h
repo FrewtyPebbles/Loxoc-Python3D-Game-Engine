@@ -3,6 +3,7 @@
 #include <utility>
 #include "Mesh.h"
 
+
 class object3d;
 
 class collider {
@@ -11,7 +12,7 @@ public:
     virtual bool check_collision(vec3 intersection) = 0;
     virtual bool check_collision(collider* intersection) = 0;
     virtual std::pair<float, float> minmax_vertex_SAT(const vec3 & axis) = 0;
-    bool check_SAT(vec3 axis, collider *other); // Separating Axis Theorem
+    bool check_SAT(vec3 axis, collider* other); // Separating Axis Theorem
     object3d* owner;
 };
 

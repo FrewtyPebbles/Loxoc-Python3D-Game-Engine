@@ -101,10 +101,6 @@ void window::update() {
 
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
-        for (object3d* co : render_list) {
-            if (ob->check_collision_object(co) && ob != co)
-                std::cout << ob->mesh_data->data->name << " collided with " << co->mesh_data->data->name << std::endl;
-        }
     }
     
 

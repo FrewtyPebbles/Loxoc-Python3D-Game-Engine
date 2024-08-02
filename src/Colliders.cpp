@@ -8,8 +8,8 @@
 #include <algorithm>
 
 std::pair<vec3, vec3> collider_box::transform_bounds() {
-    auto upperv4 = glm::vec4(upper_bounds.axis, 1.0) * owner->model_matrix;
-    auto lowerv4 = glm::vec4(lower_bounds.axis, 1.0) * owner->model_matrix;
+    auto upperv4 = owner->model_matrix * glm::vec4(upper_bounds.axis, 1.0);
+    auto lowerv4 = owner->model_matrix * glm::vec4(lower_bounds.axis, 1.0);
     return std::make_pair(vec3(upperv4.x, upperv4.y, upperv4.z), vec3(lowerv4.x, lowerv4.y, lowerv4.z));
 }
 
@@ -34,19 +34,13 @@ void collider_box::mutate_max_min(mesh_dict* m_d, vec3* aabb_max, vec3* aabb_min
     for (auto [_, m] : *m_d) {
         if (std::holds_alternative<rc_mesh>(m)) {
             auto msh = std::get<rc_mesh>(m);
-            if (msh->data->aabb_max.axis.x > aabb_max->get_x())
-                aabb_max->axis.x = msh->data->aabb_max.axis.x;
-            else if (msh->data->aabb_max.axis.y > aabb_max->get_y())
-                aabb_max->axis.y = msh->data->aabb_max.axis.y;
-            else if (msh->data->aabb_max.axis.z > aabb_max->get_z())
-                aabb_max->axis.z = msh->data->aabb_max.axis.z;
+            aabb_max->axis.x = std::max(aabb_max->axis.x, msh->data->aabb_max.axis.x);
+            aabb_max->axis.y = std::max(aabb_max->axis.y, msh->data->aabb_max.axis.y);
+            aabb_max->axis.z = std::max(aabb_max->axis.z, msh->data->aabb_max.axis.z);
 
-            if (msh->data->aabb_min.axis.x < aabb_min->get_x())
-                aabb_min->axis.x = msh->data->aabb_min.axis.x;
-            else if (msh->data->aabb_min.axis.y < aabb_min->get_y())
-                aabb_min->axis.y = msh->data->aabb_min.axis.y;
-            else if (msh->data->aabb_min.axis.z < aabb_min->get_z())
-                aabb_min->axis.z = msh->data->aabb_min.axis.z;
+            aabb_min->axis.x = std::min(aabb_min->axis.x, msh->data->aabb_min.axis.x);
+            aabb_min->axis.y = std::min(aabb_min->axis.y, msh->data->aabb_min.axis.y);
+            aabb_min->axis.z = std::min(aabb_min->axis.z, msh->data->aabb_min.axis.z);
         } else {
             auto msh = std::get<rc_mesh_dict>(m);
             collider_box::mutate_max_min(msh->data, aabb_max, aabb_min);
@@ -89,21 +83,8 @@ bool collider_box::check_collision(collider_box* other) {
         }
 
         glm::vec3 axis_other = glm::normalize(dirs_other[i]);
-        if (!this->check_SAT(axis_other, this)) {
+        if (!other->check_SAT(axis_other, this)) {
             return false;
-        }
-    }
-
-    // Check cross product of edges as potential separating axes
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            glm::vec3 axis = glm::cross(dirs_this[i], dirs_other[j]);
-            if (glm::length(axis) > 0.0001f) { // Avoid using zero-length axes
-                axis = glm::normalize(axis);
-                if (!this->check_SAT(axis, other)) {
-                    return false;
-                }
-            }
         }
     }
 
@@ -125,8 +106,8 @@ std::pair<float, float> collider_box::minmax_vertex_SAT(const vec3 & axis) {
 
     for (const auto &bound : this->bounds) {
         float proj = glm::dot(glm::vec3(this->owner->model_matrix * glm::vec4(bound.axis, 1.0f)), axis.axis);
-        if (proj < min_proj) min_proj = proj;
-        if (proj > max_proj) max_proj = proj;
+        min_proj = std::min(min_proj, proj);
+        max_proj = std::max(max_proj, proj);
     }
 
     return std::make_pair(min_proj, max_proj);
