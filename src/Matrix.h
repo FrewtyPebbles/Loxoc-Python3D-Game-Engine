@@ -108,13 +108,13 @@ public:
         return *this;
     }
 
-    inline vec2 operator*(const vec2& other){
+    inline vec2 operator*(const vec2& other) {
         return mat * other.axis;
     }
-    inline vec3 operator*(const vec3& other){
+    inline vec3 operator*(const vec3& other) {
         return mat * other.axis;
     }
-    inline vec4 operator*(const vec4& other){
+    inline vec4 operator*(const vec4& other) {
         return mat * other.axis;
     }
 
@@ -156,17 +156,19 @@ public:
         return glm::distance(this->mat, other.mat);
     }
 
-    inline matrix<glm_mat_type> translate(const vec3& vec){
+    inline matrix<glm_mat_type> translate(const vec3& vec) {
         return glm::translate(mat, vec.axis);
     }
-    inline matrix<glm_mat_type> translate(vec3 * vec){
+
+    inline matrix<glm_mat_type> translate(vec3 * vec) {
         return glm::translate(mat, vec->axis);
     }
 
-    inline matrix<glm_mat_type> scale(const vec3& vec){
+    inline matrix<glm_mat_type> scale(const vec3& vec) {
         return glm::scale(mat, vec.axis);
     }
-    inline matrix<glm_mat_type> scale(vec3 * vec){
+    
+    inline matrix<glm_mat_type> scale(vec3 * vec) {
         return glm::scale(mat, vec->axis);
     }
 

@@ -565,6 +565,148 @@ cdef Quaternion quat_from_cpp(quaternion cppinst):
     ret.c_class = new quaternion(cppinst)
     return ret
 
+cdef class Vec4:
+    def __init__(self, float x, float y, float z, float w) -> None:
+        self.c_class = new vec4(x,y,z,w)
+
+    def __copy__(self) -> Quaternion:
+        return vec4_from_cpp(self.c_class[0])
+
+    def __repr__(self) -> str:
+        return f"<{self.x}, {self.y}, {self.z}, {self.w}>"
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __neg__(self) -> Vec4:
+        return vec4_from_cpp(-self.c_class[0])
+
+    @property
+    def x(self) -> float:
+        return self.c_class.get_x()
+
+    @x.setter
+    def x(self, float value):
+        self.c_class.set_x(value)
+
+    @property
+    def y(self) -> float:
+        return self.c_class.get_y()
+
+    @y.setter
+    def y(self, float value):
+        self.c_class.set_y(value)
+
+    @property
+    def z(self) -> float:
+        return self.c_class.get_z()
+
+    @z.setter
+    def z(self, float value):
+        self.c_class.set_z(value)
+
+    @property
+    def w(self) -> float:
+        return self.c_class.get_w()
+
+    @w.setter
+    def w(self, float value):
+        self.c_class.set_w(value)
+
+    @property
+    def up(self) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_up())
+
+    @property
+    def right(self) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_right())
+
+    @property
+    def forward(self) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_forward())
+
+
+    # OPERATORS
+
+    def __add__(self, other:Vec4 | float) -> Vec4:
+        if isinstance(other, Vec4):
+            return self.vecadd(other)
+        else:
+            return self.floatadd(other)
+
+    cpdef Vec4 vecadd(self, Vec4 other):
+        return vec4_from_cpp(self.c_class[0] + other.c_class[0])
+
+    cpdef Vec4 floatadd(self, float other):
+        return vec4_from_cpp(self.c_class[0] + other)
+
+    def __sub__(self, other:Vec4 | float) -> Vec4:
+        if isinstance(other, Vec4):
+            return self.vecsub(other)
+        else:
+            return self.floatsub(other)
+
+    cpdef Vec4 vecsub(self, Vec4 other):
+        return vec4_from_cpp(self.c_class[0] - other.c_class[0])
+
+    cpdef Vec4 floatsub(self, float other):
+        return vec4_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, other:Vec4 | float | Quaternion) -> Vec4:
+        if isinstance(other, Vec4):
+            return self.vecmul(other)
+        elif isinstance(other, Quaternion):
+            return self.quatmul(other)
+        else:
+            return self.floatmul(other)
+        
+    cpdef Vec4 vecmul(self, Vec4 other):
+        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    cpdef Vec4 quatmul(self, Quaternion other):
+        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    cpdef Vec4 floatmul(self, float other):
+        return vec4_from_cpp(self.c_class[0] * other)
+
+    def __truediv__(self, other:Vec4 | float) -> Vec4:
+        if isinstance(other, Vec4):
+            return self.vecdiv(other)
+        else:
+            return self.floatdiv(other)
+        
+    cpdef Vec4 vecdiv(self, Vec4 other):
+        return vec4_from_cpp(self.c_class[0] / other.c_class[0])
+
+    cpdef Vec4 floatdiv(self, float other):
+        return vec4_from_cpp(self.c_class[0] / other)
+
+    def dot(self, Vec4 other) -> float:
+        return self.c_class[0].dot(other.c_class[0])
+
+    def cross(self, other:Quaternion | Vec4) -> float:
+        if isinstance(other, Quaternion):
+            return self.quat_cross(other)
+        elif isinstance(other, Vec4):
+            return self.vec_cross(other)
+
+    cpdef float get_magnitude(self):
+        return self.c_class.get_magnitude()
+
+    cpdef Vec4 get_normalized(self):
+        return vec4_from_cpp(self.c_class.get_normalized())
+
+
+    cpdef Vec3 to_vec3(self):
+        return vec3_from_cpp(self.c_class.to_vec3())
+    cpdef Vec2 to_vec2(self):
+        return vec2_from_cpp(self.c_class.to_vec2())
+
+cdef Vec4 vec4_from_cpp(vec4 cppinst):
+    cdef Vec4 ret = Vec4.__new__(Vec4)
+    ret.c_class = new vec4(cppinst)
+    return ret
+
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
         self.c_class = new vec3(x,y,z)
@@ -1371,15 +1513,6 @@ cdef class Collider:
             return self.c_class.data.check_collision(argcol.c_class.data)
         
         return False
-
-# my_collider = BoxCollider(upper_bound=Vec3(100,100,100), lower_bound=Vec3(-100,-100,-100), offset=Vec3(10,0,0), rotation_offset=Vec3(0,0,0) or Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(30)))
-# my_object.add_collider(my_collider)
-
-# my_collider2 = BoxCollider.from_object(my_object2)
-# my_object2.add_collider(my_collider2)
-
-# if my_object.check_collision(my_object2 or my_collider2) or my_collider.check_collision(my_object2 or my_collider2):
-#   pass
 
 ctypedef collider* collider_ptr
 
