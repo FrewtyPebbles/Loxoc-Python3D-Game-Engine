@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Octree.h"
 #include "Colliders.h"
+#include "Matrix.h"
 
 using std::vector;
 class mesh;
@@ -35,7 +36,7 @@ public:
     map<int, uniform_type> uniforms;
     vector<RC<collider*>*> colliders;
     octree<RC<collider*>*>* all_colliders;
-    glm::mat4 model_matrix = get_model_matrix();
+    matrix4x4 model_matrix = get_model_matrix();
 
     void set_uniform(string name, uniform_type value, string type);
 
@@ -43,11 +44,11 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const object3d& self);
 
-    inline glm::mat4 get_model_matrix() {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, this->position->axis);
-        model *= glm::toMat4(this->rotation->quat);
-        model = glm::scale(model, this->scale->axis);
+    inline matrix4x4 get_model_matrix() {
+        matrix4x4 model = matrix4x4(1.0f);
+        model = model.translate(this->position);
+        model *= matrix4x4(this->rotation);
+        model = model.scale(this->scale);
         this->model_matrix = model;
         return model;
     }

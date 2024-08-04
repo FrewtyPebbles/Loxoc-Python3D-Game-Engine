@@ -8,9 +8,9 @@
 #include <algorithm>
 
 std::pair<vec3, vec3> collider_box::transform_bounds() {
-    auto upperv4 = owner->model_matrix * glm::vec4(upper_bounds.axis, 1.0);
-    auto lowerv4 = owner->model_matrix * glm::vec4(lower_bounds.axis, 1.0);
-    return std::make_pair(vec3(upperv4.x, upperv4.y, upperv4.z), vec3(lowerv4.x, lowerv4.y, lowerv4.z));
+    auto upperv4 = owner->model_matrix * vec4(upper_bounds, 1.0);
+    auto lowerv4 = owner->model_matrix * vec4(lower_bounds, 1.0);
+    return std::make_pair(vec3(upperv4), vec3(lowerv4));
 }
 
 collider_box::collider_box(object3d* owner) {
@@ -49,7 +49,7 @@ void collider_box::mutate_max_min(mesh_dict* m_d, vec3* aabb_max, vec3* aabb_min
 }
 
 bool collider_box::check_collision(vec3 intersection) {
-    intersection = vec3(glm::inverse(owner->model_matrix) * glm::vec4(intersection.axis, 1.0));
+    intersection = vec3(owner->model_matrix.inverse() * vec4(intersection.axis, 1.0));
     return upper_bounds >= intersection && lower_bounds <= intersection;
 }
 
@@ -63,26 +63,26 @@ bool collider_box::check_collision(collider* other) {
 }
 
 bool collider_box::check_collision(collider_box* other) {
-    glm::vec3 dirs_this[3] = {
-        glm::vec3(this->owner->model_matrix[0]),
-        glm::vec3(this->owner->model_matrix[1]),
-        glm::vec3(this->owner->model_matrix[2])
+    vec3 dirs_this[3] = {
+        this->owner->model_matrix[0],
+        this->owner->model_matrix[1],
+        this->owner->model_matrix[2]
     };
 
-    glm::vec3 dirs_other[3] = {
-        glm::vec3(other->owner->model_matrix[0]),
-        glm::vec3(other->owner->model_matrix[1]),
-        glm::vec3(other->owner->model_matrix[2])
+    vec3 dirs_other[3] = {
+        other->owner->model_matrix[0],
+        other->owner->model_matrix[1],
+        other->owner->model_matrix[2]
     };
 
     // Check face normals as potential separating axes
     for (int i = 0; i < 3; ++i) {
-        glm::vec3 axis_this = glm::normalize(dirs_this[i]);
+        vec3 axis_this = dirs_this[i].get_normalized();
         if (!this->check_SAT(axis_this, other)) {
             return false;
         }
 
-        glm::vec3 axis_other = glm::normalize(dirs_other[i]);
+        vec3 axis_other = dirs_other[i].get_normalized();
         if (!other->check_SAT(axis_other, this)) {
             return false;
         }
@@ -101,11 +101,11 @@ std::pair<float, float> collider::minmax_vertex_SAT(const vec3 & axis) {
 
 
 std::pair<float, float> collider_box::minmax_vertex_SAT(const vec3 & axis) {
-    float min_proj = glm::dot(glm::vec3(this->owner->model_matrix * glm::vec4(this->bounds[0].axis, 1.0f)), axis.axis);
+    float min_proj = vec3(this->owner->model_matrix * vec4(this->bounds[0].axis, 1.0f)).dot(axis.axis);
     float max_proj = min_proj;
 
     for (const auto &bound : this->bounds) {
-        float proj = glm::dot(glm::vec3(this->owner->model_matrix * glm::vec4(bound.axis, 1.0f)), axis.axis);
+        float proj = vec3(this->owner->model_matrix * vec4(bound.axis, 1.0f)).dot(axis);
         min_proj = std::min(min_proj, proj);
         max_proj = std::max(max_proj, proj);
     }

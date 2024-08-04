@@ -2,6 +2,8 @@
 #include "Vec3.h"
 #include <utility>
 #include "Mesh.h"
+#include "Matrix.h"
+#include "Vec4.h"
 
 
 class object3d;

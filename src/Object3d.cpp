@@ -11,6 +11,7 @@
 #include "Window.h"
 #include "SpotLight.h"
 
+
 #define ATTENUATION_THRESHOLD 0.003
 
 std::ostream& operator<<(std::ostream& os, const object3d& self){
@@ -28,7 +29,7 @@ void object3d::render(camera& camera, window* window) {
         int view_loc = glGetUniformLocation(this->mat->data->shader_program, "view");
         int projection_loc = glGetUniformLocation(this->mat->data->shader_program, "projection");
 
-        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix));
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix.mat));
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
 
@@ -69,7 +70,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                 int view_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "view");
                 int projection_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "projection");
 
-                glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix));
+                glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix.mat));
                 glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
                 glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
 

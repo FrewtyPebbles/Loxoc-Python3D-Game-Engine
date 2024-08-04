@@ -21,12 +21,20 @@ typedef glm::vec3 glmvec3;
 class camera;
 class quaternion;
 
+class vec2;
+class vec4;
+
+template<typename glm_mat_type>
+class matrix;
+
 class vec3 {
 public:
     vec3()=default;
-    vec3(float x, float y, float z) : axis(glm::vec3(x,y,z)) {}
+    vec3(float x, float y, float z) : axis(x,y,z) {}
     vec3(const glm::vec3& axis) : axis(axis) {}
     vec3(const vec3& rhs) : axis(rhs.axis) {}
+    vec3(const vec2& rhs, float z);
+    vec3(const vec4& rhs);
     glm::vec3 axis;
 
     friend inline std::strong_ordering operator<=>(const vec3& self, const vec3& other) {
@@ -80,49 +88,53 @@ public:
 
     // Operators
 
+    const float& operator[](int index) const {
+        return axis[index];
+    }
+
     inline vec3 operator-() {
-        return vec3(-axis.x, -axis.y, -axis.z);
+        return -axis;
     }
 
     inline vec3 operator+(vec3 const& other)
     {
         
-        return vec3(axis.x+other.axis.x, axis.y+other.axis.y, axis.z+other.axis.z);
+        return axis + other.axis;
     }
 
     inline vec3 operator+(float const& other)
     {
-        return vec3(axis.x+other, axis.y+other, axis.z+other);
+        return axis + other;
     }
 
     inline vec3 operator-(vec3 const& other)
     {
-        return vec3(axis.x-other.axis.x, axis.y-other.axis.y, axis.z-other.axis.z);
+        return axis - other.axis;
     }
 
     inline vec3 operator-(float const& other)
     {
-        return vec3(axis.x-other, axis.y-other, axis.z-other);
+        return axis - other;
     }
     
     inline vec3 operator*(vec3 const& other)
     {
-        return vec3(axis.x*other.axis.x, axis.y*other.axis.y, axis.z*other.axis.z);
+        return axis * other.axis;
     }
 
     inline vec3 operator*(float const& other)
     {
-        return vec3(axis.x*other, axis.y*other, axis.z*other);
+        return axis * other;
     }
     
     inline vec3 operator/(vec3 const& other)
     {
-        return vec3(axis.x/other.axis.x, axis.y/other.axis.y, axis.z/other.axis.z);
+        return axis / other.axis;
     }
 
     inline vec3 operator/(float const& other)
     {
-        return vec3(axis.x/other, axis.y/other, axis.z/other);
+        return axis / other;
     }
 
     inline float dot(const vec3& other)
@@ -132,7 +144,7 @@ public:
 
     inline vec3 cross(const vec3& other)
     {
-        return vec3(glm::cross(this->axis, other.axis));
+        return glm::cross(this->axis, other.axis);
     }
 
     inline float get_magnitude() {
@@ -140,7 +152,7 @@ public:
     }
     
     inline vec3 get_normalized() {
-        return vec3(glm::normalize(this->axis));
+        return glm::normalize(this->axis);
     }
 
     inline float distance(vec3 const& other) {
@@ -172,48 +184,47 @@ public:
     // Operators
 
     inline vec3 operator-() const {
-        return vec3(-axis.x, -axis.y, -axis.z);
+        return -axis;
     }
 
     inline vec3 operator+(vec3 const& other) const
     {
-        
-        return vec3(axis.x+other.axis.x, axis.y+other.axis.y, axis.z+other.axis.z);
+        return axis + other.axis;
     }
 
     inline vec3 operator+(float const& other) const
     {
-        return vec3(axis.x+other, axis.y+other, axis.z+other);
+        return axis + other;
     }
 
     inline vec3 operator-(vec3 const& other) const
     {
-        return vec3(axis.x-other.axis.x, axis.y-other.axis.y, axis.z-other.axis.z);
+        return axis - other.axis;
     }
 
     inline vec3 operator-(float const& other) const
     {
-        return vec3(axis.x-other, axis.y-other, axis.z-other);
+        return axis - other;
     }
     
     inline vec3 operator*(vec3 const& other) const
     {
-        return vec3(axis.x*other.axis.x, axis.y*other.axis.y, axis.z*other.axis.z);
+        return axis * other.axis;
     }
 
     inline vec3 operator*(float const& other) const
     {
-        return vec3(axis.x*other, axis.y*other, axis.z*other);
+        return axis * other;
     }
     
     inline vec3 operator/(vec3 const& other) const
     {
-        return vec3(axis.x/other.axis.x, axis.y/other.axis.y, axis.z/other.axis.z);
+        return axis / other.axis;
     }
 
     inline vec3 operator/(float const& other) const
     {
-        return vec3(axis.x/other, axis.y/other, axis.z/other);
+        return axis / other;
     }
 
     inline float dot(const vec3& other) const
@@ -223,7 +234,7 @@ public:
 
     inline vec3 cross(const vec3& other) const
     {
-        return vec3(glm::cross(this->axis, other.axis));
+        return glm::cross(this->axis, other.axis);
     }
 
     inline float get_magnitude() const {
@@ -231,12 +242,16 @@ public:
     }
     
     inline vec3 get_normalized() const {
-        return vec3(glm::normalize(this->axis));
+        return glm::normalize(this->axis);
     }
 
     inline float distance(vec3 const& other) const {
         return glm::distance(this->axis, other.axis);
     }
+
+    matrix<glm::mat2x3> outer_product(const vec2&);
+    matrix<glm::mat3x3> outer_product(const vec3&);
+    matrix<glm::mat4x3> outer_product(const vec4&);
 
     // Quaternion operations:
 
@@ -245,6 +260,12 @@ public:
     vec3 cross(quaternion const& other) const;
 
     vec3 operator*(quaternion const& other) const;
+
+    // conversions:
+
+    vec4 to_vec4(float w);
+
+    vec2 to_vec2();
         
 };
 
