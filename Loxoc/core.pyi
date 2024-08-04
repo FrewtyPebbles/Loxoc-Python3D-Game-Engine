@@ -1595,53 +1595,26 @@ class Matrix4x4:
         Negates the :class:`Matrix4x4` .
         """
 
-    def __sub__(self, other:Matrix4x4) -> Matrix4x4:
+    def __sub__(self, other:Matrix4x4|float) -> Matrix4x4:
         """
-        Subtracts the :class:`Matrix4x4` by another :class:`Matrix4x4` .
-        """
-
-    def __sub__(self, other:float) -> Matrix4x4:
-        """
-        Subtracts the :class:`Matrix4x4` by a scalar.
+        Subtracts the :class:`Matrix4x4` .
         """
 
-    def __add__(self, other:Matrix4x4) -> Matrix4x4:
+    def __add__(self, other:Matrix4x4|float) -> Matrix4x4:
         """
-        Adds a :class:`Matrix4x4` to the :class:`Matrix4x4` .
-        """
-
-    def __add__(self, other:float) -> Matrix4x4:
-        """
-        Adds a scalar to the :class:`Matrix4x4` .
+        Adds the :class:`Matrix4x4` .
         """
 
-    def __mul__(self, other:Matrix4x4) -> Matrix4x4:
+    def __mul__(self, other:Matrix4x4|Vec4|float) -> Matrix4x4|Vec4:
         """
-        Multiplies the :class:`Matrix4x4` by another :class:`Matrix4x4` .
-        """
-
-    def __mul__(self, other:float) -> Matrix4x4:
-        """
-        Multiplies the :class:`Matrix4x4` by a scalar.
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec4) -> Vec4:
-        """
-        Multiplies the :class:`Matrix4x4` by a :class:`Vec4` .
+        Multiplies the :class:`Matrix4x4` .
         """
 
     # end vec mul
 
-    def __truediv__(self, other:Matrix4x4) -> Matrix4x4:
+    def __truediv__(self, other:Matrix4x4|float) -> Matrix4x4:
         """
-        Divides the :class:`Matrix4x4` by another :class:`Matrix4x4` .
-        """
-
-    def __truediv__(self, other:float) -> Matrix4x4:
-        """
-        Divides the :class:`Matrix4x4` by a scalar.
+        Divides the :class:`Matrix4x4` .
         """
 
 # MAT3x4
@@ -1670,39 +1643,20 @@ class Matrix3x4:
         Negates the :class:`Matrix3x4` .
         """
 
-    def __sub__(self, other:Matrix3x4) -> Matrix3x4:
+    def __sub__(self, other:Matrix3x4|float) -> Matrix3x4:
         """
-        Subtracts the :class:`Matrix3x4` by another :class:`Matrix3x4` .
-        """
-
-    def __sub__(self, other:float) -> Matrix3x4:
-        """
-        Subtracts the :class:`Matrix3x4` by a scalar.
+        Subtracts the :class:`Matrix3x4` .
         """
 
-    def __add__(self, other:Matrix3x4) -> Matrix3x4:
+    def __add__(self,  other:Matrix3x4|float) -> Matrix3x4:
         """
-        Adds a :class:`Matrix3x4` to the :class:`Matrix3x4` .
-        """
-
-    def __add__(self, other:float) -> Matrix3x4:
-        """
-        Adds a scalar to the :class:`Matrix3x4` .
+        Adds the :class:`Matrix3x4` .
         """
 
-    def __mul__(self, other:float) -> Matrix3x4:
+    def __mul__(self, other: float|Vec4) -> Matrix3x4|Vec4:
         """
-        Multiplies the :class:`Matrix3x4` by a scalar .
+        Multiplies the :class:`Matrix3x4` .
         """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec4) -> Vec4:
-        """
-        Multiplies the :class:`Matrix3x4` by a :class:`Vec4` .
-        """
-
-    # end vec mul
 
     def __truediv__(self, other:float) -> Matrix3x4:
         """
@@ -1735,39 +1689,20 @@ class Matrix2x4:
         Negates the :class:`Matrix2x4` .
         """
 
-    def __sub__(self, other:Matrix2x4) -> Matrix2x4:
+    def __sub__(self, other:Matrix2x4|float) -> Matrix2x4:
         """
-        Subtracts the :class:`Matrix2x4` by another :class:`Matrix2x4` .
-        """
-
-    def __sub__(self, other:float) -> Matrix2x4:
-        """
-        Subtracts the :class:`Matrix2x4` by a scalar.
+        Subtracts the :class:`Matrix2x4` .
         """
 
-    def __add__(self, other:Matrix2x4) -> Matrix2x4:
+    def __add__(self,  other:Matrix2x4|float) -> Matrix2x4:
         """
-        Adds the :class:`Matrix2x4` to another :class:`Matrix2x4` .
-        """
-
-    def __add__(self, other:float) -> Matrix2x4:
-        """
-        Adds a scalar to the :class:`Matrix2x4` .
+        Adds the :class:`Matrix2x4` .
         """
 
-    def __mul__(self, other:float) -> Matrix2x4:
+    def __mul__(self, other: float|Vec4) -> Matrix2x4|Vec4:
         """
-        Multiplies the :class:`Matrix2x4` by a scalar .
+        Multiplies the :class:`Matrix2x4` .
         """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec4) -> Vec4:
-        """
-        Multiplies the :class:`Matrix2x4` by a :class:`Vec4` .
-        """
-
-    # end vec mul
 
     def __truediv__(self, other:float) -> Matrix2x4:
         """
@@ -1830,53 +1765,24 @@ class Matrix3x3:
         Negates the :class:`Matrix3x3` .
         """
 
-    def __sub__(self, other:Matrix3x3) -> Matrix3x3:
+    def __sub__(self, other:Matrix3x3|float) -> Matrix3x3:
         """
-        Subtracts the :class:`Matrix3x3` by another :class:`Matrix3x3` .
-        """
-
-    def __sub__(self, other:float) -> Matrix3x3:
-        """
-        Subtracts the :class:`Matrix3x3` by a scalar.
+        Subtracts the :class:`Matrix3x3` .
         """
 
-    def __add__(self, other:Matrix3x3) -> Matrix3x3:
+    def __add__(self,  other:Matrix3x3|float) -> Matrix3x3:
         """
-        Adds a :class:`Matrix3x3` to the :class:`Matrix3x3` .
-        """
-
-    def __add__(self, other:float) -> Matrix3x3:
-        """
-        Adds a scalar to the :class:`Matrix3x3` .
+        Adds the :class:`Matrix3x3` .
         """
 
-    def __mul__(self, other:Matrix3x3) -> Matrix3x3:
+    def __mul__(self, other: Matrix3x3|float|Vec3) -> Matrix3x3|Vec3:
         """
-        Multiplies the :class:`Matrix3x3` by a :class:`Matrix3x3` .
-        """
-
-    def __mul__(self, other:float) -> Matrix3x3:
-        """
-        Multiplies the :class:`Matrix3x3` by a scalar
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec3) -> Vec3:
-        """
-        Multiplies the :class:`Matrix3x3` by a :class:`Vec3` .
+        Multiplies the :class:`Matrix3x3` .
         """
 
-    # end vec mul
-
-    def __truediv__(self, other:Matrix3x3) -> Matrix3x3:
+    def __truediv__(self, other:Matrix3x3|float) -> Matrix3x3:
         """
-        Divides the :class:`Matrix3x3` by another :class:`Matrix3x3` .
-        """
-
-    def __truediv__(self, other:float) -> Matrix3x3:
-        """
-        Divides the :class:`Matrix3x3` by a scalar.
+        Divides the :class:`Matrix3x3` .
         """
 
 # MAT4x3
@@ -1905,36 +1811,19 @@ class Matrix4x3:
         Negates the :class:`Matrix4x3` .
         """
 
-    def __sub__(self, other:Matrix4x3) -> Matrix4x3:
+    def __sub__(self, other:Matrix4x3|float) -> Matrix4x3:
         """
-        Subtracts the :class:`Matrix4x3` by a :class:`Matrix4x3` .
-        """
-
-    def __sub__(self, other:float) -> Matrix4x3:
-        """
-        Subtracts the :class:`Matrix4x3` by a scalar.
+        Subtracts the :class:`Matrix4x3` .
         """
 
-    def __add__(self, other:Matrix4x3) -> Matrix4x3:
+    def __add__(self,  other:Matrix4x3|float) -> Matrix4x3:
         """
-        Adds a :class:`Matrix4x3` to the :class:`Matrix4x3` .
-        """
-
-    def __add__(self, other:float) -> Matrix4x3:
-        """
-        Adds a scalar to the :class:`Matrix4x3` .
+        Adds the :class:`Matrix4x3` .
         """
 
-    def __mul__(self, other:float) -> Matrix4x3:
+    def __mul__(self, other: float|Vec4) -> Matrix4x3|Vec3:
         """
-        Multiplies the :class:`Matrix4x3` by a scalar.
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec4) -> Vec3:
-        """
-        Multiplies the :class:`Matrix4x3` by a :class:`Vec4`
+        Multiplies the :class:`Matrix4x3` .
         """
 
     # end vec mul
@@ -1970,41 +1859,19 @@ class Matrix2x3:
         Negates the :class:`Matrix2x3` .
         """
 
-    def __sub__(self, other:Matrix2x3) -> Matrix2x3:
+    def __sub__(self, other:Matrix2x3|float) -> Matrix2x3:
         """
-        Subtracts the :class:`Matrix2x3` by a :class:`Matrix2x3` .
-        """
-
-    def __sub__(self, other:float) -> Matrix2x3:
-        """
-        Subtracts the :class:`Matrix2x3` by a scalar.
+        Subtracts the :class:`Matrix2x3` .
         """
 
-    def __add__(self, other:Matrix2x3) -> Matrix2x3:
+    def __add__(self,  other:Matrix2x3|float) -> Matrix2x3:
         """
-        Adds a :class:`Matrix2x3` to the :class:`Matrix2x3` .
-        """
-
-    def __add__(self, other:float) -> Matrix2x3:
-        """
-        Adds a scalar to the :class:`Matrix2x3` .
+        Adds the :class:`Matrix2x3` .
         """
 
-    def __mul__(self, other:float) -> Matrix2x3:
+    def __mul__(self, other: float|Vec2|Vec3) -> Matrix2x3|Vec3:
         """
-        Multiplies the :class:`Matrix2x3` by a scalar.
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec2) -> Vec3:
-        """
-        Multiplies the :class:`Matrix2x3` by a :class:`Vec2` and returns a :class:`Vec3` .
-        """
-
-    def __mul__(self, other:Vec3) -> Vec3:
-        """
-        Multiplies the :class:`Matrix2x3` by a :class:`Vec3` .
+        Multiplies the :class:`Matrix2x3` .
         """
 
     # end vec mul
@@ -2050,53 +1917,24 @@ class Matrix2x2:
         Negates the :class:`Matrix2x2` .
         """
 
-    def __sub__(self, other:Matrix2x2) -> Matrix2x2:
+    def __sub__(self, other:Matrix2x2|float) -> Matrix2x2:
         """
-        Subtracts the :class:`Matrix2x2` by another :class:`Matrix2x2` .
-        """
-
-    def __sub__(self, other:float) -> Matrix2x2:
-        """
-        Subtracts the :class:`Matrix2x2` by a scalar.
+        Subtracts the :class:`Matrix2x2` .
         """
 
-    def __add__(self, other:Matrix2x2) -> Matrix2x2:
+    def __add__(self,  other:Matrix2x2|float) -> Matrix2x2:
         """
-        Adds a :class:`Matrix2x2` to the :class:`Matrix2x2` .
-        """
-
-    def __add__(self, other:float) -> Matrix2x2:
-        """
-        Adds a scalar to the :class:`Matrix2x2` .
+        Adds the :class:`Matrix2x2` .
         """
 
-    def __mul__(self, other:Matrix2x2) -> Matrix2x2:
+    def __mul__(self, other: Matrix2x2|float|Vec2) -> Matrix2x2|Vec2:
         """
-        Multiplies the :class:`Matrix2x2` by a :class:`Matrix2x2` .
-        """
-
-    def __mul__(self, other:float) -> Matrix2x2:
-        """
-        Multiplies the :class:`Matrix2x2` by a scalar.
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec2) -> Vec2:
-        """
-        Multiplies the :class:`Matrix2x2` by a :class:`Vec2` .
+        Multiplies the :class:`Matrix2x2` .
         """
 
-    # end vec mul
-
-    def __truediv__(self, other:Matrix2x2) -> Matrix2x2:
+    def __truediv__(self, other:Matrix2x2|float) -> Matrix2x2:
         """
-        Divides the :class:`Matrix2x2` by a :class:`Matrix2x2` .
-        """
-
-    def __truediv__(self, other:float) -> Matrix2x2:
-        """
-        Divides the :class:`Matrix2x2` by a scalar.
+        Divides the :class:`Matrix2x2` .
         """
 
 # MAT3x2
@@ -2125,36 +1963,19 @@ class Matrix3x2:
         Negates the :class:`Matrix3x2` .
         """
 
-    def __sub__(self, other:Matrix3x2) -> Matrix3x2:
+    def __sub__(self, other:Matrix3x2|float) -> Matrix3x2:
         """
-        Subtracts a :class:`Matrix3x2` from the :class:`Matrix3x2` .
-        """
-
-    def __sub__(self, other:float) -> Matrix3x2:
-        """
-        Subtracts the :class:`Matrix3x2` by a scalar.
+        Subtracts the :class:`Matrix3x2`.
         """
 
-    def __add__(self, other:Matrix3x2) -> Matrix3x2:
+    def __add__(self,  other:Matrix3x2|float) -> Matrix3x2:
         """
-        Adds a :class:`Matrix3x2` to the :class:`Matrix3x2` .
-        """
-
-    def __add__(self, other:float) -> Matrix3x2:
-        """
-        Adds a scalar to the :class:`Matrix3x2` .
+        Adds the :class:`Matrix3x2` .
         """
 
-    def __mul__(self, other:float) -> Matrix3x2:
+    def __mul__(self, other: float|Vec3) -> Matrix3x2|Vec2:
         """
-        Multiplies the :class:`Matrix3x2` by a scalar.
-        """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec3) -> Vec2:
-        """
-        Multiplies the :class:`Matrix3x2` by a :class:`Vec3` and returns a :class:`Vec2` .
+        Multiplies the :class:`Matrix3x2` .
         """
 
     # end vec mul
@@ -2190,39 +2011,20 @@ class Matrix4x2:
         Negates the :class:`Matrix4x2` .
         """
 
-    def __sub__(self, other:Matrix4x2) -> Matrix4x2:
+    def __sub__(self, other:Matrix4x2|float) -> Matrix4x2:
         """
-        Subtracts the :class:`Matrix4x2` by a :class:`Matrix4x2` .
-        """
-
-    def __sub__(self, other:float) -> Matrix4x2:
-        """
-        Subtracts the :class:`Matrix4x2` by a scalar.
+        Subtracts the :class:`Matrix4x2` .
         """
 
-    def __add__(self, other:Matrix4x2) -> Matrix4x2:
+    def __add__(self,  other:Matrix4x2|float) -> Matrix4x2:
         """
-        Adds a :class:`Matrix4x2` to the :class:`Matrix4x2` .
-        """
-
-    def __add__(self, other:float) -> Matrix4x2:
-        """
-        Adds a scalar to the :class:`Matrix4x2` .
+        Adds the :class:`Matrix4x2` .
         """
 
-    def __mul__(self, other:float) -> Matrix4x2:
+    def __mul__(self, other: float|Vec4) -> Matrix4x2|Vec2:
         """
-        Multiplies the :class:`Matrix4x2` by a scalar.
+        Multiplies the :class:`Matrix4x2` .
         """
-    
-    # vec mul:
-
-    def __mul__(self, other:Vec4) -> Vec2:
-        """
-        Multiplies the :class:`Matrix4x2` by a :class:`Vec4` and returns a :class:`Vec2` .
-        """
-
-    # end vec mul
 
     def __truediv__(self, other:float) -> Matrix4x2:
         """

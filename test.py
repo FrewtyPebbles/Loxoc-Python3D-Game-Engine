@@ -3,7 +3,8 @@ from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
-    DirectionalLight, SpotLight, BoxCollider
+    DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
+    Vec4
 )
 import math
 from copy import copy
@@ -110,7 +111,10 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         print("FRAMERATE: inf fps")
     
     if car.check_collision(pirate_ship):
-        pirate_ship.rotation.rotate_yaw(math.radians(30 * window.dt))
+        mat = Mat4.from_unit(1.0)
+        mat2 = Mat4.from_quaternion(Quaternion.from_euler(Vec3(0, math.radians(30 * window.dt), 0)))
+        mat *= mat2
+        pirate_ship.rotation = (Mat4.from_quaternion(pirate_ship.rotation) * mat).to_quaternion()
 
     doomguy.position.x = math.sin(window.time_ns/1000000000)
     doomguy.position.y = math.cos(window.time_ns/1000000000)
@@ -135,6 +139,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # test_light.position.y += 200
     
     # Clamp and rotate, then apply friction.
+
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.rotate_yaw(vel_yaw/magic_turn_dampener * window.dt)
     vel_yaw -= math.copysign(frict, vel_yaw)

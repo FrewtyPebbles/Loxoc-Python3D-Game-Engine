@@ -1617,36 +1617,53 @@ cdef class Matrix4x4:
     def __neg__(self) -> Matrix4x4:
         return mat4x4_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix4x4 other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix4x4|float) -> Matrix4x4:
+        cdef:
+            Matrix4x4 o1
+            float o2
+        if isinstance(other, Matrix4x4):
+            o1 = other
+            return mat4x4_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x4_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix4x4|float) -> Matrix4x4:
+        cdef:
+            Matrix4x4 o1
+            float o2
+        if isinstance(other, Matrix4x4):
+            o1 = other
+            return mat4x4_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x4_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix4x4 other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] + other.c_class[0])
+    def __mul__(self, other: Matrix4x4|float|Vec4) -> Matrix4x4|Vec4:
+        cdef:
+            Matrix4x4 o1
+            float o2
+            Vec4 o3
+        if isinstance(other, Matrix4x4):
+            o1 = other
+            return mat4x4_from_cpp(self.c_class[0] * o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x4_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec4):
+            o3 = other
+            return vec4_from_cpp(self.c_class[0] * o3.c_class[0])
 
-    def __add__(self, float other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, Matrix4x4 other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] * other.c_class[0])
-
-    def __mul__(self, float other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec4 other) -> Vec4:
-        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
-
-    # end vec mul
-
-    def __truediv__(self, Matrix4x4 other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] / other.c_class[0])
-
-    def __truediv__(self, float other) -> Matrix4x4:
-        return mat4x4_from_cpp(self.c_class[0] / other)
+    def __truediv__(self, other:Matrix4x4|float) -> Matrix4x4:
+        cdef:
+            Matrix4x4 o1
+            float o2
+        if isinstance(other, Matrix4x4):
+            o1 = other
+            return mat4x4_from_cpp(self.c_class[0] / o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x4_from_cpp(self.c_class[0] / o2)
 
 cdef Matrix4x4 mat4x4_from_cpp(matrix[glmmat4x4] cppinst):
     cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
@@ -1677,25 +1694,38 @@ cdef class Matrix3x4:
     def __neg__(self) -> Matrix3x4:
         return mat3x4_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix3x4 other) -> Matrix3x4:
-        return mat3x4_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix3x4|float) -> Matrix3x4:
+        cdef:
+            Matrix3x4 o1
+            float o2
+        if isinstance(other, Matrix3x4):
+            o1 = other
+            return mat3x4_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x4_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix3x4:
-        return mat3x4_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix3x4|float) -> Matrix3x4:
+        cdef:
+            Matrix3x4 o1
+            float o2
+        if isinstance(other, Matrix3x4):
+            o1 = other
+            return mat3x4_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x4_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix3x4 other) -> Matrix3x4:
-        return mat3x4_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix3x4:
-        return mat3x4_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix3x4:
-        return mat3x4_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec4 other) -> Vec4:
-        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+    def __mul__(self, other: float|Vec4) -> Matrix3x4|Vec4:
+        cdef:
+            float o2
+            Vec4 o3
+        if isinstance(other, float):
+            o2 = other
+            return mat3x4_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec4):
+            o3 = other
+            return vec4_from_cpp(self.c_class[0] * o3.c_class[0])
 
     # end vec mul
 
@@ -1729,27 +1759,38 @@ cdef class Matrix2x4:
     def __neg__(self) -> Matrix2x4:
         return mat2x4_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix2x4 other) -> Matrix2x4:
-        return mat2x4_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix2x4|float) -> Matrix2x4:
+        cdef:
+            Matrix2x4 o1
+            float o2
+        if isinstance(other, Matrix2x4):
+            o1 = other
+            return mat2x4_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x4_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix2x4:
-        return mat2x4_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix2x4|float) -> Matrix2x4:
+        cdef:
+            Matrix2x4 o1
+            float o2
+        if isinstance(other, Matrix2x4):
+            o1 = other
+            return mat2x4_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x4_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix2x4 other) -> Matrix2x4:
-        return mat2x4_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix2x4:
-        return mat2x4_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix2x4:
-        return mat2x4_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec4 other) -> Vec4:
-        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
-
-    # end vec mul
+    def __mul__(self, other: float|Vec4) -> Matrix2x4|Vec4:
+        cdef:
+            float o2
+            Vec4 o3
+        if isinstance(other, float):
+            o2 = other
+            return mat2x4_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec4):
+            o3 = other
+            return vec4_from_cpp(self.c_class[0] * o3.c_class[0])
 
     def __truediv__(self, float other) -> Matrix2x4:
         return mat2x4_from_cpp(self.c_class[0] / other)
@@ -1799,36 +1840,53 @@ cdef class Matrix3x3:
     def __neg__(self) -> Matrix3x3:
         return mat3x3_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix3x3 other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix3x3|float) -> Matrix3x3:
+        cdef:
+            Matrix3x3 o1
+            float o2
+        if isinstance(other, Matrix3x3):
+            o1 = other
+            return mat3x3_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x3_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix3x3|float) -> Matrix3x3:
+        cdef:
+            Matrix3x3 o1
+            float o2
+        if isinstance(other, Matrix3x3):
+            o1 = other
+            return mat3x3_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x3_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix3x3 other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] + other.c_class[0])
+    def __mul__(self, other: Matrix3x3|float|Vec3) -> Matrix3x3|Vec3:
+        cdef:
+            Matrix3x3 o1
+            float o2
+            Vec3 o3
+        if isinstance(other, Matrix3x3):
+            o1 = other
+            return mat3x3_from_cpp(self.c_class[0] * o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x3_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec3):
+            o3 = other
+            return vec3_from_cpp(self.c_class[0] * o3.c_class[0])
 
-    def __add__(self, float other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, Matrix3x3 other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] * other.c_class[0])
-
-    def __mul__(self, float other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec3 other) -> Vec3:
-        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
-
-    # end vec mul
-
-    def __truediv__(self, Matrix3x3 other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] / other.c_class[0])
-
-    def __truediv__(self, float other) -> Matrix3x3:
-        return mat3x3_from_cpp(self.c_class[0] / other)
+    def __truediv__(self, other:Matrix3x3|float) -> Matrix3x3:
+        cdef:
+            Matrix3x3 o1
+            float o2
+        if isinstance(other, Matrix3x3):
+            o1 = other
+            return mat3x3_from_cpp(self.c_class[0] / o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x3_from_cpp(self.c_class[0] / o2)
 
 cdef Matrix3x3 mat3x3_from_cpp(matrix[glmmat3x3] cppinst):
     cdef Matrix3x3 ret = Matrix3x3.__new__(Matrix3x3)
@@ -1857,27 +1915,38 @@ cdef class Matrix4x3:
     def __neg__(self) -> Matrix4x3:
         return mat4x3_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix4x3 other) -> Matrix4x3:
-        return mat4x3_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix4x3|float) -> Matrix4x3:
+        cdef:
+            Matrix4x3 o1
+            float o2
+        if isinstance(other, Matrix4x3):
+            o1 = other
+            return mat4x3_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x3_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix4x3:
-        return mat4x3_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix4x3|float) -> Matrix4x3:
+        cdef:
+            Matrix4x3 o1
+            float o2
+        if isinstance(other, Matrix4x3):
+            o1 = other
+            return mat4x3_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x3_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix4x3 other) -> Matrix4x3:
-        return mat4x3_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix4x3:
-        return mat4x3_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix4x3:
-        return mat4x3_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec4 other) -> Vec3:
-        return vec3_from_cpp(self.c_class.mul_4x3(other.c_class[0]))
-
-    # end vec mul
+    def __mul__(self, other: float|Vec4) -> Matrix4x3|Vec3:
+        cdef:
+            float o2
+            Vec4 o3
+        if isinstance(other, float):
+            o2 = other
+            return mat4x3_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec4):
+            o3 = other
+            return vec3_from_cpp(self.c_class.mul_4x3(o3.c_class[0]))
 
     def __truediv__(self, float other) -> Matrix4x3:
         return mat4x3_from_cpp(self.c_class[0] / other)
@@ -1909,30 +1978,42 @@ cdef class Matrix2x3:
     def __neg__(self) -> Matrix2x3:
         return mat2x3_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix2x3 other) -> Matrix2x3:
-        return mat2x3_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix2x3|float) -> Matrix2x3:
+        cdef:
+            Matrix2x3 o1
+            float o2
+        if isinstance(other, Matrix2x3):
+            o1 = other
+            return mat2x3_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x3_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix2x3:
-        return mat2x3_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix2x3|float) -> Matrix2x3:
+        cdef:
+            Matrix2x3 o1
+            float o2
+        if isinstance(other, Matrix2x3):
+            o1 = other
+            return mat2x3_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x3_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix2x3 other) -> Matrix2x3:
-        return mat2x3_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix2x3:
-        return mat2x3_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix2x3:
-        return mat2x3_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec2 other) -> Vec3:
-        return vec3_from_cpp(self.c_class.mul_2x3(other.c_class[0]))
-
-    def __mul__(self, Vec3 other) -> Vec3:
-        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
-
-    # end vec mul
+    def __mul__(self, other: float|Vec2|Vec3) -> Matrix2x3|Vec3:
+        cdef:
+            float o2
+            Vec2 o3
+            Vec3 o4
+        if isinstance(other, float):
+            o2 = other
+            return mat2x3_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec2):
+            o3 = other
+            return vec3_from_cpp(self.c_class.mul_2x3(o3.c_class[0]))
+        elif isinstance(other, Vec3):
+            o4 = other
+            return vec3_from_cpp(self.c_class[0] * o4.c_class[0])
 
     def __truediv__(self, float other) -> Matrix2x3:
         return mat2x3_from_cpp(self.c_class[0] / other)
@@ -1970,36 +2051,53 @@ cdef class Matrix2x2:
     def __neg__(self) -> Matrix2x2:
         return mat2x2_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix2x2 other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix2x2|float) -> Matrix2x2:
+        cdef:
+            Matrix2x2 o1
+            float o2
+        if isinstance(other, Matrix2x2):
+            o1 = other
+            return mat2x2_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x2_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix2x2|float) -> Matrix2x2:
+        cdef:
+            Matrix2x2 o1
+            float o2
+        if isinstance(other, Matrix2x2):
+            o1 = other
+            return mat2x2_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x2_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix2x2 other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] + other.c_class[0])
+    def __mul__(self, other: Matrix2x2|float|Vec2) -> Matrix2x2|Vec2:
+        cdef:
+            Matrix2x2 o1
+            float o2
+            Vec2 o3
+        if isinstance(other, Matrix2x2):
+            o1 = other
+            return mat2x2_from_cpp(self.c_class[0] * o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x2_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec2):
+            o3 = other
+            return vec2_from_cpp(self.c_class[0] * o3.c_class[0])
 
-    def __add__(self, float other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, Matrix2x2 other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] * other.c_class[0])
-
-    def __mul__(self, float other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec2 other) -> Vec2:
-        return vec2_from_cpp(self.c_class[0] * other.c_class[0])
-
-    # end vec mul
-
-    def __truediv__(self, Matrix2x2 other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] / other.c_class[0])
-
-    def __truediv__(self, float other) -> Matrix2x2:
-        return mat2x2_from_cpp(self.c_class[0] / other)
+    def __truediv__(self, other:Matrix2x2|float) -> Matrix2x2:
+        cdef:
+            Matrix2x2 o1
+            float o2
+        if isinstance(other, Matrix2x2):
+            o1 = other
+            return mat2x2_from_cpp(self.c_class[0] / o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat2x2_from_cpp(self.c_class[0] / o2)
 
 cdef Matrix2x2 mat2x2_from_cpp(matrix[glmmat2x2] cppinst):
     cdef Matrix2x2 ret = Matrix2x2.__new__(Matrix2x2)
@@ -2028,27 +2126,38 @@ cdef class Matrix3x2:
     def __neg__(self) -> Matrix3x2:
         return mat3x2_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix3x2 other) -> Matrix3x2:
-        return mat3x2_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix3x2|float) -> Matrix3x2:
+        cdef:
+            Matrix3x2 o1
+            float o2
+        if isinstance(other, Matrix3x2):
+            o1 = other
+            return mat3x2_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x2_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix3x2:
-        return mat3x2_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix3x2|float) -> Matrix3x2:
+        cdef:
+            Matrix3x2 o1
+            float o2
+        if isinstance(other, Matrix3x2):
+            o1 = other
+            return mat3x2_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat3x2_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix3x2 other) -> Matrix3x2:
-        return mat3x2_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix3x2:
-        return mat3x2_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix3x2:
-        return mat3x2_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec3 other) -> Vec2:
-        return vec2_from_cpp(self.c_class.mul_3x2(other.c_class[0]))
-
-    # end vec mul
+    def __mul__(self, other: float|Vec3) -> Matrix3x2|Vec2:
+        cdef:
+            float o2
+            Vec3 o3
+        if isinstance(other, float):
+            o2 = other
+            return mat3x2_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec3):
+            o3 = other
+            return vec2_from_cpp(self.c_class.mul_3x2(o3.c_class[0]))
 
     def __truediv__(self, float other) -> Matrix3x2:
         return mat3x2_from_cpp(self.c_class[0] / other)
@@ -2080,27 +2189,38 @@ cdef class Matrix4x2:
     def __neg__(self) -> Matrix4x2:
         return mat4x2_from_cpp(-self.c_class[0])
 
-    def __sub__(self, Matrix4x2 other) -> Matrix4x2:
-        return mat4x2_from_cpp(self.c_class[0] - other.c_class[0])
+    def __sub__(self, other:Matrix4x2|float) -> Matrix4x2:
+        cdef:
+            Matrix4x2 o1
+            float o2
+        if isinstance(other, Matrix4x2):
+            o1 = other
+            return mat4x2_from_cpp(self.c_class[0] - o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x2_from_cpp(self.c_class[0] - o2)
 
-    def __sub__(self, float other) -> Matrix4x2:
-        return mat4x2_from_cpp(self.c_class[0] - other)
+    def __add__(self,  other:Matrix4x2|float) -> Matrix4x2:
+        cdef:
+            Matrix4x2 o1
+            float o2
+        if isinstance(other, Matrix4x2):
+            o1 = other
+            return mat4x2_from_cpp(self.c_class[0] + o1.c_class[0])
+        elif isinstance(other, float):
+            o2 = other
+            return mat4x2_from_cpp(self.c_class[0] + o2)
 
-    def __add__(self, Matrix4x2 other) -> Matrix4x2:
-        return mat4x2_from_cpp(self.c_class[0] + other.c_class[0])
-
-    def __add__(self, float other) -> Matrix4x2:
-        return mat4x2_from_cpp(self.c_class[0] - other)
-
-    def __mul__(self, float other) -> Matrix4x2:
-        return mat4x2_from_cpp(self.c_class[0] * other)
-    
-    # vec mul:
-
-    def __mul__(self, Vec4 other) -> Vec2:
-        return vec2_from_cpp(self.c_class.mul_4x2(other.c_class[0]))
-
-    # end vec mul
+    def __mul__(self, other: float|Vec4) -> Matrix4x2|Vec2:
+        cdef:
+            float o2
+            Vec4 o3
+        if isinstance(other, float):
+            o2 = other
+            return mat4x2_from_cpp(self.c_class[0] * o2)
+        elif isinstance(other, Vec4):
+            o3 = other
+            return vec2_from_cpp(self.c_class.mul_4x2(o3.c_class[0]))
 
     def __truediv__(self, float other) -> Matrix4x2:
         return mat4x2_from_cpp(self.c_class[0] / other)
