@@ -7,6 +7,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <compare>
 #include "Vec2.h"
 #include "Vec3.h"
@@ -46,6 +47,7 @@ public:
     matrix(const quaternion& quat);
     matrix(quaternion * quat);
     matrix(const glm_mat_type& glm_mat) : mat(glm_mat) {}
+    matrix(const matrix<glm_mat_type>& other) : mat(other.mat) {}
 
     glm_mat_type mat;
 
@@ -59,6 +61,18 @@ public:
 
     template<typename mat_type = glm_mat_type>
     inline auto operator[](int index) const -> typename mat_ret_deduce<mat_type> {
+        return mat[index];
+    }
+
+    inline vec4 get_vec4(int index) const {
+        return mat[index];
+    }
+
+    inline vec3 get_vec3(int index) const {
+        return mat[index];
+    }
+
+    inline vec2 get_vec2(int index) const {
         return mat[index];
     }
 
@@ -111,9 +125,27 @@ public:
     inline vec2 operator*(const vec2& other) {
         return mat * other.axis;
     }
+    
     inline vec3 operator*(const vec3& other) {
         return mat * other.axis;
     }
+
+    inline vec3 mul_4x3(const vec4& other) {
+        return mat * other.axis;
+    }
+
+    inline vec3 mul_2x3(const vec2& other) {
+        return mat * other.axis;
+    }
+
+    inline vec2 mul_3x2(const vec3& other) {
+        return mat * other.axis;
+    }
+
+    inline vec2 mul_4x2(const vec4& other) {
+        return mat * other.axis;
+    }
+
     inline vec4 operator*(const vec4& other) {
         return mat * other.axis;
     }
@@ -131,6 +163,7 @@ public:
     
     inline matrix<glm_mat_type> operator/(matrix<glm_mat_type> const& other)
     {
+        glm::mat3x4() * glm::vec4();
         return mat / other.mat;
     }
 
@@ -142,18 +175,6 @@ public:
     inline matrix<glm_mat_type> operator/=(matrix<glm_mat_type> const& other) {
         mat /= other.mat;
         return *this;
-    }
-
-    inline float get_magnitude() {
-        return glm::length(this->mat);
-    }
-    
-    inline matrix<glm_mat_type> get_normalized() {
-        return glm::normalize(this->mat);
-    }
-
-    inline float distance(const matrix<glm_mat_type>& other) {
-        return glm::distance(this->mat, other.mat);
     }
 
     inline matrix<glm_mat_type> translate(const vec3& vec) {
@@ -172,6 +193,14 @@ public:
         return glm::scale(mat, vec->axis);
     }
 
+    inline matrix<glm_mat_type> scale(const vec2& vec) {
+        return glm::scale(mat, vec.axis);
+    }
+    
+    inline matrix<glm_mat_type> scale(vec2 * vec) {
+        return glm::scale(mat, vec->axis);
+    }
+
     inline matrix<glm_mat_type> inverse() {
         return glm::inverse(this->mat);
     }
@@ -185,7 +214,20 @@ public:
     quaternion to_quaternion();
 
 };
+//glm mats
+typedef glm::mat2x2 glmmat2x2;
+typedef glm::mat2x3 glmmat2x3;
+typedef glm::mat2x4 glmmat2x4;
 
+typedef glm::mat3x2 glmmat3x2;
+typedef glm::mat3x3 glmmat3x3;
+typedef glm::mat3x4 glmmat3x4;
+
+typedef glm::mat4x2 glmmat4x2;
+typedef glm::mat4x3 glmmat4x3;
+typedef glm::mat4x4 glmmat4x4;
+
+//mats
 typedef matrix<glm::mat2x2> matrix2x2;
 typedef matrix<glm::mat2x3> matrix2x3;
 typedef matrix<glm::mat2x4> matrix2x4;

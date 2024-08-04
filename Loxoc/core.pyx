@@ -684,12 +684,6 @@ cdef class Vec4:
     def dot(self, Vec4 other) -> float:
         return self.c_class[0].dot(other.c_class[0])
 
-    def cross(self, other:Quaternion | Vec4) -> float:
-        if isinstance(other, Quaternion):
-            return self.quat_cross(other)
-        elif isinstance(other, Vec4):
-            return self.vec_cross(other)
-
     cpdef float get_magnitude(self):
         return self.c_class.get_magnitude()
 
@@ -701,6 +695,21 @@ cdef class Vec4:
         return vec3_from_cpp(self.c_class.to_vec3())
     cpdef Vec2 to_vec2(self):
         return vec2_from_cpp(self.c_class.to_vec2())
+
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x4|Matrix3x4|Matrix4x4:
+        cdef:
+            Vec2 v2
+            Vec3 v3
+            Vec4 v4
+        if isinstance(vec, Vec2):
+            v2 = vec
+            return mat2x4_from_cpp(self.c_class.outer_product(v2.c_class[0]))
+        elif isinstance(vec, Vec3):
+            v3 = vec
+            return mat3x4_from_cpp(self.c_class.outer_product(v3.c_class[0]))
+        elif isinstance(vec, Vec4):
+            v4 = vec
+            return mat4x4_from_cpp(self.c_class.outer_product(v4.c_class[0]))
 
 cdef Vec4 vec4_from_cpp(vec4 cppinst):
     cdef Vec4 ret = Vec4.__new__(Vec4)
@@ -856,6 +865,21 @@ cdef class Vec3:
     cpdef Quaternion to_quaternion(self):
         return quat_from_cpp(self.c_class.to_quaternion())
 
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x3|Matrix3x3|Matrix4x3:
+        cdef:
+            Vec2 v2
+            Vec3 v3
+            Vec4 v4
+        if isinstance(vec, Vec2):
+            v2 = vec
+            return mat2x3_from_cpp(self.c_class.outer_product(v2.c_class[0]))
+        elif isinstance(vec, Vec3):
+            v3 = vec
+            return mat3x3_from_cpp(self.c_class.outer_product(v3.c_class[0]))
+        elif isinstance(vec, Vec4):
+            v4 = vec
+            return mat4x3_from_cpp(self.c_class.outer_product(v4.c_class[0]))
+
 cdef Vec3 vec3_from_cpp(vec3 cppinst):
     cdef Vec3 ret = Vec3.__new__(Vec3)
     ret.c_class = new vec3(cppinst)
@@ -966,6 +990,21 @@ cdef class Vec2:
     @classmethod
     def from_angle(cls, float angle) -> Vec2:
         return vec2_from_cpp(vec2.from_angle(angle))
+
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x2|Matrix3x2|Matrix4x2:
+        cdef:
+            Vec2 v2
+            Vec3 v3
+            Vec4 v4
+        if isinstance(vec, Vec2):
+            v2 = vec
+            return mat2x2_from_cpp(self.c_class.outer_product(v2.c_class[0]))
+        elif isinstance(vec, Vec3):
+            v3 = vec
+            return mat3x2_from_cpp(self.c_class.outer_product(v3.c_class[0]))
+        elif isinstance(vec, Vec4):
+            v4 = vec
+            return mat4x2_from_cpp(self.c_class.outer_product(v4.c_class[0]))
 
 cdef Vec2 vec2_from_cpp(vec2 cppinst):
     cdef:
@@ -1529,3 +1568,544 @@ cdef class BoxCollider(Collider):
 
     def __dealloc__(self):
         RC_collect(self.c_class)
+
+# MATRICES ------------------------------------------------------------------------------------
+
+# MAT4x4
+
+cdef class Matrix4x4:
+
+    def __init__(self, float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1, float x2, float y2, float z2, float w2, float x3, float y3, float z3, float w3) -> None:
+        self.c_class = new matrix[glmmat4x4](x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2, x3, y3, z3, w3)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix4x4:
+        cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+        ret.c_class = new matrix[glmmat4x4](value)
+        return ret
+
+    @staticmethod
+    def from_quaternion(Quaternion quat) -> Matrix4x4:
+        cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+        ret.c_class = new matrix[glmmat4x4](quat.c_class)
+        return ret
+
+    cpdef Quaternion to_quaternion(self):
+        return quat_from_cpp(self.c_class.to_quaternion())
+
+    cpdef Vec3 get_up(self):
+        return vec3_from_cpp(self.c_class.get_up())
+    
+    cpdef Vec3 get_right(self):
+        return vec3_from_cpp(self.c_class.get_right())
+
+    cpdef Vec3 get_forward(self):
+        return vec3_from_cpp(self.c_class.get_forward())
+
+    cpdef Matrix4x4 inverse(self):
+        return mat4x4_from_cpp(self.c_class.inverse())
+
+    cpdef float determinant(self):
+        return self.c_class.determinant()
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_vec4(index))
+    
+    def __neg__(self) -> Matrix4x4:
+        return mat4x4_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix4x4 other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix4x4 other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, Matrix4x4 other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    def __mul__(self, float other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec4 other) -> Vec4:
+        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, Matrix4x4 other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] / other.c_class[0])
+
+    def __truediv__(self, float other) -> Matrix4x4:
+        return mat4x4_from_cpp(self.c_class[0] / other)
+
+cdef Matrix4x4 mat4x4_from_cpp(matrix[glmmat4x4] cppinst):
+    cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+    ret.c_class = new matrix[glmmat4x4](cppinst)
+    return ret
+
+
+
+# MAT3x4
+
+cdef class Matrix3x4:
+
+    def __init__(self, float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1, float x2, float y2, float z2, float w2) -> None:
+        self.c_class = new matrix[glmmat3x4](x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix3x4:
+        cdef Matrix3x4 ret = Matrix3x4.__new__(Matrix3x4)
+        ret.c_class = new matrix[glmmat3x4](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_vec4(index))
+    
+    def __neg__(self) -> Matrix3x4:
+        return mat3x4_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix3x4 other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix3x4 other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec4 other) -> Vec4:
+        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix3x4:
+        return mat3x4_from_cpp(self.c_class[0] / other)
+
+cdef Matrix3x4 mat3x4_from_cpp(matrix[glmmat3x4] cppinst):
+    cdef Matrix3x4 ret = Matrix3x4.__new__(Matrix3x4)
+    ret.c_class = new matrix[glmmat3x4](cppinst)
+    return ret
+
+# MAT2x4
+
+cdef class Matrix2x4:
+
+    def __init__(self, float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1) -> None:
+        self.c_class = new matrix[glmmat2x4](x0, y0, z0, w0, x1, y1, z1, w1)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix2x4:
+        cdef Matrix2x4 ret = Matrix2x4.__new__(Matrix2x4)
+        ret.c_class = new matrix[glmmat2x4](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec4:
+        return vec4_from_cpp(self.c_class.get_vec4(index))
+    
+    def __neg__(self) -> Matrix2x4:
+        return mat2x4_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix2x4 other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix2x4 other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec4 other) -> Vec4:
+        return vec4_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix2x4:
+        return mat2x4_from_cpp(self.c_class[0] / other)
+
+cdef Matrix2x4 mat2x4_from_cpp(matrix[glmmat2x4] cppinst):
+    cdef Matrix2x4 ret = Matrix2x4.__new__(Matrix2x4)
+    ret.c_class = new matrix[glmmat2x4](cppinst)
+    return ret
+
+# MAT3x3
+
+cdef class Matrix3x3:
+
+    def __init__(self, float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2) -> None:
+        self.c_class = new matrix[glmmat3x3](x0, y0, z0, x1, y1, z1, x2, y2, z2)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix3x3:
+        cdef Matrix3x3 ret = Matrix3x3.__new__(Matrix3x3)
+        ret.c_class = new matrix[glmmat3x3](value)
+        return ret
+
+    cpdef Quaternion to_quaternion(self):
+        return quat_from_cpp(self.c_class.to_quaternion())
+
+    cpdef Vec3 get_up(self):
+        return vec3_from_cpp(self.c_class.get_up())
+    
+    cpdef Vec3 get_right(self):
+        return vec3_from_cpp(self.c_class.get_right())
+
+    cpdef Vec3 get_forward(self):
+        return vec3_from_cpp(self.c_class.get_forward())
+
+    cpdef Matrix3x3 inverse(self):
+        return mat3x3_from_cpp(self.c_class.inverse())
+
+    cpdef float determinant(self):
+        return self.c_class.determinant()
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec3:
+        return vec3_from_cpp(self.c_class.get_vec3(index))
+    
+    def __neg__(self) -> Matrix3x3:
+        return mat3x3_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix3x3 other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix3x3 other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, Matrix3x3 other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] * other.c_class[0])
+
+    def __mul__(self, float other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec3 other) -> Vec3:
+        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, Matrix3x3 other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] / other.c_class[0])
+
+    def __truediv__(self, float other) -> Matrix3x3:
+        return mat3x3_from_cpp(self.c_class[0] / other)
+
+cdef Matrix3x3 mat3x3_from_cpp(matrix[glmmat3x3] cppinst):
+    cdef Matrix3x3 ret = Matrix3x3.__new__(Matrix3x3)
+    ret.c_class = new matrix[glmmat3x3](cppinst)
+    return ret
+
+# MAT4x3
+
+cdef class Matrix4x3:
+
+    def __init__(self, float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3) -> None:
+        self.c_class = new matrix[glmmat4x3](x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix4x3:
+        cdef Matrix4x3 ret = Matrix4x3.__new__(Matrix4x3)
+        ret.c_class = new matrix[glmmat4x3](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec3:
+        return vec3_from_cpp(self.c_class.get_vec3(index))
+    
+    def __neg__(self) -> Matrix4x3:
+        return mat4x3_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix4x3 other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix4x3 other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec4 other) -> Vec3:
+        return vec3_from_cpp(self.c_class.mul_4x3(other.c_class[0]))
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix4x3:
+        return mat4x3_from_cpp(self.c_class[0] / other)
+
+cdef Matrix4x3 mat4x3_from_cpp(matrix[glmmat4x3] cppinst):
+    cdef Matrix4x3 ret = Matrix4x3.__new__(Matrix4x3)
+    ret.c_class = new matrix[glmmat4x3](cppinst)
+    return ret
+
+# MAT2x3
+
+cdef class Matrix2x3:
+
+    def __init__(self, float x0, float y0, float z0, float x1, float y1, float z1) -> None:
+        self.c_class = new matrix[glmmat2x3](x0, y0, z0, x1, y1, z1)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix2x3:
+        cdef Matrix2x3 ret = Matrix2x3.__new__(Matrix2x3)
+        ret.c_class = new matrix[glmmat2x3](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec3:
+        return vec3_from_cpp(self.c_class.get_vec3(index))
+    
+    def __neg__(self) -> Matrix2x3:
+        return mat2x3_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix2x3 other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix2x3 other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec2 other) -> Vec3:
+        return vec3_from_cpp(self.c_class.mul_2x3(other.c_class[0]))
+
+    def __mul__(self, Vec3 other) -> Vec3:
+        return vec3_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix2x3:
+        return mat2x3_from_cpp(self.c_class[0] / other)
+
+cdef Matrix2x3 mat2x3_from_cpp(matrix[glmmat2x3] cppinst):
+    cdef Matrix2x3 ret = Matrix2x3.__new__(Matrix2x3)
+    ret.c_class = new matrix[glmmat2x3](cppinst)
+    return ret
+
+# MAT2x2
+
+cdef class Matrix2x2:
+
+    def __init__(self, float x0, float y0, float x1, float y1) -> None:
+        self.c_class = new matrix[glmmat2x2](x0, y0, x1, y1)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix2x2:
+        cdef Matrix2x2 ret = Matrix2x2.__new__(Matrix2x2)
+        ret.c_class = new matrix[glmmat2x2](value)
+        return ret
+
+    cpdef Matrix2x2 inverse(self):
+        return mat2x2_from_cpp(self.c_class.inverse())
+
+    cpdef float determinant(self):
+        return self.c_class.determinant()
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec2:
+        return vec2_from_cpp(self.c_class.get_vec2(index))
+    
+    def __neg__(self) -> Matrix2x2:
+        return mat2x2_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix2x2 other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix2x2 other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, Matrix2x2 other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] * other.c_class[0])
+
+    def __mul__(self, float other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec2 other) -> Vec2:
+        return vec2_from_cpp(self.c_class[0] * other.c_class[0])
+
+    # end vec mul
+
+    def __truediv__(self, Matrix2x2 other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] / other.c_class[0])
+
+    def __truediv__(self, float other) -> Matrix2x2:
+        return mat2x2_from_cpp(self.c_class[0] / other)
+
+cdef Matrix2x2 mat2x2_from_cpp(matrix[glmmat2x2] cppinst):
+    cdef Matrix2x2 ret = Matrix2x2.__new__(Matrix2x2)
+    ret.c_class = new matrix[glmmat2x2](cppinst)
+    return ret
+
+# MAT3x2
+
+cdef class Matrix3x2:
+
+    def __init__(self, float x0, float y0, float x1, float y1, float x2, float y2) -> None:
+        self.c_class = new matrix[glmmat3x2](x0, y0, x1, y1, x2, y2)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix3x2:
+        cdef Matrix3x2 ret = Matrix3x2.__new__(Matrix3x2)
+        ret.c_class = new matrix[glmmat3x2](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec2:
+        return vec2_from_cpp(self.c_class.get_vec2(index))
+    
+    def __neg__(self) -> Matrix3x2:
+        return mat3x2_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix3x2 other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix3x2 other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec3 other) -> Vec2:
+        return vec2_from_cpp(self.c_class.mul_3x2(other.c_class[0]))
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix3x2:
+        return mat3x2_from_cpp(self.c_class[0] / other)
+
+cdef Matrix3x2 mat3x2_from_cpp(matrix[glmmat3x2] cppinst):
+    cdef Matrix3x2 ret = Matrix3x2.__new__(Matrix3x2)
+    ret.c_class = new matrix[glmmat3x2](cppinst)
+    return ret
+
+# MAT4x2
+
+cdef class Matrix4x2:
+
+    def __init__(self, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) -> None:
+        self.c_class = new matrix[glmmat4x2](x0, y0, x1, y1, x2, y2, x3, y3)
+
+    @staticmethod
+    def from_unit(float value) -> Matrix4x2:
+        cdef Matrix4x2 ret = Matrix4x2.__new__(Matrix4x2)
+        ret.c_class = new matrix[glmmat4x2](value)
+        return ret
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def __getitem__(self, int index) -> Vec2:
+        return vec2_from_cpp(self.c_class.get_vec2(index))
+    
+    def __neg__(self) -> Matrix4x2:
+        return mat4x2_from_cpp(-self.c_class[0])
+
+    def __sub__(self, Matrix4x2 other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] - other.c_class[0])
+
+    def __sub__(self, float other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] - other)
+
+    def __add__(self, Matrix4x2 other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] + other.c_class[0])
+
+    def __add__(self, float other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] - other)
+
+    def __mul__(self, float other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] * other)
+    
+    # vec mul:
+
+    def __mul__(self, Vec4 other) -> Vec2:
+        return vec2_from_cpp(self.c_class.mul_4x2(other.c_class[0]))
+
+    # end vec mul
+
+    def __truediv__(self, float other) -> Matrix4x2:
+        return mat4x2_from_cpp(self.c_class[0] / other)
+
+cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst):
+    cdef Matrix4x2 ret = Matrix4x2.__new__(Matrix4x2)
+    ret.c_class = new matrix[glmmat4x2](cppinst)
+    return ret

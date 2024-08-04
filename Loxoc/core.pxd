@@ -282,6 +282,131 @@ cdef class Quaternion:
     
 cdef Quaternion quat_from_cpp(quaternion cppinst)
 
+cdef extern from "../src/Matrix.h":
+    cdef cppclass mat_ret_deduce[T]:
+        pass
+
+    cdef cppclass glmmat2x2:
+        pass
+
+    cdef cppclass glmmat2x3:
+        pass
+
+    cdef cppclass glmmat2x4:
+        pass
+
+    cdef cppclass glmmat3x2:
+        pass
+
+    cdef cppclass glmmat3x3:
+        pass
+
+    cdef cppclass glmmat3x4:
+        pass
+
+    cdef cppclass glmmat4x2:
+        pass
+
+    cdef cppclass glmmat4x3:
+        pass
+
+    cdef cppclass glmmat4x4:
+        pass
+
+    cdef cppclass matrix[glm_mat_type]:
+        matrix() except *
+        matrix(float value) except *
+        matrix(float, float, float, float) except *
+        matrix(float, float, float, float, float, float) except *
+        matrix(float, float, float, float, float, float, float, float) except *
+        matrix(float, float, float, float, float, float, float, float, float) except *
+        matrix(float, float, float, float, float, float, float, float, float, float, float, float) except *
+        matrix(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) except *
+        matrix(const quaternion& quat) except *
+        matrix(quaternion * quat) except *
+        matrix(const glm_mat_type& glm_mat) except *
+        matrix(const matrix[glm_mat_type]& other) except *
+
+        glm_mat_type mat
+
+        vec3 get_up()
+
+        vec3 get_right()
+
+        vec3 get_forward()
+
+        inline vec4 get_vec4(int index) const
+        inline vec3 get_vec3(int index) const
+        inline vec2 get_vec2(int index) const
+
+        inline matrix[glm_mat_type] operator-()
+
+        inline matrix[glm_mat_type] operator+(const matrix[glm_mat_type]& other)
+
+        inline matrix[glm_mat_type] operator+(const float& other)
+
+        inline matrix[glm_mat_type] operator-(const matrix[glm_mat_type]& other)
+
+        inline matrix[glm_mat_type] operator-(const float& other)
+
+        inline matrix[glm_mat_type] operator*(const matrix[glm_mat_type]& other)
+
+        inline vec2 operator*(const vec2& other)
+
+        inline vec2 mul_3x2(const vec3& other)
+
+        inline vec2 mul_4x2(const vec4& other)
+
+        inline vec3 operator*(const vec3& other)
+
+        inline vec3 mul_4x3(const vec4& other)
+
+        inline vec3 mul_2x3(const vec2& other)
+
+        inline vec4 operator*(const vec4& other)
+
+        inline matrix[glm_mat_type] operator*(const float& other)
+
+        inline matrix[glm_mat_type] operator/(const matrix[glm_mat_type]& other)
+
+        inline matrix[glm_mat_type] operator/(const float& other)
+
+        inline matrix[glm_mat_type] translate(const vec3& vec)
+
+        inline matrix[glm_mat_type] translate(vec3 * vec)
+
+        inline matrix[glm_mat_type] scale(const vec3& vec)
+
+        inline matrix[glm_mat_type] scale(vec3 * vec)
+
+        inline matrix[glm_mat_type] scale(const vec2& vec)
+
+        inline matrix[glm_mat_type] scale(vec2 * vec)
+
+        inline matrix[glm_mat_type] inverse()
+
+        inline float determinant()
+
+        quaternion to_quaternion()
+
+ctypedef matrix[glmmat2x2] matrix2x2
+
+ctypedef matrix[glmmat2x3] matrix2x3
+
+ctypedef matrix[glmmat2x4] matrix2x4
+
+ctypedef matrix[glmmat3x2] matrix3x2
+
+ctypedef matrix[glmmat3x3] matrix3x3
+
+ctypedef matrix[glmmat3x4] matrix3x4
+
+ctypedef matrix[glmmat4x2] matrix4x2
+
+ctypedef matrix[glmmat4x3] matrix4x3
+
+ctypedef matrix[glmmat4x4] matrix4x4
+
 cdef extern from "../src/Vec4.h":
     cdef cppclass glmvec4:
         float x,y,z,w
@@ -324,9 +449,9 @@ cdef extern from "../src/Vec4.h":
 
         vec4 operator*(quaternion& other)
 
-        matrix2x3 outer_product(const vec2&)
-        matrix3x3 outer_product(const vec3&)
-        matrix4x3 outer_product(const vec4&)
+        matrix2x4 outer_product(const vec2&)
+        matrix3x4 outer_product(const vec3&)
+        matrix4x4 outer_product(const vec4&)
         
         vec3 to_vec3()
         vec2 to_vec2()
@@ -483,6 +608,10 @@ cdef extern from "../src/Vec2.h":
         float to_angle()
         @staticmethod
         vec2 from_angle(float angle)
+
+        matrix2x2 outer_product(const vec2&)
+        matrix3x2 outer_product(const vec3&)
+        matrix4x2 outer_product(const vec4&)
 
 
 cdef class Vec2:
@@ -1003,124 +1132,106 @@ cdef class Collider:
 cdef class BoxCollider(Collider):
     pass
 
+# MAT TYPES ------------------------------------------------------------------------------------
 
-cdef extern from "../src/Matrix.h":
-    cdef cppclass mat_ret_deduce[T]:
-        pass
+# 4x4
 
-    cdef cppclass glmmat2x2:
-        pass
+cdef class Matrix4x4:
 
-    cdef cppclass glmmat2x3:
-        pass
+    cdef matrix[glmmat4x4]* c_class
 
-    cdef cppclass glmmat2x4:
-        pass
+    cpdef Matrix4x4 inverse(self)
 
-    cdef cppclass glmmat3x2:
-        pass
+    cpdef float determinant(self)
 
-    cdef cppclass glmmat3x3:
-        pass
+    cpdef Quaternion to_quaternion(self)
 
-    cdef cppclass glmmat3x4:
-        pass
+    cpdef Vec3 get_up(self)
+    
+    cpdef Vec3 get_right(self)
 
-    cdef cppclass glmmat4x2:
-        pass
+    cpdef Vec3 get_forward(self)
 
-    cdef cppclass glmmat4x3:
-        pass
 
-    cdef cppclass glmmat4x4:
-        pass
+cdef Matrix4x4 mat4x4_from_cpp(matrix[glmmat4x4] cppinst)
 
-    cdef cppclass matrix[glm_mat_type]:
-        matrix() except *
-        matrix(float value) except *
-        matrix(float, float, float, float) except *
-        matrix(float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) except *
-        matrix(const quaternion& quat) except *
-        matrix(quaternion * quat) except *
-        matrix(const glm_mat_type& glm_mat) except *
+# 3x4
 
-        glm_mat_type mat
+cdef class Matrix3x4:
 
-        vec3 get_up()
+    cdef matrix[glmmat3x4]* c_class
 
-        vec3 get_right()
+cdef Matrix3x4 mat3x4_from_cpp(matrix[glmmat3x4] cppinst)
 
-        vec3 get_forward()
+# 2x4
 
-        inline vec2 operator[](int index) const
-        inline vec3 operator[](int index) const
-        inline vec4 operator[](int index) const
+cdef class Matrix2x4:
 
-        inline matrix[glm_mat_type] operator-()
+    cdef matrix[glmmat2x4]* c_class
 
-        inline matrix[glm_mat_type] operator+(const matrix[glm_mat_type]& other)
+cdef Matrix2x4 mat2x4_from_cpp(matrix[glmmat2x4] cppinst)
 
-        inline matrix[glm_mat_type] operator+(const float& other)
+# 3x3
 
-        inline matrix[glm_mat_type] operator-(const matrix[glm_mat_type]& other)
+cdef class Matrix3x3:
 
-        inline matrix[glm_mat_type] operator-(const float& other)
+    cdef matrix[glmmat3x3]* c_class
 
-        inline matrix[glm_mat_type] operator*(const matrix[glm_mat_type]& other)
+    cpdef Matrix3x3 inverse(self)
 
-        inline vec2 operator*(const vec2& other)
+    cpdef float determinant(self)
 
-        inline vec3 operator*(const vec3& other)
+    cpdef Quaternion to_quaternion(self)
 
-        inline vec4 operator*(const vec4& other)
+    cpdef Vec3 get_up(self)
+    
+    cpdef Vec3 get_right(self)
 
-        inline matrix[glm_mat_type] operator*(const float& other)
+    cpdef Vec3 get_forward(self)
 
-        inline matrix[glm_mat_type] operator/(const matrix[glm_mat_type]& other)
 
-        inline matrix[glm_mat_type] operator/(const float& other)
+cdef Matrix3x3 mat3x3_from_cpp(matrix[glmmat3x3] cppinst)
 
-        inline float get_magnitude()
+# 4x3
 
-        inline matrix[glm_mat_type] get_normalized()
+cdef class Matrix4x3:
 
-        inline float distance(const matrix[glm_mat_type]& other)
+    cdef matrix[glmmat4x3]* c_class
 
-        inline matrix[glm_mat_type] translate(const vec3& vec)
+cdef Matrix4x3 mat4x3_from_cpp(matrix[glmmat4x3] cppinst)
 
-        inline matrix[glm_mat_type] translate(vec3 * vec)
+# 2x3
 
-        inline matrix[glm_mat_type] scale(const vec3& vec)
+cdef class Matrix2x3:
 
-        inline matrix[glm_mat_type] scale(vec3 * vec)
+    cdef matrix[glmmat2x3]* c_class
 
-        inline matrix[glm_mat_type] inverse()
+cdef Matrix2x3 mat2x3_from_cpp(matrix[glmmat2x3] cppinst)
 
-        inline float determinant()
+# 2x2
 
-        quaternion to_quaternion()
+cdef class Matrix2x2:
 
-    cdef cppclass matrix2x2:
-        pass
-    cdef cppclass matrix2x3:
-        pass
-    cdef cppclass matrix2x4:
-        pass
+    cdef matrix[glmmat2x2]* c_class
 
-    cdef cppclass matrix3x2:
-        pass
-    cdef cppclass matrix3x3:
-        pass
-    cdef cppclass matrix3x4:
-        pass
+    cpdef Matrix2x2 inverse(self)
 
-    cdef cppclass matrix4x2:
-        pass
-    cdef cppclass matrix4x3:
-        pass
-    cdef cppclass matrix4x4:
-        pass
+    cpdef float determinant(self)
+
+cdef Matrix2x2 mat2x2_from_cpp(matrix[glmmat2x2] cppinst)
+
+# 3x2
+
+cdef class Matrix3x2:
+
+    cdef matrix[glmmat3x2]* c_class
+
+cdef Matrix3x2 mat3x2_from_cpp(matrix[glmmat3x2] cppinst)
+
+# 4x2
+
+cdef class Matrix4x2:
+
+    cdef matrix[glmmat4x2]* c_class
+
+cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst)

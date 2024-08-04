@@ -224,6 +224,132 @@ class Shader:
     @classmethod
     def from_file(cls, filepath:str, type:ShaderType) -> Shader:...
 
+class Vec4:
+    """
+    A 4 float datastructure used to represent positional data, colors, or whatever you may need it for.
+    Contains useful linear algebra operators and functions.
+    """
+
+    def __init__(self, x:float, y:float, z:float, w:float) -> None:
+        ...
+
+    def __copy__(self) -> Quaternion:
+        """
+        Copies the :class:`Vec4` .
+        """
+
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the :class:`Vec4` .
+        """
+
+    def __neg__(self) -> Vec4:
+        """
+        Negates the :class:`Vec4` .
+        """
+
+    @property
+    def x(self) -> float:
+        """
+        The x component :class:`Vec4` .
+        """
+
+    @x.setter
+    def x(self, value:float):
+        """
+        The x component :class:`Vec4` .
+        """
+
+    @property
+    def y(self) -> float:
+        """
+        The y component :class:`Vec4` .
+        """
+
+    @y.setter
+    def y(self, value:float):
+        """
+        The y component :class:`Vec4` .
+        """
+
+    @property
+    def z(self) -> float:
+        """
+        The z component :class:`Vec4` .
+        """
+
+    @z.setter
+    def z(self, value:float):
+        """
+        The z component :class:`Vec4` .
+        """
+
+    @property
+    def w(self) -> float:
+        """
+        The w component :class:`Vec4` .
+        """
+
+    @w.setter
+    def w(self, value:float):
+        """
+        The w component :class:`Vec4` .
+        """
+
+
+    # OPERATORS
+
+    def __add__(self, other:Vec4 | float) -> Vec4:
+        """
+        Adds the :class:`Vec4` .
+        """
+
+    def __sub__(self, other:Vec4 | float) -> Vec4:
+        """
+        Subtracts the :class:`Vec4` .
+        """
+
+    def __mul__(self, other:Vec4 | float | Quaternion) -> Vec4:
+        """
+        Multiplies the :class:`Vec4` .
+        """
+
+    def __truediv__(self, other:Vec4 | float) -> Vec4:
+        """
+        Divides the two :class:`Vec4` s.
+        """
+
+    def dot(self, other:Vec4) -> float:
+        """
+        Returns the dot product of the two :class:`Vec4` s.
+        """
+
+    def get_magnitude(self) -> float:
+        """
+        Returns the magnitude of the :class:`Vec4` .
+        """
+
+    def  get_normalized(self) -> Vec4:
+        """
+        Returns the normalized :class:`Vec4` .
+        """
+
+
+    def to_vec3(self) -> Vec3:
+        """
+        Converts the :class:`Vec4` to a :class:`Vec3` using its x, y and z components.
+        """
+
+    def to_vec2(self) -> Vec2:
+        """
+        Converts the :class:`Vec4` to a :class:`Vec2` using its x and y components.
+        """
+
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x4|Matrix3x4|Matrix4x4:
+        """
+        Calculates the outer product.
+        """
+
 class Vec3:
     """
     A 3 float datastructure used to represent positional data, colors, or whatever you may need it for.
@@ -338,6 +464,11 @@ class Vec3:
         Constructs a :class:`Quaternion` from the given Euler Angle :class:`Vec3` (in radians).
         """
 
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x3|Matrix3x3|Matrix4x3:
+        """
+        Calculates the outer product.
+        """
+
 
 class Vec2:
     """
@@ -416,6 +547,11 @@ class Vec2:
     def from_angle(cls, angle:float) -> Vec2:
         """
         Construct a normalized :class:`Vec2` given an angle.
+        """
+
+    def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x2|Matrix3x2|Matrix4x2:
+        """
+        Calculates the outer product.
         """
 
 
@@ -1392,4 +1528,703 @@ class BoxCollider(Collider):
     def from_object(cls, object: Object3D) -> BoxCollider:
         """
         Constructs an :class:`BoxCollider` from an instance of :class:`Object3D` .
+        """
+
+
+# MATRICES ------------------------------------------------------------------------------------
+
+# MAT4x4
+
+class Matrix4x4:
+    """
+    A 4 by 4 matrix.
+    """
+
+    def __init__(self, x0: float, y0: float, z0: float, w0:float, x1:float,  y1:float,  z1:float,  w1:float,  x2:float,  y2:float,  z2:float,  w2:float,  x3:float,  y3:float,  z3:float,  w3:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix4x4:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    @staticmethod
+    def from_quaternion(quat: Quaternion) -> Matrix4x4:
+        """
+        Converts a :class:`Quaternion` into a :class:`Matrix4x4` .
+        """
+
+    def to_quaternion(self) -> Quaternion:
+        """
+        Converts the :class:`Matrix4x4` into a :class:`Quaternion` .
+        """
+
+    def get_up(self) -> Vec3:
+        """
+        Returns the up :class:`Vec3` of the :class:`Matrix4x4` , assuming that it is being used as a transform.
+        """
+    
+    def get_right(self) -> Vec3:
+        """
+        Returns the right :class:`Vec3` of the :class:`Matrix4x4` , assuming that it is being used as a transform.
+        """
+
+    def get_forward(self) -> Vec3:
+        """
+        Returns the forward :class:`Vec3` of the :class:`Matrix4x4` , assuming that it is being used as a transform.
+        """
+
+    def inverse(self) -> Matrix4x4:
+        """
+        Returns the inverse of the :class:`Matrix4x4` .
+        """
+
+    def determinant(self) -> float:
+        """
+        Returns the determinant of the :class:`Matrix4x4` .
+        """
+
+    def __getitem__(self, index: int) -> Vec4:
+        """
+        Returns `index` th column of the :class:`Matrix4x4` as a :class:`Vec4` .
+        """
+    
+    def __neg__(self) -> Matrix4x4:
+        """
+        Negates the :class:`Matrix4x4` .
+        """
+
+    def __sub__(self, other:Matrix4x4) -> Matrix4x4:
+        """
+        Subtracts the :class:`Matrix4x4` by another :class:`Matrix4x4` .
+        """
+
+    def __sub__(self, other:float) -> Matrix4x4:
+        """
+        Subtracts the :class:`Matrix4x4` by a scalar.
+        """
+
+    def __add__(self, other:Matrix4x4) -> Matrix4x4:
+        """
+        Adds a :class:`Matrix4x4` to the :class:`Matrix4x4` .
+        """
+
+    def __add__(self, other:float) -> Matrix4x4:
+        """
+        Adds a scalar to the :class:`Matrix4x4` .
+        """
+
+    def __mul__(self, other:Matrix4x4) -> Matrix4x4:
+        """
+        Multiplies the :class:`Matrix4x4` by another :class:`Matrix4x4` .
+        """
+
+    def __mul__(self, other:float) -> Matrix4x4:
+        """
+        Multiplies the :class:`Matrix4x4` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec4) -> Vec4:
+        """
+        Multiplies the :class:`Matrix4x4` by a :class:`Vec4` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:Matrix4x4) -> Matrix4x4:
+        """
+        Divides the :class:`Matrix4x4` by another :class:`Matrix4x4` .
+        """
+
+    def __truediv__(self, other:float) -> Matrix4x4:
+        """
+        Divides the :class:`Matrix4x4` by a scalar.
+        """
+
+# MAT3x4
+
+class Matrix3x4:
+    """
+    A 3 by 4 matrix.
+    """
+
+    def __init__(self, x0:float, y0, z0:float, w0:float, x1:float, y1:float, z1:float, w1:float, x2:float, y2:float, z2:float, w2:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix3x4:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec4:
+        """
+        Returns `index` th column of the :class:`Matrix3x4` as a :class:`Vec4` .
+        """
+    
+    def __neg__(self) -> Matrix3x4:
+        """
+        Negates the :class:`Matrix3x4` .
+        """
+
+    def __sub__(self, other:Matrix3x4) -> Matrix3x4:
+        """
+        Subtracts the :class:`Matrix3x4` by another :class:`Matrix3x4` .
+        """
+
+    def __sub__(self, other:float) -> Matrix3x4:
+        """
+        Subtracts the :class:`Matrix3x4` by a scalar.
+        """
+
+    def __add__(self, other:Matrix3x4) -> Matrix3x4:
+        """
+        Adds a :class:`Matrix3x4` to the :class:`Matrix3x4` .
+        """
+
+    def __add__(self, other:float) -> Matrix3x4:
+        """
+        Adds a scalar to the :class:`Matrix3x4` .
+        """
+
+    def __mul__(self, other:float) -> Matrix3x4:
+        """
+        Multiplies the :class:`Matrix3x4` by a scalar .
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec4) -> Vec4:
+        """
+        Multiplies the :class:`Matrix3x4` by a :class:`Vec4` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix3x4:
+        """
+        Divides the :class:`Matrix3x4` by a scalar .
+        """
+
+# MAT2x4
+
+class Matrix2x4:
+    """
+    A 2 by 4 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, z0:float, w0:float, x1:float, y1:float, z1:float, w1:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix2x4:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec4:
+        """
+        Returns `index` th column of the :class:`Matrix2x4` as a :class:`Vec4` .
+        """
+    
+    def __neg__(self) -> Matrix2x4:
+        """
+        Negates the :class:`Matrix2x4` .
+        """
+
+    def __sub__(self, other:Matrix2x4) -> Matrix2x4:
+        """
+        Subtracts the :class:`Matrix2x4` by another :class:`Matrix2x4` .
+        """
+
+    def __sub__(self, other:float) -> Matrix2x4:
+        """
+        Subtracts the :class:`Matrix2x4` by a scalar.
+        """
+
+    def __add__(self, other:Matrix2x4) -> Matrix2x4:
+        """
+        Adds the :class:`Matrix2x4` to another :class:`Matrix2x4` .
+        """
+
+    def __add__(self, other:float) -> Matrix2x4:
+        """
+        Adds a scalar to the :class:`Matrix2x4` .
+        """
+
+    def __mul__(self, other:float) -> Matrix2x4:
+        """
+        Multiplies the :class:`Matrix2x4` by a scalar .
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec4) -> Vec4:
+        """
+        Multiplies the :class:`Matrix2x4` by a :class:`Vec4` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix2x4:
+        """
+        Divides the :class:`Matrix2x4` by a scalar .
+        """
+
+# MAT3x3
+
+class Matrix3x3:
+    """
+    A 3 by 3 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, z0:float, x1:float, y1:float, z1:float, x2:float, y2:float, z2:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix3x3:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def to_quaternion(self) -> Quaternion:
+        """
+        Converts the :class:`Matrix3x3` to a Quaternion.
+        """
+
+    def get_up(self) -> Vec3:
+        """
+        Gets the up :class:`Vec3` of the :class:`Matrix3x3` as a transform matrix.
+        """
+    
+    def get_right(self) -> Vec3:
+        """
+        Gets the right :class:`Vec3` of the :class:`Matrix3x3` as a transform matrix.
+        """
+
+    def get_forward(self) -> Vec3:
+        """
+        Gets the forward :class:`Vec3` of the :class:`Matrix3x3` as a transform matrix.
+        """
+
+    def inverse(self) -> Matrix3x3:
+        """
+        Inverses the :class:`Matrix3x3` .
+        """
+
+    def determinant(self) -> float:
+        """
+        Returns the determinant of the :class:`Matrix3x3` .
+        """
+
+    def __getitem__(self, index:int) -> Vec3:
+        """
+        Returns `index` th column of the :class:`Matrix3x3` as a :class:`Vec3` .
+        """
+    
+    def __neg__(self) -> Matrix3x3:
+        """
+        Negates the :class:`Matrix3x3` .
+        """
+
+    def __sub__(self, other:Matrix3x3) -> Matrix3x3:
+        """
+        Subtracts the :class:`Matrix3x3` by another :class:`Matrix3x3` .
+        """
+
+    def __sub__(self, other:float) -> Matrix3x3:
+        """
+        Subtracts the :class:`Matrix3x3` by a scalar.
+        """
+
+    def __add__(self, other:Matrix3x3) -> Matrix3x3:
+        """
+        Adds a :class:`Matrix3x3` to the :class:`Matrix3x3` .
+        """
+
+    def __add__(self, other:float) -> Matrix3x3:
+        """
+        Adds a scalar to the :class:`Matrix3x3` .
+        """
+
+    def __mul__(self, other:Matrix3x3) -> Matrix3x3:
+        """
+        Multiplies the :class:`Matrix3x3` by a :class:`Matrix3x3` .
+        """
+
+    def __mul__(self, other:float) -> Matrix3x3:
+        """
+        Multiplies the :class:`Matrix3x3` by a scalar
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec3) -> Vec3:
+        """
+        Multiplies the :class:`Matrix3x3` by a :class:`Vec3` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:Matrix3x3) -> Matrix3x3:
+        """
+        Divides the :class:`Matrix3x3` by another :class:`Matrix3x3` .
+        """
+
+    def __truediv__(self, other:float) -> Matrix3x3:
+        """
+        Divides the :class:`Matrix3x3` by a scalar.
+        """
+
+# MAT4x3
+
+class Matrix4x3:
+    """
+    A 4 by 3 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, z0:float, x1:float, y1:float, z1:float, x2:float, y2:float, z2:float, x3:float, y3:float, z3:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix4x3:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec3:
+        """
+        Returns `index` th column of the :class:`Matrix4x3` as a :class:`Vec3` .
+        """
+    
+    def __neg__(self) -> Matrix4x3:
+        """
+        Negates the :class:`Matrix4x3` .
+        """
+
+    def __sub__(self, other:Matrix4x3) -> Matrix4x3:
+        """
+        Subtracts the :class:`Matrix4x3` by a :class:`Matrix4x3` .
+        """
+
+    def __sub__(self, other:float) -> Matrix4x3:
+        """
+        Subtracts the :class:`Matrix4x3` by a scalar.
+        """
+
+    def __add__(self, other:Matrix4x3) -> Matrix4x3:
+        """
+        Adds a :class:`Matrix4x3` to the :class:`Matrix4x3` .
+        """
+
+    def __add__(self, other:float) -> Matrix4x3:
+        """
+        Adds a scalar to the :class:`Matrix4x3` .
+        """
+
+    def __mul__(self, other:float) -> Matrix4x3:
+        """
+        Multiplies the :class:`Matrix4x3` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec4) -> Vec3:
+        """
+        Multiplies the :class:`Matrix4x3` by a :class:`Vec4`
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix4x3:
+        """
+        Divides the :class:`Matrix4x3` by a scalar.
+        """
+
+# MAT2x3
+
+class Matrix2x3:
+    """
+    A 2 by 3 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, z0:float, x1:float, y1:float, z1:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix2x3:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec3:
+        """
+        Returns `index` th column of the :class:`Matrix4x3` as a :class:`Vec3` .
+        """
+    
+    def __neg__(self) -> Matrix2x3:
+        """
+        Negates the :class:`Matrix2x3` .
+        """
+
+    def __sub__(self, other:Matrix2x3) -> Matrix2x3:
+        """
+        Subtracts the :class:`Matrix2x3` by a :class:`Matrix2x3` .
+        """
+
+    def __sub__(self, other:float) -> Matrix2x3:
+        """
+        Subtracts the :class:`Matrix2x3` by a scalar.
+        """
+
+    def __add__(self, other:Matrix2x3) -> Matrix2x3:
+        """
+        Adds a :class:`Matrix2x3` to the :class:`Matrix2x3` .
+        """
+
+    def __add__(self, other:float) -> Matrix2x3:
+        """
+        Adds a scalar to the :class:`Matrix2x3` .
+        """
+
+    def __mul__(self, other:float) -> Matrix2x3:
+        """
+        Multiplies the :class:`Matrix2x3` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec2) -> Vec3:
+        """
+        Multiplies the :class:`Matrix2x3` by a :class:`Vec2` and returns a :class:`Vec3` .
+        """
+
+    def __mul__(self, other:Vec3) -> Vec3:
+        """
+        Multiplies the :class:`Matrix2x3` by a :class:`Vec3` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix2x3:
+        """
+        Divides the :class:`Matrix2x3` by a scalar.
+        """
+
+# MAT2x2
+
+class Matrix2x2:
+    """
+    A 2 by 2 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, x1:float, y1:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix2x2:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def inverse(self) -> Matrix2x2:
+        """
+        Inverses the :class:`Matrix2x2` .
+        """
+
+    def determinant(self) -> float:
+        """
+        Returns the determinant of the :class:`Matrix2x2` .
+        """
+
+    def __getitem__(self, index:int) -> Vec2:
+        """
+        Returns `index` th column of the :class:`Matrix2x2` as a :class:`Vec2` .
+        """
+    
+    def __neg__(self) -> Matrix2x2:
+        """
+        Negates the :class:`Matrix2x2` .
+        """
+
+    def __sub__(self, other:Matrix2x2) -> Matrix2x2:
+        """
+        Subtracts the :class:`Matrix2x2` by another :class:`Matrix2x2` .
+        """
+
+    def __sub__(self, other:float) -> Matrix2x2:
+        """
+        Subtracts the :class:`Matrix2x2` by a scalar.
+        """
+
+    def __add__(self, other:Matrix2x2) -> Matrix2x2:
+        """
+        Adds a :class:`Matrix2x2` to the :class:`Matrix2x2` .
+        """
+
+    def __add__(self, other:float) -> Matrix2x2:
+        """
+        Adds a scalar to the :class:`Matrix2x2` .
+        """
+
+    def __mul__(self, other:Matrix2x2) -> Matrix2x2:
+        """
+        Multiplies the :class:`Matrix2x2` by a :class:`Matrix2x2` .
+        """
+
+    def __mul__(self, other:float) -> Matrix2x2:
+        """
+        Multiplies the :class:`Matrix2x2` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec2) -> Vec2:
+        """
+        Multiplies the :class:`Matrix2x2` by a :class:`Vec2` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:Matrix2x2) -> Matrix2x2:
+        """
+        Divides the :class:`Matrix2x2` by a :class:`Matrix2x2` .
+        """
+
+    def __truediv__(self, other:float) -> Matrix2x2:
+        """
+        Divides the :class:`Matrix2x2` by a scalar.
+        """
+
+# MAT3x2
+
+class Matrix3x2:
+    """
+    A 3 by 2 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, x1:float, y1:float, x2:float, y2:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix3x2:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec2:
+        """
+        Returns `index` th column of the :class:`Matrix3x2` as a :class:`Vec2` .
+        """
+    
+    def __neg__(self) -> Matrix3x2:
+        """
+        Negates the :class:`Matrix3x2` .
+        """
+
+    def __sub__(self, other:Matrix3x2) -> Matrix3x2:
+        """
+        Subtracts a :class:`Matrix3x2` from the :class:`Matrix3x2` .
+        """
+
+    def __sub__(self, other:float) -> Matrix3x2:
+        """
+        Subtracts the :class:`Matrix3x2` by a scalar.
+        """
+
+    def __add__(self, other:Matrix3x2) -> Matrix3x2:
+        """
+        Adds a :class:`Matrix3x2` to the :class:`Matrix3x2` .
+        """
+
+    def __add__(self, other:float) -> Matrix3x2:
+        """
+        Adds a scalar to the :class:`Matrix3x2` .
+        """
+
+    def __mul__(self, other:float) -> Matrix3x2:
+        """
+        Multiplies the :class:`Matrix3x2` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec3) -> Vec2:
+        """
+        Multiplies the :class:`Matrix3x2` by a :class:`Vec3` and returns a :class:`Vec2` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix3x2:
+        """
+        Divides the :class:`Matrix3x2` by a scalar.
+        """
+
+# MAT4x2
+
+class Matrix4x2:
+    """
+    A 4 by 2 matrix.
+    """
+
+    def __init__(self, x0:float, y0:float, x1:float, y1:float, x2:float, y2:float, x3:float, y3:float) -> None:
+        ...
+
+    @staticmethod
+    def from_unit(value:float) -> Matrix4x2:
+        """
+        Creates a unit matrix filled with `value`.
+        """
+
+    def __getitem__(self, index:int) -> Vec2:
+        """
+        Returns `index` th column of the :class:`Matrix4x2` as a :class:`Vec2` .
+        """
+    
+    def __neg__(self) -> Matrix4x2:
+        """
+        Negates the :class:`Matrix4x2` .
+        """
+
+    def __sub__(self, other:Matrix4x2) -> Matrix4x2:
+        """
+        Subtracts the :class:`Matrix4x2` by a :class:`Matrix4x2` .
+        """
+
+    def __sub__(self, other:float) -> Matrix4x2:
+        """
+        Subtracts the :class:`Matrix4x2` by a scalar.
+        """
+
+    def __add__(self, other:Matrix4x2) -> Matrix4x2:
+        """
+        Adds a :class:`Matrix4x2` to the :class:`Matrix4x2` .
+        """
+
+    def __add__(self, other:float) -> Matrix4x2:
+        """
+        Adds a scalar to the :class:`Matrix4x2` .
+        """
+
+    def __mul__(self, other:float) -> Matrix4x2:
+        """
+        Multiplies the :class:`Matrix4x2` by a scalar.
+        """
+    
+    # vec mul:
+
+    def __mul__(self, other:Vec4) -> Vec2:
+        """
+        Multiplies the :class:`Matrix4x2` by a :class:`Vec4` and returns a :class:`Vec2` .
+        """
+
+    # end vec mul
+
+    def __truediv__(self, other:float) -> Matrix4x2:
+        """
+        Divides the :class:`Matrix4x2` by a scalar.
         """
