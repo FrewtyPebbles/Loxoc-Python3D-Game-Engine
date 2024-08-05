@@ -103,11 +103,11 @@ void window::update() {
         ob->render(*this->cam, this);
     }
     
-    glDepthMask(GL_FALSE);// Make this per sprite based on wether the sprite is marked as translucent
+    glDepthMask(GL_FALSE);// TODO Make this per sprite based on wether the sprite is marked as translucent
     for (object2d* ob : render_list2d) {
         ob->render(*this->cam);
     }
-    glDepthMask(GL_TRUE);// Make this per sprite based on wether the sprite is marked as translucent
+    glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
 
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();
