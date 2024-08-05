@@ -320,21 +320,7 @@ cdef class Object3D:
 
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
-        cdef:
-            vector[float] uni_vec
-            uniform_type valu
-
-        if isinstance(value, float):
-            valu = <float>value
-            self.c_class.set_uniform(name, valu, type)
-        elif isinstance(value, int):
-            valu = <int>value
-            self.c_class.set_uniform(name.encode(), valu, type.encode())
-        else:
-            for val in value:
-                uni_vec.push_back(val)
-            valu = uni_vec
-            self.c_class.set_uniform(name, valu, type)
+        _set_uniform(self, name, value, type)
 
 
 ctypedef shader* shader_ptr
@@ -1290,6 +1276,8 @@ cpdef Sprite sprite_from_texture(Texture tex):
     ret.c_class.tex = tex.c_class
     return ret
 
+ctypedef object2d* obj2d_ptr
+
 cdef class Object2D:
     def __init__(self, Sprite sprite, Vec2 position = Vec2(0.0,0.0),
     float rotation = 0.0, Vec2 scale = Vec2(1.0, 1.0),
@@ -1342,21 +1330,7 @@ cdef class Object2D:
 
 
     cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
-        cdef:
-            vector[float] uni_vec
-            uniform_type valu
-
-        if isinstance(value, float):
-            valu = <float>value
-            self.c_class.set_uniform(name.encode(), valu, type.encode())
-        elif isinstance(value, int):
-            valu = <int>value
-            self.c_class.set_uniform(name.encode(), valu, type.encode())
-        else:
-            for val in value:
-                uni_vec.push_back(val)
-            valu = uni_vec
-            self.c_class.set_uniform(name.encode(), valu, type.encode())
+        _set_uniform(self, name, value, type)
 
 cdef class PointLight:
     def __init__(self, Vec3 position, float radius, Vec3 color, float intensity = 1.0) -> None:
@@ -2229,3 +2203,42 @@ cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst):
     cdef Matrix4x2 ret = Matrix4x2.__new__(Matrix4x2)
     ret.c_class = new matrix[glmmat4x2](cppinst)
     return ret
+
+cdef void _set_uniform(obj: Object2D|Object3D, str name, value:list[float] | int | float, str type):
+    cdef:
+        vector[float] uni_vec
+        uniform_type valu
+        Object3D o3
+        Object2D o2
+    if isinstance(value, float):
+        valu = <float>value
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu, type)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu, type)
+    elif isinstance(value, int):
+        valu = <int>value
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu, type)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu, type)
+    else:
+        for val in value:
+            uni_vec.push_back(val)
+        valu = uni_vec
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu, type)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu, type)
+
+cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value, str type):
+    obj.set_uniform(name, value, type)
+
+cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value, str type):
+    obj.set_uniform(name, value, type)

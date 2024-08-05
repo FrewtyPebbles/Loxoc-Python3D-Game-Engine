@@ -14,7 +14,7 @@
 using std::string;
 using std::map;
 
-typedef std::variant<
+typedef std::variant< // switch to wrapper types
     glm::vec2,
     glm::vec3,
     glm::vec4,

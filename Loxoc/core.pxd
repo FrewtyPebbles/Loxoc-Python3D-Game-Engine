@@ -1235,3 +1235,9 @@ cdef class Matrix4x2:
     cdef matrix[glmmat4x2]* c_class
 
 cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst)
+
+cdef void _set_uniform(obj: Object2D|Object3D, str name, value:list[float] | int | float, str type)
+
+cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value, str type)
+
+cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value, str type)
