@@ -29,7 +29,9 @@ import time
 from Loxoc import (
     Vec3, Camera, Mesh, Object3D, Window, EVENT_FLAG,
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
-    Texture, Sprite, Object2D, Vec2, PointLight
+    Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
+    DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
+    Vec4
 )
 import math
 from copy import copy
@@ -40,7 +42,7 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.2,0.2,0.2))
+window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.1,0.1,0.1))
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -61,31 +63,37 @@ default_material = Material()
 
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 
+
+
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
 
 car = Object3D(car_meshes,
-    Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100), material=default_material)
+    Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
 
 car2 = Object3D(car_meshes,
-    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100), material=default_material)
+    Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100))
 
 teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
-    Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000), material=default_material)
+    Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000))
 
 cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
-    Vec3(0,0,0), Vec3(0,0,0), Vec3(20,20,20), material=default_material)
+    Vec3(100,0,0), Vec3(0,0,0), Vec3(20,20,20))
 
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
-    Vec3(-100,0,300), Vec3(0,10,0), material=default_material)
+    Vec3(-100,0,300), Vec3(0,10,0))
 
-test_light = PointLight(Vec3(0,0,0), 500.0, Vec3(1,1,1))
-test_light2 = PointLight(Vec3(20,0,0), 500.0, Vec3(0,0,2))
+test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1), 2.5)
+test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2), 3)
+
+dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
+
+spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
 
 window.add_object_list([
     car,
-    car2,
+    # car2,
     teapot,
     cube,
     pirate_ship
@@ -100,7 +108,21 @@ window.add_point_light_list([
     test_light2
 ])
 
+window.add_directional_light_list([
+    # dir_light
+])
+
+window.add_spot_light_list([
+    spot_light
+])
+
 window.lock_mouse(True)
+
+car_collider = BoxCollider.from_object(car)
+car.add_collider(car_collider)
+
+pirate_ship_collider = BoxCollider.from_object(pirate_ship)
+pirate_ship.add_collider(pirate_ship_collider)
 
 vel_yaw = 0.0
 vel = 0.0
@@ -109,16 +131,20 @@ accel = 5
 cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
-counter = 0
-counter_speed = 1
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
     if window.dt > 0:
         print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
     else:
         print("FRAMERATE: inf fps")
     
-    doomguy.position.x = math.sin(window.time/1000000000)
-    doomguy.position.y = math.cos(window.time/1000000000)
+    if car.check_collision(pirate_ship):
+        mat = Mat4.from_unit(1.0)
+        mat2 = Mat4.from_quaternion(Quaternion.from_euler(Vec3(0, math.radians(30 * window.dt), 0)))
+        mat *= mat2
+        pirate_ship.rotation = (Mat4.from_quaternion(pirate_ship.rotation) * mat).to_quaternion()
+
+    doomguy.position.x = math.sin(window.time_ns/1000000000)
+    doomguy.position.y = math.cos(window.time_ns/1000000000)
     
     # Use WASD keys.
     if window.event.get_flag(EVENT_FLAG.KEY_d) == EVENT_STATE.PRESSED:
@@ -134,12 +160,13 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         # FORWARD
         vel += accel
     # apply a quaternion rotation arround the vector vec3(1,1,0)
-    teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(counter))
+    teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(window.time_ns/10000000))
 
-    test_light.position = car.position
-    test_light.position.y += 200
+    # test_light.position = car.position
+    # test_light.position.y += 200
     
     # Clamp and rotate, then apply friction.
+
     vel_yaw = min(max(vel_yaw, -100), 100) if abs(vel_yaw) > frict else 0
     car.rotation.rotate_yaw(vel_yaw/magic_turn_dampener * window.dt)
     vel_yaw -= math.copysign(frict, vel_yaw)
@@ -169,10 +196,12 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
     camera.position = car.position - camera.rotation.forward * cam_dist
 
+    spot_light.position = car.position + Vec3(0,60,0)
+    spot_light.rotation = car.rotation
+
     # Re-render the scene.
     window.update()
     # This also refreshes window.current_event.
-    counter += counter_speed
 ```
 
 Then when we run it, it looks something like this:
@@ -215,12 +244,6 @@ And voila!  Your 3D assets are now imported and ready to be used in objects and 
  - Add `from_raw` constructor to mesh to make procedural meshes possible.
 
  - Add window/fullscreen scaling.
-
- - Add Matrix datastructures for GLM.
-
- - Add `Quaternion` type to `set_uniform`
-
- - Add `PointLight` class
 
 # Future Plans:
 
