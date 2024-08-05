@@ -3,8 +3,16 @@
 Quick Start
 ===========
 
+
 How |engine_name| Works
 -----------------------
+
+Before we get started, lets install the |engine_name| engine.  This is as easy as:
+
+.. code-block::
+
+    pip install Loxoc
+
 
 |engine_name| is a very straight forward and easy to use game engine.
 If you have used game engines like `Pygame <https://www.pygame.org>`_ 
