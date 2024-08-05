@@ -4,6 +4,10 @@ from typing import Generator
 UniformValueType = int | float | Matrix2x2 | Matrix2x3 | Matrix2x4 | Matrix3x2 | Matrix3x3 | Matrix3x4 | Matrix4x2 | Matrix4x3 | Matrix4x4 | Vec2 | Vec3 | Vec4
 """
 The types able to be sent to shaders via Uniforms.
+
+Includes:
+
+`int` , `float` , :class:`Matrix2x2` , :class:`Matrix2x3` , :class:`Matrix2x4` , :class:`Matrix3x2` , :class:`Matrix3x3` , :class:`Matrix3x4` , :class:`Matrix4x2` , :class:`Matrix4x3` , :class:`Matrix4x4` , :class:`Vec2` , :class:`Vec3` , :class:`Vec4`
 """
 
 class ShaderType(Enum):
