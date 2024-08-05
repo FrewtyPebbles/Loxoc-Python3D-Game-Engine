@@ -41,6 +41,7 @@ car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
+doomguy2 = Object2D(spr_doomguy, position=Vec2(0.5,0.5), scale=Vec2(0.3, 0.3))
 
 car = Object3D(car_meshes,
     Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
@@ -73,7 +74,8 @@ window.add_object_list([
 ])
 
 window.add_object2d_list([
-    doomguy
+    doomguy,
+    doomguy2,
 ])
 
 window.add_point_light_list([
