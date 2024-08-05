@@ -60,7 +60,7 @@ public:
     // Operators
 
     template<typename mat_type = glm_mat_type>
-    inline auto operator[](int index) const -> typename mat_ret_deduce<mat_type> {
+    inline auto operator[](int index) const -> mat_ret_deduce<mat_type> {
         return mat[index];
     }
 
