@@ -6,9 +6,9 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void object2d::set_uniform(string name, uniform_type value, string type) {
+void object2d::set_uniform(string name, uniform_type value) {
     int loc = glGetUniformLocation(this->mat->data->shader_program, name.c_str());
-    this->inner_set_uniform(loc, name, value, type);
+    this->inner_set_uniform(loc, value);
 }
 
 void object2d::render(camera& camera) {

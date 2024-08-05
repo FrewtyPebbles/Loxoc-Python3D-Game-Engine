@@ -4,6 +4,8 @@ from libcpp.string cimport string
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 
+
+
 cdef extern from "<variant>" namespace "std" nogil:
     cdef cppclass variant:
         variant& operator=(variant&)
@@ -108,7 +110,7 @@ cdef extern from "../src/Material.h":
     cdef cppclass material:
         material() except *
         material(RC[shader*]* vertex, RC[shader*]* fragment) except *
-        void set_uniform(string name, uniform_type value, string type) except *
+        void set_uniform(string name, uniform_type value) except *
         void register_uniforms() except *
         void link_shaders() except *
         void use_material() except *
@@ -129,7 +131,7 @@ cdef class Material:
     cdef public Texture diffuse_texture
     cdef public Texture specular_texture
     cdef public Texture normals_texture
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
+    cpdef void set_uniform(self, str name, value:UniformValueType)
 
     @staticmethod
     cdef Material from_cpp(RC[material*]* cppinst)
@@ -729,11 +731,13 @@ cdef extern from "../src/Object3d.h":
 
         vector[vec3] get_rotation(vector[vec3] vertexes)
 
-        void set_uniform(string name, uniform_type value, string type)
+        void set_uniform(string name, uniform_type value)
 
         inline bint check_collision_point(vec3 point)
 
         inline bint check_collision_object(object3d* obj)
+
+        inline matrix4x4 get_model_matrix()
 
 
 cdef class Object3D:
@@ -744,9 +748,11 @@ cdef class Object3D:
         Vec3 _position, _scale
         Quaternion _rotation
     
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
+    cpdef void set_uniform(self, str name, value:UniformValueType)
     cpdef void add_collider(self, Collider collider)
     cpdef void remove_collider(self, Collider collider)
+
+    cpdef Matrix4x4 get_model_matrix(self)
 
 cdef extern from "../src/Camera.h":
 
@@ -1088,7 +1094,7 @@ cdef extern from "../src/Object2d.h":
         vec2* scale
         material* mat
 
-        void set_uniform(string name, uniform_type value, string type)
+        void set_uniform(string name, uniform_type value)
 
 cdef class Object2D:
     cdef:
@@ -1097,7 +1103,7 @@ cdef class Object2D:
         public Material material
         Vec2 _position, _scale
     
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type)
+    cpdef void set_uniform(self, str name, value:UniformValueType)
 
 cpdef Sprite sprite_from_texture(Texture tex)
 
@@ -1236,8 +1242,14 @@ cdef class Matrix4x2:
 
 cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst)
 
-cdef void _set_uniform(obj: Object2D|Object3D, str name, value:list[float] | int | float, str type)
+# SET UNIFORM FUNCTIONS
 
-cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value, str type)
+UniformValueType = int | float | Matrix2x2 | Matrix2x3 | Matrix2x4 | Matrix3x2 | Matrix3x3 | Matrix3x4 | Matrix4x2 | Matrix4x3 | Matrix4x4 | Vec2 | Vec3 | Vec4
 
-cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value, str type)
+cdef void _set_uniform(obj: Object2D|Object3D|Material, str name, value:UniformValueType)
+
+cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value)
+
+cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value)
+
+cdef void _set_uniform_helpermaterial(material* obj, str name, uniform_type value)

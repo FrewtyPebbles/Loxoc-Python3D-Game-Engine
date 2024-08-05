@@ -38,7 +38,7 @@ public:
     octree<RC<collider*>*>* all_colliders;
     matrix4x4 model_matrix = get_model_matrix();
 
-    void set_uniform(string name, uniform_type value, string type);
+    void set_uniform(string name, uniform_type value);
 
     void render(camera& camera, window* window);
 

@@ -197,7 +197,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
     }
 }
 
-void object3d::set_uniform(string name, uniform_type value, string type) {
+void object3d::set_uniform(string name, uniform_type value) {
     int loc = glGetUniformLocation(this->mat->data->shader_program, name.c_str());
-    this->inner_set_uniform(loc, name, value, type);
+    this->inner_set_uniform(loc, value);
 }

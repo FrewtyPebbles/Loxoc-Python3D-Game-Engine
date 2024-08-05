@@ -8,28 +8,31 @@
 #include <string>
 #include <vector>
 #include "RC.h"
+#include "Vec2.h"
 #include "Vec3.h"
+#include "Vec4.h"
+#include "Matrix.h"
 #include "Texture.h"
 
 using std::string;
 using std::map;
 
 typedef std::variant< // switch to wrapper types
-    glm::vec2,
-    glm::vec3,
-    glm::vec4,
+    vec2,
+    vec3,
+    vec4,
     GLfloat,
     GLint,
     GLuint,
-    glm::mat2,
-    glm::mat3,
-    glm::mat4,
-    glm::mat2x3,
-    glm::mat3x2,
-    glm::mat2x4,
-    glm::mat4x2,
-    glm::mat3x4,
-    glm::mat4x3,
+    matrix2x2,
+    matrix3x3,
+    matrix4x4,
+    matrix2x3,
+    matrix3x2,
+    matrix2x4,
+    matrix4x2,
+    matrix3x4,
+    matrix4x3,
     glm::quat,
     std::vector<float>
 > uniform_type;
@@ -40,7 +43,7 @@ public:
     
     void register_uniforms();
 protected:
-    void inner_set_uniform(int loc, string name, uniform_type value, string type);
+    void inner_set_uniform(int loc, uniform_type value);
 };
 
 typedef RC<texture*>* rc_texture;
@@ -56,7 +59,7 @@ public:
     }
 
     ~material(){}
-    void set_uniform(string name, uniform_type value, string type);
+    void set_uniform(string name, uniform_type value);
     void link_shaders();
 
     // calls use shader program

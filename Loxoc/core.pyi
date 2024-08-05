@@ -1,6 +1,10 @@
 from enum import Enum
 from typing import Generator
 
+UniformValueType = int | float | Matrix2x2 | Matrix2x3 | Matrix2x4 | Matrix3x2 | Matrix3x3 | Matrix3x4 | Matrix4x2 | Matrix4x3 | Matrix4x4 | Vec2 | Vec3 | Vec4
+"""
+The types able to be sent to shaders via Uniforms.
+"""
 
 class ShaderType(Enum):
     """
@@ -139,7 +143,7 @@ class Material:
     """
     def __init__(self, vertex:Shader = None, fragment:Shader = None) -> None:...
 
-    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:
+    def set_uniform(self, name:str, value:UniformValueType) ->None:
         """
         Sets the value of a uniform for the shaders in the material.
         """
@@ -171,6 +175,11 @@ class Object3D:
     def check_collision(self, intersection: Vec3 | Object3D) -> bool:
         """
         Checks for a collision between this :class:`Object3D` and another :class:`Object3D` or :class:`Vec3` .
+        """
+
+    def get_model_matrix(self) -> Matrix4x4:
+        """
+        Returns an instance of the model matrix as a :class:`Matrix4x4` .
         """
 
     @property
@@ -209,7 +218,7 @@ class Object3D:
         The scale of the object as a :class:`Vec3`.
         """
 
-    def set_uniform(self, name:str, value:list[float] | int | float, type:str) ->None:
+    def set_uniform(self, name:str, value: UniformValueType) ->None:
         """
         Sets the value of a uniform for the :class:`Shader` s in the object's :class:`Material`.
         """
@@ -1263,7 +1272,7 @@ class Object2D:
     def scale(self, value:Vec2) -> None:...
 
 
-    def set_uniform(self, name:str, value:list[float] | int | float, type:str) -> None:
+    def set_uniform(self, name:str, value:UniformValueType) ->None:
         """
         Sets the value of a uniform for the shaders in the :class:`Object2D` 's :class:`Material`.
         """

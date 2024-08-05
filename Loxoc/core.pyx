@@ -257,6 +257,9 @@ cdef class Object3D:
             else:
                 self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
 
+    cpdef Matrix4x4 get_model_matrix(self):
+        return mat4x4_from_cpp(self.c_class.get_model_matrix())
+
     cpdef void add_collider(self, Collider collider):
         collider.c_class.inc()
         self.c_class.colliders.push_back(collider.c_class)
@@ -319,8 +322,8 @@ cdef class Object3D:
         del self.c_class
 
 
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
-        _set_uniform(self, name, value, type)
+    cpdef void set_uniform(self, str name, value:UniformValueType):
+        _set_uniform(self, name, value)
 
 
 ctypedef shader* shader_ptr
@@ -1018,22 +1021,8 @@ cdef class Material:
     def __dealloc__(self):
         RC_collect(self.c_class)
     
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
-        cdef:
-            vector[float] uni_vec
-            uniform_type valu
-
-        if isinstance(value, float):
-            valu = <float>value
-            self.c_class.data.set_uniform(name, valu, type)
-        elif isinstance(value, int):
-            valu = <int>value
-            self.c_class.data.set_uniform(name.encode(), valu, type.encode())
-        else:
-            for val in value:
-                uni_vec.push_back(val)
-            valu = uni_vec
-            self.c_class.data.set_uniform(name, valu, type)
+    cpdef void set_uniform(self, str name, value:UniformValueType):
+        _set_uniform(self, name, value)
 
     @staticmethod
     cdef Material from_cpp(RC[material*]* cppinst):
@@ -1329,8 +1318,8 @@ cdef class Object2D:
         del self.c_class
 
 
-    cpdef void set_uniform(self, str name, value:list[float] | int | float, str type):
-        _set_uniform(self, name, value, type)
+    cpdef void set_uniform(self, str name, value:UniformValueType):
+        _set_uniform(self, name, value)
 
 cdef class PointLight:
     def __init__(self, Vec3 position, float radius, Vec3 color, float intensity = 1.0) -> None:
@@ -2204,41 +2193,215 @@ cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst):
     ret.c_class = new matrix[glmmat4x2](cppinst)
     return ret
 
-cdef void _set_uniform(obj: Object2D|Object3D, str name, value:list[float] | int | float, str type):
+cdef void _set_uniform(obj: Object2D|Object3D|Material, str name, value:UniformValueType):
+    # Eventually move cdefs into their own functions so you are not allocating all of these at once.
     cdef:
-        vector[float] uni_vec
         uniform_type valu
         Object3D o3
         Object2D o2
+        Material mt
+        # Uniform types:
+        Matrix2x2 m2x2
+        Matrix2x3 m2x3
+        Matrix2x4 m2x4
+        
+        Matrix3x2 m3x2
+        Matrix3x3 m3x3
+        Matrix3x4 m3x4
+
+        Matrix4x2 m4x2
+        Matrix4x3 m4x3
+        Matrix4x4 m4x4
+
+        Vec2 v2
+        Vec3 v3
+        Vec4 v4
+
     if isinstance(value, float):
         valu = <float>value
         if isinstance(obj, Object2D):
             o2 = obj
-            _set_uniform_helper2d(o2.c_class, name, valu, type)
+            _set_uniform_helper2d(o2.c_class, name, valu)
         elif isinstance(obj, Object3D):
             o3 = obj
-            _set_uniform_helper3d(o3.c_class, name, valu, type)
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
     elif isinstance(value, int):
         valu = <int>value
         if isinstance(obj, Object2D):
             o2 = obj
-            _set_uniform_helper2d(o2.c_class, name, valu, type)
+            _set_uniform_helper2d(o2.c_class, name, valu)
         elif isinstance(obj, Object3D):
             o3 = obj
-            _set_uniform_helper3d(o3.c_class, name, valu, type)
-    else:
-        for val in value:
-            uni_vec.push_back(val)
-        valu = uni_vec
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix2x2):
+        m2x2 = <Matrix2x2>value
+        valu = m2x2.c_class[0]
         if isinstance(obj, Object2D):
             o2 = obj
-            _set_uniform_helper2d(o2.c_class, name, valu, type)
+            _set_uniform_helper2d(o2.c_class, name, valu)
         elif isinstance(obj, Object3D):
             o3 = obj
-            _set_uniform_helper3d(o3.c_class, name, valu, type)
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
 
-cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value, str type):
-    obj.set_uniform(name, value, type)
+    elif isinstance(value, Matrix2x3):
+        m2x3 = <Matrix2x3>value
+        valu = m2x3.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
 
-cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value, str type):
-    obj.set_uniform(name, value, type)
+    elif isinstance(value, Matrix2x4):
+        m2x4 = <Matrix2x4>value
+        valu = m2x4.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix3x2):
+        m3x2 = <Matrix3x2>value
+        valu = m3x2.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix3x3):
+        m3x3 = <Matrix3x3>value
+        valu = m3x3.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix3x4):
+        m3x4 = <Matrix3x4>value
+        valu = m3x4.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix4x2):
+        m4x2 = <Matrix4x2>value
+        valu = m4x2.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Matrix4x3):
+        m4x3 = <Matrix4x3>value
+        valu = m4x3.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+        
+    elif isinstance(value, Matrix4x4):
+        m4x4 = <Matrix4x4>value
+        valu = m4x4.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+    
+    elif isinstance(value, Vec2):
+        v2 = <Vec2>value
+        valu = v2.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Vec3):
+        v3 = <Vec3>value
+        valu = v3.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+    elif isinstance(value, Vec4):
+        v4 = <Vec4>value
+        valu = v4.c_class[0]
+        if isinstance(obj, Object2D):
+            o2 = obj
+            _set_uniform_helper2d(o2.c_class, name, valu)
+        elif isinstance(obj, Object3D):
+            o3 = obj
+            _set_uniform_helper3d(o3.c_class, name, valu)
+        elif isinstance(obj, Material):
+            mt = obj
+            _set_uniform_helpermaterial(mt.c_class.data, name, valu)
+
+cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value):
+    obj.set_uniform(name, value)
+
+cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value):
+    obj.set_uniform(name, value)
+
+cdef void _set_uniform_helpermaterial(material* obj, str name, uniform_type value):
+    obj.set_uniform(name, value)

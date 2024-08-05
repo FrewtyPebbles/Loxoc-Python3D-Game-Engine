@@ -25,7 +25,7 @@ public:
     float rotation;
     vec2* scale;
     rc_material mat;
-    void set_uniform(string name, uniform_type value, string type);
+    void set_uniform(string name, uniform_type value);
     void render(camera& camera);
 };
 
