@@ -85,6 +85,8 @@ jobs:
           & './vcpkg/vcpkg.exe' install glm:x64-windows-static;
           Write-Output 'INSTALL SDL';
           & './vcpkg/vcpkg.exe' install sdl2:x64-windows-static;
+          Write-Output 'INSTALL FREETYPE2';
+          & './vcpkg/vcpkg.exe' install freetype:x64-windows-static;
           New-Item -Path './run-check' -ItemType 'File';
           } }"
         CIBW_ENVIRONMENT_WINDOWS: PKG_CONFIG_PATH="D:/a/Loxoc-Python3D-Game-Engine/Loxoc-Python3D-Game-Engine/vcpkg/installed/x64-windows-static/lib/pkgconfig"

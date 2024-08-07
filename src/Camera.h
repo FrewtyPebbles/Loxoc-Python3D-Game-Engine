@@ -7,6 +7,7 @@
 #include <SDL2/SDL_opengl.h>
 #include "Quaternion.h"
 #include "Vec3.h"
+#include "Matrix.h"
 
 using std::vector;
 using std::unordered_set;
@@ -23,5 +24,5 @@ public:
     float focal_length;
     float fov;
     void recalculate_pv();
-    glm::mat4 projection, view;
+    matrix4x4 projection, view;
 }; 

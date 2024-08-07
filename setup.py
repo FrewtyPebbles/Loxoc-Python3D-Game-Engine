@@ -19,20 +19,24 @@ print(f"BUILDING {MODULE_NAME}-V{VERSION}\n"
 C_PATH = "src"
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
+freetype2 = pcfg.variables("freetype2")
 INCLUDE_DIRS = [
     "glad/include/",
     "stb/",
     sdl2["includedir"],
-    assimp["includedir"]
+    assimp["includedir"],
+    freetype2["includedir"]
 ]
 LIBRARY_DIRS = [
     sdl2["libdir"],
-    assimp["libdir"]
+    assimp["libdir"],
+    freetype2["libdir"]
 ]
 
 LIBRARIES = [
     *[inc.replace("-l", "") for inc in pcfg.libs("sdl2", True).split() if inc.startswith("-l")],
-    *[inc.replace("-l", "") for inc in pcfg.libs("assimp", True).split() if inc.startswith("-l")]
+    *[inc.replace("-l", "") for inc in pcfg.libs("assimp", True).split() if inc.startswith("-l")],
+    *[inc.replace("-l", "") for inc in pcfg.libs("freetype2", True).split() if inc.startswith("-l")]
 ]
 
 c_deps = [

@@ -14,6 +14,8 @@
 #include "PointLight.h"
 #include "DirectionalLight.h"
 #include "SpotLight.h"
+#include "Text.h"
+#include "CubeMap.h"
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
@@ -26,7 +28,7 @@ class object2d;
 class window {
 public:
     window();
-    window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light);
+    window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light, skybox* sky_box = nullptr);
     ~window();
     camera* cam;
     string title;
@@ -66,10 +68,17 @@ public:
     void add_spot_light_list(vector<spot_light*> objs);
     void remove_spot_light_list(vector<spot_light*> objs);
 
+    void add_text(text* obj);
+    void remove_text(text* obj);
+    void add_text_list(vector<text*> objs);
+    void remove_text_list(vector<text*> objs);
+
     std::set<point_light*> render_list_point_lights;
     std::set<directional_light*> render_list_directional_lights;
     std::set<spot_light*> render_list_spot_lights;
+    std::set<text*> render_list_text;
     vec3* ambient_light;
+    skybox* sky_box = nullptr;
 private:
     void create_window();
     SDL_Window* app_window = NULL;

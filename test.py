@@ -4,7 +4,7 @@ from Loxoc import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
     DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
-    Vec4
+    Vec4, Font, Text
 )
 import math
 from copy import copy
@@ -65,9 +65,17 @@ dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
 
 spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
 
+font_roboto = Font("./fonts/Roboto/Roboto-Regular.ttf")
+
+text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_roboto)
+
+window.add_text_list([
+    text
+])
+
 window.add_object_list([
     car,
-    # car2,
+    car2,
     teapot,
     cube,
     pirate_ship

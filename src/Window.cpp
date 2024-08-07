@@ -20,7 +20,7 @@ window::window() {
     this->create_window();
 }
 
-window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light, skybox* sky_box) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light), sky_box(sky_box) {
     this->create_window();
 }
 
@@ -108,6 +108,14 @@ void window::update() {
         ob->render(*this->cam);
     }
     glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
+
+    // text (TODO: make sprites and text part of the same set so they can be layered. (probably via a variant))
+    for (text* ob : render_list_text) {
+        ob->render(*this->cam);
+    }
+
+    if (sky_box)
+        sky_box->render(*this->cam);
 
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();
@@ -220,5 +228,27 @@ void window::add_spot_light_list(vector<spot_light*> objs) {
 void window::remove_spot_light_list(vector<spot_light*> objs) {
     for (spot_light * obj : objs) {
         this->render_list_spot_lights.erase(obj);
+    }
+}
+
+// text
+
+void window::add_text(text* obj) {
+    this->render_list_text.insert(obj);
+}
+
+void window::remove_text(text* obj) {
+    this->render_list_text.erase(obj);
+}
+
+void window::add_text_list(vector<text*> objs) {
+    for (text * obj : objs) {
+        this->render_list_text.insert(obj);
+    }
+}
+
+void window::remove_text_list(vector<text*> objs) {
+    for (text * obj : objs) {
+        this->render_list_text.erase(obj);
     }
 }

@@ -23,23 +23,18 @@ void object3d::render(camera& camera, window* window) {
     // opengl renderer
     this->get_model_matrix();
     if (this->mat != nullptr) {
-        glUseProgram(this->mat->data->shader_program);
 
-        int model_loc = glGetUniformLocation(this->mat->data->shader_program, "model");
-        int view_loc = glGetUniformLocation(this->mat->data->shader_program, "view");
-        int projection_loc = glGetUniformLocation(this->mat->data->shader_program, "projection");
-
-        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix.mat));
-        glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
-        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
+        // set mvp
+        this->mat->data->use_material();
+        this->mat->data->set_uniform("model", this->model_matrix);
+        this->mat->data->set_uniform("view", camera.view);
+        this->mat->data->set_uniform("projection", camera.projection);
 
         // camera view pos
-        int view_pos_loc = glGetUniformLocation(this->mat->data->shader_program, "viewPos");
-        glUniform3fv(view_pos_loc, 1, glm::value_ptr(camera.position->axis));
+        this->mat->data->set_uniform("viewPos", *camera.position);
 
         // ambient light
-        int ambient_light_loc = glGetUniformLocation(this->mat->data->shader_program, "ambient_light");
-        glUniform3fv(ambient_light_loc, 1, glm::value_ptr(window->ambient_light->axis));
+        this->mat->data->set_uniform("ambient_light", *window->ambient_light);
 
         this->mat->data->set_material();
 
@@ -64,23 +59,17 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
 
             if (this->mat == nullptr) { // Use mesh material.
 
-                glUseProgram(_mesh->data->mesh_material->data->shader_program);
-
-                int model_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "model");
-                int view_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "view");
-                int projection_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "projection");
-
-                glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(this->model_matrix.mat));
-                glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(camera.view));
-                glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(camera.projection));
+                // set mvp
+                _mesh->data->mesh_material->data->use_material();
+                _mesh->data->mesh_material->data->set_uniform("model", this->model_matrix);
+                _mesh->data->mesh_material->data->set_uniform("view", camera.view);
+                _mesh->data->mesh_material->data->set_uniform("projection", camera.projection);
 
                 // camera view pos
-                int view_pos_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "viewPos");
-                glUniform3fv(view_pos_loc, 1, glm::value_ptr(camera.position->axis));
+                _mesh->data->mesh_material->data->set_uniform("viewPos", *camera.position);
 
                 // ambient light
-                int ambient_light_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "ambient_light");
-                glUniform3fv(ambient_light_loc, 1, glm::value_ptr(window->ambient_light->axis));
+                _mesh->data->mesh_material->data->set_uniform("ambient_light", *window->ambient_light);
 
                 _mesh->data->mesh_material->data->set_material();
 
@@ -100,10 +89,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                     }
                 }
 
-
-                int total_point_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_point_lights");
-
-                glUniform1i(total_point_lights_loc, i);
+                _mesh->data->mesh_material->data->set_uniform("total_point_lights", (int)i);
                 
                 // Directional Lights:
                 
@@ -113,9 +99,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                     i++;
                 }
 
-                int total_directional_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_directional_lights");
-
-                glUniform1i(total_directional_lights_loc, i);
+                _mesh->data->mesh_material->data->set_uniform("total_directional_lights", (int)i);
 
                 // Spot Lights:
 
@@ -129,11 +113,8 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                         i++;
                     }
                 }
-                
-                int total_spot_lights_loc = glGetUniformLocation(_mesh->data->mesh_material->data->shader_program, "total_spot_lights");
 
-                glUniform1i(total_spot_lights_loc, i);
-
+                _mesh->data->mesh_material->data->set_uniform("total_spot_lights", (int)i);
 
             } else { // Use object material.
 
@@ -150,10 +131,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                     }
                 }
                 
-                int total_point_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_point_lights");
-
-                glUniform1i(total_point_lights_loc, i);
-                
+                this->mat->data->set_uniform("total_point_lights", (int)i);
 
                 // Directional Lights:
                 
@@ -163,9 +141,7 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                     i++;
                 }
 
-                int total_directional_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_directional_lights");
-
-                glUniform1i(total_directional_lights_loc, i);
+                this->mat->data->set_uniform("total_directional_lights", (int)i);
 
                 // Spot Lights:
 
@@ -179,10 +155,8 @@ void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, windo
                         i++;
                     }
                 }
-                
-                int total_spot_lights_loc = glGetUniformLocation(this->mat->data->shader_program, "total_spot_lights");
 
-                glUniform1i(total_spot_lights_loc, i);
+                this->mat->data->set_uniform("total_spot_lights", (int)i);
             }
             
             glBindVertexArray(_mesh->data->gl_VAO);

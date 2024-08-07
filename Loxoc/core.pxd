@@ -4,8 +4,6 @@ from libcpp.string cimport string
 from libcpp.map cimport map
 from libcpp.pair cimport pair
 
-
-
 cdef extern from "<variant>" namespace "std" nogil:
     cdef cppclass variant:
         variant& operator=(variant&)
@@ -376,6 +374,10 @@ cdef extern from "../src/Matrix.h":
         inline matrix[glm_mat_type] translate(const vec3& vec)
 
         inline matrix[glm_mat_type] translate(vec3 * vec)
+
+        inline matrix[glm_mat_type] rotate(float angle, const vec3& axis)
+
+        inline matrix[glm_mat_type] rotate(float angle, vec3 * axis)
 
         inline matrix[glm_mat_type] scale(const vec3& vec)
 
@@ -836,10 +838,44 @@ cdef class SpotLight:
         Vec3 _position, _color
         Texture _cookie
 
+cdef extern from "../src/Text.h":
+    cdef cppclass text:
+        text() except *
+        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation) except *
+        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation, RC[material*]* mat) except *
+
+        inline void render(camera& camera)
+
+        inline matrix4x4 get_model_matrix()
+
+        string render_text
+        font* font_data
+        vec2* position
+        float rotation
+        vec2* scale
+        RC[material*]* mat
+
+    cdef cppclass font:
+        font() except +
+        font(const string& font_path, int font_size) except +
+
+cdef class Font:
+    cdef font* c_class
+
+cdef class Text:
+    cdef:
+        text* c_class
+        Vec2 _position
+        Vec2 _scale
+        Vec4 _color
+        Font _font
+        Material _material
+
 cdef extern from "../src/Window.h":
     cdef cppclass window:
         window() except *
         window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light) except *
+        window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light, skybox* sky_box) except *
         camera* cam
         string title
         int width, height
@@ -871,45 +907,69 @@ cdef extern from "../src/Window.h":
         void add_spot_light_list(vector[spot_light*] objs)
         void remove_spot_light_list(vector[spot_light*] objs)
 
+        void add_text(text* obj)
+        void remove_text(text* obj)
+        void add_text_list(vector[text*] objs)
+        void remove_text_list(vector[text*] objs)
+
         event current_event
         double deltatime
         bint fullscreen
         long long time_ns
         long long time
         vec3 * ambient_light
+        skybox* sky_box
 
 cdef class Window:
     cdef:
         window* c_class
         Vec3 _ambient_light
+        SkyBox _sky_box
     
 
     cpdef void update(self)
+
+    #obj3ds
 
     cpdef void add_object(self, Object3D obj)
     cpdef void remove_object(self, Object3D obj)
     cpdef void add_object_list(self, list[Object3D] objs)
     cpdef void remove_object_list(self, list[Object3D] objs)
 
+    # obj2ds
+
     cpdef void add_object2d(self, Object2D obj)
     cpdef void remove_object2d(self, Object2D obj)
     cpdef void add_object2d_list(self, list[Object2D] objs)
     cpdef void remove_object2d_list(self, list[Object2D] objs)
+
+    # point lights
 
     cpdef void add_point_light(self, PointLight obj)
     cpdef void remove_point_light(self, PointLight obj)
     cpdef void add_point_light_list(self, list[PointLight] objs)
     cpdef void remove_point_light_list(self, list[PointLight] objs)
 
+    # directional lights
+
     cpdef void add_directional_light(self, DirectionalLight obj)
     cpdef void remove_directional_light(self, DirectionalLight obj)
     cpdef void add_directional_light_list(self, list[DirectionalLight] objs)
     cpdef void remove_directional_light_list(self, list[DirectionalLight] objs)
 
+    # spot lights
+
     cpdef void add_spot_light(self, SpotLight obj)
     cpdef void remove_spot_light(self, SpotLight obj)
     cpdef void add_spot_light_list(self, list[SpotLight] objs)
     cpdef void remove_spot_light_list(self, list[SpotLight] objs)
+
+    # text
+
+    cpdef void add_text(self, Text obj)
+    cpdef void remove_text(self, Text obj)
+    cpdef void add_text_list(self, list[Text] objs)
+    cpdef void remove_text_list(self, list[Text] objs)
 
     cpdef void lock_mouse(self, bint lock)
 
@@ -1253,3 +1313,29 @@ cdef void _set_uniform_helper2d(object2d* obj, str name, uniform_type value)
 cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value)
 
 cdef void _set_uniform_helpermaterial(material* obj, str name, uniform_type value)
+
+cdef extern from "../src/CubeMap.h":
+    cdef cppclass cubemap:
+        cubemap() except *
+        cubemap(string right_path, string left_path, string top_path, string bottom_path, string back_path, string front_path) except *
+        inline void bind()
+        void load_textures(string right_path, string left_path, string top_path, string bottom_path, string back_path, string front_path)
+        unsigned int texture
+
+    cdef cppclass skybox:
+        skybox() except *
+        skybox(cubemap* cube_map, RC[material*]* mat) except *
+        void render(camera& camera)
+        cubemap* cube_map
+        unsigned int vao, vbo
+        RC[material*]* mat
+
+cdef class CubeMap:
+    cdef:
+        cubemap* c_class
+
+cdef class SkyBox:
+    cdef:
+        CubeMap _cubemap
+        Material _material
+        skybox* c_class

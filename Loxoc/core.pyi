@@ -578,7 +578,7 @@ class Window:
     The ambient or "base" level of light before any lights are added
     """
 
-    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0)) -> None:
+    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0), sky_box:SkyBox|None = None) -> None:
         """
         Constructs an application window for a game.
         """
@@ -637,6 +637,8 @@ class Window:
         Locks the mouse in the center of the window.
         """
 
+    # OBJECT
+
     def add_object(self, obj: Object3D) -> None:
         """
         Adds the :class:`Object3D` to the scene.  This ensures that the :class:`Object3D` is rendered by the camera.
@@ -656,6 +658,8 @@ class Window:
         """
         Removes multiple :class:`Object3D` s from the scene.  Only :class:`Object3D` s which are in the scene will be rendered by the camera.
         """
+
+    # OBJECT2D
 
     def add_object2d(self, obj: Object2D) -> None:
         """
@@ -677,6 +681,8 @@ class Window:
         Removes multiple :class:`Object2D` s from the scene.  Only :class:`Object2D` s which are in the scene will be rendered by the camera.
         """
 
+    # POINT LIGHT
+
     def add_point_light(self, obj:PointLight) -> None:
         """
         Adds the :class:`PointLight` to the scene.  This ensures that the :class:`PointLight` is rendered by the camera.
@@ -696,6 +702,8 @@ class Window:
         """
         Removes multiple :class:`PointLight` s from the scene.  Only :class:`PointLight` s which are in the scene will be rendered by the camera.
         """
+
+    # DIRECTIONAL LIGHT
 
     def add_directional_light(self, obj:DirectionalLight) -> None:
         """
@@ -717,6 +725,8 @@ class Window:
         Removes multiple :class:`DirectionalLight` s from the scene.  Only :class:`DirectionalLight` s which are in the scene will be rendered by the camera.
         """
 
+    # SPOT LIGHT
+
     def add_spot_light(self, obj:SpotLight) -> None:
         """
         Adds the :class:`SpotLight` to the scene.  This ensures that the :class:`SpotLight` is rendered by the camera.
@@ -735,6 +745,28 @@ class Window:
     def remove_spot_light_list(self, objs:list[SpotLight]) -> None:
         """
         Removes multiple :class:`SpotLight` s from the scene.  Only :class:`SpotLight` s which are in the scene will be rendered by the camera.
+        """
+
+    # TEXT
+
+    def add_text(self, obj:Text) -> None:
+        """
+        Adds the :class:`Text` to the scene.  This ensures that the :class:`Text` is rendered by the camera.
+        """
+
+    def remove_text(self, obj:Text) -> None:
+        """
+        Removes the :class:`Text` from the scene.  Only :class:`Text` s which are in the scene will be rendered by the camera.
+        """
+
+    def add_text_list(self, objs:list[Text]) -> None:
+        """
+        Adds multiple :class:`Text` s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_text_list(self, objs:list[Text]) -> None:
+        """
+        Removes multiple :class:`Text` s from the scene.  Only :class:`Text` s which are in the scene will be rendered by the camera.
         """
 
 class EVENT_FLAG(Enum):
@@ -2042,4 +2074,130 @@ class Matrix4x2:
     def __truediv__(self, other:float) -> Matrix4x2:
         """
         Divides the :class:`Matrix4x2` by a scalar.
+        """
+
+
+class Font:
+    """
+    Renders the specified Font to the screen.  Usable with :class:`Text` .
+    """
+    def __init__(self, font_path:str, font_size:int = 48) -> None:
+        ...
+
+class Text:
+    """
+    Renders the specified Text to the screen with the specified :class:`Font` .
+    """
+    def __init__(self, text_string:str, color:Vec4, position:Vec2, scale:Vec2 = Vec2(1.0, 1.0), rotation:float = 0, font:Font|None = None, material:Material|None = None) -> None:
+        ...
+
+    @property
+    def rotation(self) -> float:
+        """
+        The rotation of the text.
+        """
+
+    @rotation.setter
+    def rotation(self, value:float):
+        """
+        The rotation of the text.
+        """
+
+    @property
+    def position(self) -> Vec2:
+        """
+        The :class:`Vec2` position of the text.
+        """
+
+    @position.setter
+    def position(self, value:Vec2):
+        """
+        The :class:`Vec2` position of the text.
+        """
+
+    @property
+    def scale(self) -> Vec2:
+        """
+        The :class:`Vec2` scale of the text.
+        """
+
+    @scale.setter
+    def scale(self, value:Vec2):
+        """
+        The :class:`Vec2` scale of the text.
+        """
+
+    @property
+    def color(self) -> Vec4:
+        """
+        The :class:`Vec4` color of the text.
+        """
+
+    @color.setter
+    def color(self, value: Vec4):
+        """
+        The :class:`Vec4` color of the text.
+        """
+
+    @property
+    def material(self) -> Material:
+        """
+        The :class:`Material` of the text.
+        """
+
+    @material.setter
+    def material(self, value:Material):
+        """
+        The :class:`Material` of the text.
+        """
+
+    @property
+    def font(self) -> Font:
+        """
+        The :class:`Font` of the text.
+        """
+
+    @font.setter
+    def font(self, value:Font):
+        """
+        The :class:`Font` of the text.
+        """
+
+class CubeMap:
+    """
+    A cubemap.  Can be used to create a :class:`SkyBox` .
+    """
+    def __init__(self, right_path:str, left_path:str, top_path:str, bottom_path:str, back_path:str, front_path:str) -> None:
+        ...
+
+class SkyBox:
+    """
+    A :class:`CubeMap` skybox. Can be applied to :property:`Window.sky_box` .
+    """
+
+    def __init__(self, cube_map:CubeMap, mat:Material | None = None) -> None:
+        ...
+
+    @property
+    def material(self) -> Material:
+        """
+        The :class:`Material` used to render the :class:`SkyBox` .
+        """
+
+    @material.setter
+    def material(self, value:Material):
+        """
+        The :class:`Material` used to render the :class:`SkyBox` .
+        """
+
+    @property
+    def cubemap(self) -> CubeMap:
+        """
+        The :class:`CubeMap` used in rendering the :class:`SkyBox` .
+        """
+
+    @cubemap.setter
+    def cubemap(self, value:CubeMap):
+        """
+        The :class:`CubeMap` used in rendering the :class:`SkyBox` .
         """

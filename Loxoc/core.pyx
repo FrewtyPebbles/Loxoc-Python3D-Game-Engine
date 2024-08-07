@@ -1046,10 +1046,22 @@ cdef class Material:
 
 cdef class Window:
 
-    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0)) -> None:
+    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0), SkyBox sky_box = None) -> None:
         self._ambient_light = ambient_light
-        self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
+        if sky_box:
+            self._sky_box = sky_box
+            self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class, self._sky_box.c_class)
+        else:
+            self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
     
+    @property
+    def sky_box(self) -> SkyBox:
+        return self._sky_box
+
+    @sky_box.setter
+    def sky_box(self, SkyBox value):
+        self._sky_box.c_class[0] = value.c_class[0]
+
     @property
     def ambient_light(self) -> Vec3:
         return self._ambient_light
@@ -1204,6 +1216,30 @@ cdef class Window:
 
         for obj in objs:
             self.remove_spot_light(obj)
+
+    # TEXTS
+
+    cpdef void add_text(self, Text obj):
+        Py_INCREF(obj)
+        self.c_class.add_text(obj.c_class)
+
+    cpdef void remove_text(self, Text obj):
+        self.c_class.remove_text(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_text_list(self, list[Text] objs):
+        cdef:
+            Text obj
+
+        for obj in objs:
+            self.add_text(obj)
+
+    cpdef void remove_text_list(self, list[Text] objs):
+        cdef:
+            Text obj
+
+        for obj in objs:
+            self.remove_text(obj)
 
 cdef class MouseDevice:
     pass
@@ -2405,3 +2441,105 @@ cdef void _set_uniform_helper3d(object3d* obj, str name, uniform_type value):
 
 cdef void _set_uniform_helpermaterial(material* obj, str name, uniform_type value):
     obj.set_uniform(name, value)
+
+# Fonts/Text
+
+cdef class Font:
+    def __init__(self, str font_path, int font_size = 48) -> None:
+        self.c_class = new font(font_path.encode(), font_size)
+
+    def __dealloc__(self):
+        del self.c_class
+
+cdef class Text:
+    def __init__(self, str text_string, Vec4 color, Vec2 position, Vec2 scale = Vec2(1.0, 1.0), float rotation = 0, Font font = None, Material material = None) -> None:
+        self._position = position
+        self._scale = scale
+        self._font = font
+        self._color = color
+        self._material = material if material else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_text.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_text.glsl"), ShaderType.FRAGMENT))
+        self.c_class = new text(text_string.encode(), self._font.c_class, self._color.c_class, self._position.c_class, self._scale.c_class, rotation, self._material.c_class)
+
+    @property
+    def rotation(self) -> float:
+        return self.c_class.rotation
+
+    @rotation.setter
+    def rotation(self, float value):
+        self.c_class.rotation = value
+
+    @property
+    def position(self) -> Vec2:
+        return self._position
+
+    @position.setter
+    def position(self, Vec2 value):
+        self._position.c_class[0] = value.c_class[0]
+
+    @property
+    def scale(self) -> Vec2:
+        return self._scale
+
+    @scale.setter
+    def scale(self, Vec2 value):
+        self._scale.c_class[0] = value.c_class[0]
+
+    @property
+    def color(self) -> Vec4:
+        return self._color
+
+    @color.setter
+    def color(self, Vec4 value):
+        self._color.c_class[0] = value.c_class[0]
+
+    @property
+    def material(self) -> Material:
+        return self._material
+
+    @material.setter
+    def material(self, Material value):
+        self._material.c_class.data[0] = value.c_class.data[0]
+
+    @property
+    def font(self) -> Font:
+        return self._font
+
+    @font.setter
+    def font(self, Font value):
+        self._font.c_class[0] = value.c_class[0]
+
+    def __dealloc__(self):
+        del self.c_class
+
+
+cdef class CubeMap:
+    def __init__(self, str right_path, str left_path, str top_path, str bottom_path, str back_path, str front_path) -> None:
+        self.c_class = new cubemap(right_path, left_path, top_path, bottom_path, back_path, front_path)
+    
+    def __dealloc__(self):
+        del self.c_class
+
+cdef class SkyBox:
+    def __init__(self, CubeMap cube_map, Material mat = None) -> None:
+        self._cubemap = cube_map
+        self._material = mat if mat else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_text.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_text.glsl"), ShaderType.FRAGMENT))
+        self.c_class = new skybox(self._cubemap.c_class, self._material.c_class)
+
+    @property
+    def material(self) -> Material:
+        return self._material
+
+    @material.setter
+    def material(self, Material value):
+        self._material.c_class.data[0] = value.c_class.data[0]
+
+    @property
+    def cubemap(self) -> CubeMap:
+        return self._cubemap
+
+    @cubemap.setter
+    def cubemap(self, CubeMap value):
+        self._cubemap.c_class[0] = value.c_class[0]
+    
+    def __dealloc__(self):
+        del self.c_class

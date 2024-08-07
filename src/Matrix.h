@@ -185,6 +185,14 @@ public:
         return glm::translate(mat, vec->axis);
     }
 
+    inline matrix<glm_mat_type> rotate(float angle, const vec3& axis) {
+        return glm::rotate(mat, angle, axis.axis);
+    }
+
+    inline matrix<glm_mat_type> rotate(float angle, vec3 * axis) {
+        return glm::rotate(mat, angle, axis->axis);
+    }
+
     inline matrix<glm_mat_type> scale(const vec3& vec) {
         return glm::scale(mat, vec.axis);
     }
