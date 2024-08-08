@@ -44,6 +44,7 @@ jobs:
             make;
             make install;
             cd ../..;
+            find / -name "freetype2.pc" 2>/dev/null
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
