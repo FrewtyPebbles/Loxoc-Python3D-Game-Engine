@@ -31,7 +31,7 @@ from Loxoc import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
     DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
-    Vec4
+    Vec4, Font, Text, CubeMap, SkyBox
 )
 import math
 from copy import copy
@@ -42,7 +42,19 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
+
 window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.1,0.1,0.1))
+
+sky_box = SkyBox(CubeMap(
+    "./skyboxes/skybox/right.jpg",
+    "./skyboxes/skybox/left.jpg",
+    "./skyboxes/skybox/top.jpg",
+    "./skyboxes/skybox/bottom.jpg",
+    "./skyboxes/skybox/back.jpg",
+    "./skyboxes/skybox/front.jpg",
+))
+
+window.sky_box = sky_box
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -68,6 +80,7 @@ car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
+doomguy2 = Object2D(spr_doomguy, position=Vec2(0.5,0.5), scale=Vec2(0.3, 0.3))
 
 car = Object3D(car_meshes,
     Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
@@ -91,16 +104,25 @@ dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
 
 spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
 
+font_roboto = Font("./fonts/Roboto/Roboto-Regular.ttf")
+
+text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_roboto)
+
+window.add_text_list([
+    text
+])
+
 window.add_object_list([
     car,
-    # car2,
+    car2,
     teapot,
     cube,
     pirate_ship
 ])
 
 window.add_object2d_list([
-    doomguy
+    doomguy,
+    doomguy2,
 ])
 
 window.add_point_light_list([
@@ -109,7 +131,7 @@ window.add_point_light_list([
 ])
 
 window.add_directional_light_list([
-    # dir_light
+    dir_light
 ])
 
 window.add_spot_light_list([
@@ -206,7 +228,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
 Then when we run it, it looks something like this:
 
-![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/lighting_fixed_more.gif)
+![](https://github.com/FrewtyPebbles/Runespoor-Python3D-Game-Engine/blob/main/tests/skybox_and_text.gif)
 
 # How to Import 3D Assets:
 
