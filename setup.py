@@ -20,6 +20,7 @@ C_PATH = "src"
 sdl2 = pcfg.variables("sdl2")
 assimp = pcfg.variables("assimp")
 freetype2 = pcfg.variables("freetype2")
+print("FREETYPE INCLUDE DIRECTORY!!!!!! -> -> -> ", os.listdir(freetype2["includedir"]))
 INCLUDE_DIRS = [
     "glad/include/",
     "stb/",
