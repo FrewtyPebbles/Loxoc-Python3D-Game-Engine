@@ -44,7 +44,7 @@ jobs:
             make;
             make install;
             cd ../..;
-            ls /usr/local/lib/pkgconfig;
+            find / -name "freetype2.pc" 2>/dev/null | xargs -I {} dirname {} | xargs ls -l;
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
