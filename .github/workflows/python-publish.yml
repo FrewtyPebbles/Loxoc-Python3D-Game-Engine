@@ -42,9 +42,12 @@ jobs:
             cd freetype2;
             mkdir build
             cd build
-            cmake ..
+            cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_INSTALL_INCLUDEDIR=include/freetype ..
             cmake --build .
-            cmake --install .
+            DESTDIR=temp_install cmake --install .
+            mv temp_install/usr/local/include/freetype2/ft2build.h /usr/local/include/
+            mv temp_install/usr/local/include/freetype2/freetype/* /usr/local/include/freetype/
+            rm -rf temp_install
             cd ../..;
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
