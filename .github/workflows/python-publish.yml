@@ -42,13 +42,12 @@ jobs:
             cd freetype;
             mkdir build;
             cd build;
-            cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release ..;
-            cmake --build .;
-            cmake --install .;
+            cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=OFF ..;
+            make;
+            make install;
             mv /usr/local/include/freetype2/ft2build.h /usr/local/include/;
             mkdir /usr/local/include/freetype;
             mv /usr/local/include/freetype2/freetype/* /usr/local/include/freetype/;
-            rm -d /usr/local/include/freetype2;
             cd ../..;
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
