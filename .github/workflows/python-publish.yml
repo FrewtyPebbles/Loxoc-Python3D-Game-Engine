@@ -42,7 +42,7 @@ jobs:
             cd freetype;
             mkdir build;
             cd build;
-            cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=OFF ..;
+            cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..;
             make;
             make install;
             mv /usr/local/include/freetype2/ft2build.h /usr/local/include/;
