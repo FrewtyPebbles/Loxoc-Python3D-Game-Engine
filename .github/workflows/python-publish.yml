@@ -37,12 +37,13 @@ jobs:
             yum install -y pkgconfig;
             yum -y install cmake3;
             echo "INSTALL FREETYPE2"
-            git clone https://git.savannah.nongnu.org/git/freetype/freetype2.git
+            git clone --branch VER-2-13-2 https://git.savannah.nongnu.org/git/freetype/freetype2.git
             cd freetype2
             mkdir build && cd build
             cmake ..
             make
             make install
+            cd ..
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
