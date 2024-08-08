@@ -39,7 +39,7 @@ jobs:
             yum -y install cmake3 libpng-devel zlib-devel;
             echo "INSTALL FREETYPE2";
             git clone --branch VER-2-13-2 https://gitlab.freedesktop.org/freetype/freetype.git;
-            cd freetype2;
+            cd freetype;
             mkdir build;
             cd build;
             cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release ..;
