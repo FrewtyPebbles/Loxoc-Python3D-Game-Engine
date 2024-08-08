@@ -28,7 +28,7 @@ class object2d;
 class window {
 public:
     window();
-    window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light, skybox* sky_box = nullptr);
+    window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light);
     ~window();
     camera* cam;
     string title;

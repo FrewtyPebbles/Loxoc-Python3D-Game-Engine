@@ -20,7 +20,7 @@ window::window() {
     this->create_window();
 }
 
-window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light, skybox* sky_box) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light), sky_box(sky_box) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
     this->create_window();
 }
 
@@ -99,6 +99,10 @@ void window::update() {
 
     this->cam->recalculate_pv();
 
+    glDepthMask(GL_FALSE);
+    if (sky_box) sky_box->render(*this->cam);
+    glDepthMask(GL_TRUE);
+    
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
     }
@@ -107,15 +111,12 @@ void window::update() {
     for (object2d* ob : render_list2d) {
         ob->render(*this->cam);
     }
-    glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
 
     // text (TODO: make sprites and text part of the same set so they can be layered. (probably via a variant))
     for (text* ob : render_list_text) {
         ob->render(*this->cam);
     }
-
-    if (sky_box)
-        sky_box->render(*this->cam);
+    glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
 
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();

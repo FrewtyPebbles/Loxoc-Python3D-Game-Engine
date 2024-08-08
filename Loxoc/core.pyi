@@ -578,9 +578,21 @@ class Window:
     The ambient or "base" level of light before any lights are added
     """
 
-    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0), sky_box:SkyBox|None = None) -> None:
+    def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0)) -> None:
         """
         Constructs an application window for a game.
+        """
+
+    @property
+    def sky_box(self) -> SkyBox:
+        """
+        The :class:`Skybox` .
+        """
+
+    @sky_box.setter
+    def sky_box(self, value:SkyBox):
+        """
+        The :class:`Skybox` .
         """
     
     @property

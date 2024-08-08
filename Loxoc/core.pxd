@@ -875,7 +875,6 @@ cdef extern from "../src/Window.h":
     cdef cppclass window:
         window() except *
         window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light) except *
-        window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light, skybox* sky_box) except *
         camera* cam
         string title
         int width, height

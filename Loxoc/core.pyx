@@ -1046,13 +1046,9 @@ cdef class Material:
 
 cdef class Window:
 
-    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0), SkyBox sky_box = None) -> None:
+    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0)) -> None:
         self._ambient_light = ambient_light
-        if sky_box:
-            self._sky_box = sky_box
-            self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class, self._sky_box.c_class)
-        else:
-            self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
+        self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
     
     @property
     def sky_box(self) -> SkyBox:
@@ -1060,7 +1056,8 @@ cdef class Window:
 
     @sky_box.setter
     def sky_box(self, SkyBox value):
-        self._sky_box.c_class[0] = value.c_class[0]
+        self._sky_box = value
+        self.c_class.sky_box = self._sky_box.c_class
 
     @property
     def ambient_light(self) -> Vec3:
@@ -2514,7 +2511,7 @@ cdef class Text:
 
 cdef class CubeMap:
     def __init__(self, str right_path, str left_path, str top_path, str bottom_path, str back_path, str front_path) -> None:
-        self.c_class = new cubemap(right_path, left_path, top_path, bottom_path, back_path, front_path)
+        self.c_class = new cubemap(right_path.encode(), left_path.encode(), top_path.encode(), bottom_path.encode(), back_path.encode(), front_path.encode())
     
     def __dealloc__(self):
         del self.c_class
@@ -2522,7 +2519,7 @@ cdef class CubeMap:
 cdef class SkyBox:
     def __init__(self, CubeMap cube_map, Material mat = None) -> None:
         self._cubemap = cube_map
-        self._material = mat if mat else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_text.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_text.glsl"), ShaderType.FRAGMENT))
+        self._material = mat if mat else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_skybox.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_skybox.glsl"), ShaderType.FRAGMENT))
         self.c_class = new skybox(self._cubemap.c_class, self._material.c_class)
 
     @property

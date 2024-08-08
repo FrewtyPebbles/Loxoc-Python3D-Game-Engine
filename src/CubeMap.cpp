@@ -24,8 +24,8 @@ void cubemap::load_textures(string right_path, string left_path, string top_path
     load_cubemap_img(left, GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
     load_cubemap_img(top, GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
     load_cubemap_img(bottom, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
-    load_cubemap_img(back, GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-    load_cubemap_img(front, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+    load_cubemap_img(front, GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+    load_cubemap_img(back, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -37,7 +37,8 @@ void cubemap::load_textures(string right_path, string left_path, string top_path
 void skybox::render(camera& camera) {
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
     mat->data->use_material();
-    mat->data->set_uniform("view", camera.view);
+    camera.recalculate_pv();
+    mat->data->set_uniform("view", matrix4x4(glm::mat3(camera.view.mat)));
     mat->data->set_uniform("projection", camera.projection);
     mat->data->register_uniforms();
     // skybox cube

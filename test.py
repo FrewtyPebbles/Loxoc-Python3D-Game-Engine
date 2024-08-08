@@ -4,7 +4,7 @@ from Loxoc import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
     DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
-    Vec4, Font, Text
+    Vec4, Font, Text, CubeMap, SkyBox
 )
 import math
 from copy import copy
@@ -15,7 +15,19 @@ dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
+
 window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.1,0.1,0.1))
+
+sky_box = SkyBox(CubeMap(
+    "./skyboxes/skybox/right.jpg",
+    "./skyboxes/skybox/left.jpg",
+    "./skyboxes/skybox/top.jpg",
+    "./skyboxes/skybox/bottom.jpg",
+    "./skyboxes/skybox/back.jpg",
+    "./skyboxes/skybox/front.jpg",
+))
+
+window.sky_box = sky_box
 
 # Materials are equivalent to shader programs.
 default_material = Material()
@@ -92,7 +104,7 @@ window.add_point_light_list([
 ])
 
 window.add_directional_light_list([
-    # dir_light
+    dir_light
 ])
 
 window.add_spot_light_list([
