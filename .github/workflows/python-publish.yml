@@ -44,7 +44,6 @@ jobs:
             make;
             make install;
             cd ../..;
-            find / -name "freetype2.pc" 2>/dev/null
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
             cd assimp;
@@ -75,7 +74,7 @@ jobs:
             cd ../..;
             touch "./run-check";
           fi
-        CIBW_ENVIRONMENT_LINUX: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp"
+        CIBW_ENVIRONMENT_LINUX: PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig:/project/assimp:/project/freetype2/build:/host/usr/lib/x86_64-linux-gnu/pkgconfig"
         CIBW_ENVIRONMENT_PASS_LINUX: PKG_CONFIG_PATH PKG_CONFIG
         CIBW_BEFORE_BUILD_WINDOWS: >
           PowerShell -Command "& { if (![System.IO.File]::Exists('./run-check')) {
