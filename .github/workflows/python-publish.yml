@@ -40,14 +40,15 @@ jobs:
             echo "INSTALL FREETYPE2";
             git clone --branch VER-2-13-2 https://git.savannah.nongnu.org/git/freetype/freetype2.git;
             cd freetype2;
-            mkdir build
-            cd build
-            cmake ..
-            cmake --build .
-            cmake --install .
-            mv /usr/local/include/freetype2/ft2build.h /usr/local/include/
-            mv /usr/local/include/freetype2/freetype/* /usr/local/include/freetype/
-            rm -d /usr/local/include/freetype2
+            mkdir build;
+            cd build;
+            cmake ..;
+            cmake --build .;
+            cmake --install .;
+            mv /usr/local/include/freetype2/ft2build.h /usr/local/include/;
+            mkdir /usr/local/include/freetype;
+            mv /usr/local/include/freetype2/freetype/* /usr/local/include/freetype/;
+            rm -d /usr/local/include/freetype2;
             cd ../..;
             echo "BUILD ASSIMP";
             git clone https://github.com/assimp/assimp.git;
