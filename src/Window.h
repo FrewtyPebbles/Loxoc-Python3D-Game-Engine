@@ -16,6 +16,7 @@
 #include "SpotLight.h"
 #include "Text.h"
 #include "CubeMap.h"
+#include "Emitter.h"
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
@@ -73,10 +74,16 @@ public:
     void add_text_list(vector<text*> objs);
     void remove_text_list(vector<text*> objs);
 
+    void add_emitter(emitter* obj);
+    void remove_emitter(emitter* obj);
+    void add_emitter_list(vector<emitter*> objs);
+    void remove_emitter_list(vector<emitter*> objs);
+
     std::set<point_light*> render_list_point_lights;
     std::set<directional_light*> render_list_directional_lights;
     std::set<spot_light*> render_list_spot_lights;
     std::set<text*> render_list_text;
+    std::set<emitter*> render_list_emitter;
     vec3* ambient_light;
     skybox* sky_box = nullptr;
 private:

@@ -108,6 +108,10 @@ void window::update() {
     }
     
     glDepthMask(GL_FALSE);// TODO Make this per sprite based on wether the sprite is marked as translucent
+    for (emitter* ob : render_list_emitter) {
+        ob->render(*this->cam);
+    }
+
     for (object2d* ob : render_list2d) {
         ob->render(*this->cam);
     }
@@ -251,5 +255,27 @@ void window::add_text_list(vector<text*> objs) {
 void window::remove_text_list(vector<text*> objs) {
     for (text * obj : objs) {
         this->render_list_text.erase(obj);
+    }
+}
+
+// text
+
+void window::add_emitter(emitter* obj) {
+    this->render_list_emitter.insert(obj);
+}
+
+void window::remove_emitter(emitter* obj) {
+    this->render_list_emitter.erase(obj);
+}
+
+void window::add_emitter_list(vector<emitter*> objs) {
+    for (emitter * obj : objs) {
+        this->render_list_emitter.insert(obj);
+    }
+}
+
+void window::remove_emitter_list(vector<emitter*> objs) {
+    for (emitter * obj : objs) {
+        this->render_list_emitter.erase(obj);
     }
 }

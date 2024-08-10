@@ -5,6 +5,24 @@
 #include <vector>
 #include <cmath>
 #include <variant>
+#include <random>
+#include "glad/gl.h"
+
+inline void ogl_err_print() {
+  GLenum err;
+  if ((err = glGetError()) != GL_NO_ERROR) {
+      std::cout << "OpenGL error: " << err << std::endl;
+  } else {
+    std::cout << "OpenGL PASS!" << std::endl;
+  }
+}
+
+inline float rand_range(float low, float high) {
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = high - low;
+    float r = random * diff;
+    return low + r;
+}
 
 static std::string MOD_PATH;
 

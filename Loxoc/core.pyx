@@ -1007,19 +1007,46 @@ ctypedef material* material_ptr
 cdef class Material:
     def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
         if vertex:
-            self.vertex_shader = vertex
+            self._vertex_shader = vertex
         else:
-            self.vertex_shader = Shader.from_file(path.join(path.dirname(__file__), "default_vertex.glsl"), ShaderType.VERTEX)
+            self._vertex_shader = Shader.from_file(path.join(path.dirname(__file__), "default_vertex.glsl"), ShaderType.VERTEX)
 
         if fragment:
-            self.fragment_shader = fragment
+            self._fragment_shader = fragment
         else:
-            self.fragment_shader = Shader.from_file(path.join(path.dirname(__file__), "default_fragment.glsl"), ShaderType.FRAGMENT)
+            self._fragment_shader = Shader.from_file(path.join(path.dirname(__file__), "default_fragment.glsl"), ShaderType.FRAGMENT)
 
-        self.c_class = new RC[material_ptr](new material(self.vertex_shader.c_class, self.fragment_shader.c_class))
+        self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class))
         
     def __dealloc__(self):
         RC_collect(self.c_class)
+
+    @property
+    def diffuse_texture(self) -> Texture:
+        return self._diffuse_texture
+
+    @diffuse_texture.setter
+    def diffuse_texture(self, Texture value):
+        self._diffuse_texture = value
+        self.c_class.data.diffuse_texture = self._diffuse_texture.c_class
+
+    @property
+    def specular_texture(self) -> Texture:
+        return self._specular_texture
+
+    @specular_texture.setter
+    def specular_texture(self, Texture value):
+        self._specular_texture = value
+        self.c_class.data.specular_texture = self._specular_texture.c_class
+
+    @property
+    def normals_texture(self) -> Texture:
+        return self._normals_texture
+
+    @normals_texture.setter
+    def normals_texture(self, Texture value):
+        self._normals_texture = value
+        self.c_class.data.normals_texture = self._normals_texture.c_class
     
     cpdef void set_uniform(self, str name, value:UniformValueType):
         _set_uniform(self, name, value)
@@ -1034,11 +1061,11 @@ cdef class Material:
 
         # register material
         
-        ret.vertex_shader = Shader.from_cpp(cppinst.data.vertex)
-        ret.fragment_shader = Shader.from_cpp(cppinst.data.fragment)
+        ret._vertex_shader = Shader.from_cpp(cppinst.data.vertex)
+        ret._fragment_shader = Shader.from_cpp(cppinst.data.fragment)
 
-        ret.c_class.data.vertex = ret.vertex_shader.c_class
-        ret.c_class.data.fragment = ret.fragment_shader.c_class
+        ret.c_class.data.vertex = ret._vertex_shader.c_class
+        ret.c_class.data.fragment = ret._fragment_shader.c_class
 
         return ret
         
@@ -1237,6 +1264,30 @@ cdef class Window:
 
         for obj in objs:
             self.remove_text(obj)
+
+    # EMITTER
+
+    cpdef void add_emitter(self, Emitter obj):
+        Py_INCREF(obj)
+        self.c_class.add_emitter(obj.c_class)
+
+    cpdef void remove_emitter(self, Emitter obj):
+        self.c_class.remove_emitter(obj.c_class)
+        Py_DECREF(obj)
+
+    cpdef void add_emitter_list(self, list[Emitter] objs):
+        cdef:
+            Emitter obj
+
+        for obj in objs:
+            self.add_emitter(obj)
+
+    cpdef void remove_emitter_list(self, list[Emitter] objs):
+        cdef:
+            Emitter obj
+
+        for obj in objs:
+            self.remove_emitter(obj)
 
 cdef class MouseDevice:
     pass
@@ -2540,3 +2591,38 @@ cdef class SkyBox:
     
     def __dealloc__(self):
         del self.c_class
+
+cdef class Emitter:
+
+    def __init__(self, Vec3 position, Quaternion direction, Vec2 scale_min, Vec2 scale_max, int rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, Vec4 color_min, Vec4 color_max, Material material = None) -> None:
+        self._position = position
+        self._direction = direction
+        self._color_min = color_min
+        self._color_max = color_max
+        self._scale_min = scale_min
+        self._scale_max = scale_max
+        self._material = material if material else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_particle.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_particle.glsl"), ShaderType.FRAGMENT))
+        self._material.diffuse_texture = Texture.from_file(path.join(path.dirname(__file__), "default_particle.png"))
+
+        self.c_class = new emitter(
+            self._position.c_class,
+            self._direction.c_class,
+            self._scale_min.c_class,
+            self._scale_max.c_class,
+            rate, decay_rate, spread,
+            velocity_decay, start_velocity_min,
+            start_velocity_max, start_lifetime_min,
+            start_lifetime_max, 
+            self._color_min.c_class, self._color_max.c_class,
+            self._material.c_class
+        )
+
+    def __dealloc__(self):
+        del self.c_class
+        
+
+    cpdef void start(self):
+        self.c_class.start()
+
+    cpdef void stop(self):
+        self.c_class.stop()

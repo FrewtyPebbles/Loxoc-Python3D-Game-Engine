@@ -4,7 +4,7 @@ from Loxoc import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
     DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
-    Vec4, Font, Text, CubeMap, SkyBox
+    Vec4, Font, Text, CubeMap, SkyBox, Emitter
 )
 import math
 from copy import copy
@@ -81,6 +81,20 @@ font_roboto = Font("./fonts/Roboto/Roboto-Regular.ttf")
 
 text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_roboto)
 
+test_emitter = Emitter(
+    Vec3(0,0,0),
+    Quaternion.from_axis_angle(Vec3(0,1,0), 0),
+    Vec2(1.0,1.0),Vec2(2.0,2.0),
+    200,
+    0.1,
+    math.radians(10),
+    0,
+    0.1, 1.0,
+    10, 15,
+    Vec4(1,0,0,1),
+    Vec4(0,1,0,1)
+)
+
 window.add_text_list([
     text
 ])
@@ -111,6 +125,10 @@ window.add_spot_light_list([
     spot_light
 ])
 
+window.add_emitter_list([
+    test_emitter
+])
+test_emitter.start()
 window.lock_mouse(True)
 
 car_collider = BoxCollider.from_object(car)
@@ -198,4 +216,4 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     window.update()
     # This also refreshes window.current_event.
     
-    
+

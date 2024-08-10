@@ -107,6 +107,18 @@ public:
         return axis + other;
     }
 
+    inline vec3 operator+=(vec3 const& other)
+    {
+        axis = axis + other.axis;
+        return *this;
+    }
+
+    inline vec3 operator+=(float const& other)
+    {
+        axis = axis + other;
+        return *this;
+    }
+
     inline vec3 operator-(vec3 const& other)
     {
         return axis - other.axis;
@@ -115,6 +127,18 @@ public:
     inline vec3 operator-(float const& other)
     {
         return axis - other;
+    }
+
+    inline vec3 operator-=(vec3 const& other)
+    {
+        axis = axis - other.axis;
+        return *this;
+    }
+
+    inline vec3 operator-=(float const& other)
+    {
+        axis = axis - other;
+        return *this;
     }
     
     inline vec3 operator*(vec3 const& other)

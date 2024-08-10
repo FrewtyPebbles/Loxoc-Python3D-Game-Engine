@@ -74,22 +74,23 @@ vec4 LOXOC_default(vec4 base_color) {
     vec3 norm = normalize(Normal);
     for(int i = 0; i < total_directional_lights; i++) { // DIRECTIONAL LIGHTS
         DirectionalLight current_l = directional_lights[i];
+
+        vec3 lightDir = extractDirection(current_l.rotation);
         
         // Ambient
         vec3 am_t = current_l.color * vec3(texture(material.diffuse_map, TexCoord));
         ambient += am_t;
         
         // Diffuse 
-        vec3 lightDir = extractDirection(current_l.rotation);
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 dif_t = current_l.color * (diff * vec3(texture(material.diffuse_map, TexCoord)));
         diffuse += dif_t;
         
         // Specular
         float specularStrength = 0.5;
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shine);
+        vec3 viewDir    = normalize(viewPos - FragPos);
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shine);
         vec3 sp_t = current_l.color * (spec * vec3(texture(material.specular_map, TexCoord)));
         specular += sp_t;
     }
@@ -100,13 +101,14 @@ vec4 LOXOC_default(vec4 base_color) {
         float attenuation = 1.0 / (current_l.constant + current_l.linear * l_distance + current_l.quadratic * (l_distance * l_distance));
         vec3 color = current_l.color * current_l.intensity;
 
+        vec3 lightDir = normalize(current_l.position - FragPos);
+
         // Ambient
         vec3 am_t = color * vec3(texture(material.diffuse_map, TexCoord));
         am_t *= attenuation;
         ambient += am_t;
         
         // Diffuse
-        vec3 lightDir = normalize(current_l.position - FragPos);
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 dif_t = color * (diff * vec3(texture(material.diffuse_map, TexCoord)));
         dif_t *= attenuation;
@@ -114,9 +116,9 @@ vec4 LOXOC_default(vec4 base_color) {
         
         // Specular
         float specularStrength = 0.5;
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);  
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shine);
+        vec3 viewDir    = normalize(viewPos - FragPos);
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shine);
         vec3 sp_t = color * (spec * vec3(texture(material.specular_map, TexCoord)));
         sp_t *= attenuation;
         specular += sp_t;
@@ -152,9 +154,9 @@ vec4 LOXOC_default(vec4 base_color) {
             
             // Specular
             float specularStrength = 0.5;
-            vec3 viewDir = normalize(viewPos - FragPos);
-            vec3 reflectDir = reflect(-lightDir, norm);  
-            float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shine);
+            vec3 viewDir    = normalize(viewPos - FragPos);
+            vec3 halfwayDir = normalize(lightDir + viewDir);
+            float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shine);
             vec3 sp_t = color * (spec * vec3(texture(material.specular_map, TexCoord)));
             sp_t *= attenuation;
             specular += sp_t;

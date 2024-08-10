@@ -125,10 +125,10 @@ cdef extern from "../src/Material.h":
     
 cdef class Material:
     cdef RC[material*]* c_class
-    cdef public Shader vertex_shader, fragment_shader
-    cdef public Texture diffuse_texture
-    cdef public Texture specular_texture
-    cdef public Texture normals_texture
+    cdef public Shader _vertex_shader, _fragment_shader
+    cdef public Texture _diffuse_texture
+    cdef public Texture _specular_texture
+    cdef public Texture _normals_texture
     cpdef void set_uniform(self, str name, value:UniformValueType)
 
     @staticmethod
@@ -911,6 +911,11 @@ cdef extern from "../src/Window.h":
         void add_text_list(vector[text*] objs)
         void remove_text_list(vector[text*] objs)
 
+        void add_emitter(emitter* obj)
+        void remove_emitter(emitter* obj)
+        void add_emitter_list(vector[emitter*] objs)
+        void remove_emitter_list(vector[emitter*] objs)
+
         event current_event
         double deltatime
         bint fullscreen
@@ -969,6 +974,13 @@ cdef class Window:
     cpdef void remove_text(self, Text obj)
     cpdef void add_text_list(self, list[Text] objs)
     cpdef void remove_text_list(self, list[Text] objs)
+
+    # emitter
+
+    cpdef void add_emitter(self, Emitter obj)
+    cpdef void remove_emitter(self, Emitter obj)
+    cpdef void add_emitter_list(self, list[Emitter] objs)
+    cpdef void remove_emitter_list(self, list[Emitter] objs)
 
     cpdef void lock_mouse(self, bint lock)
 
@@ -1338,3 +1350,46 @@ cdef class SkyBox:
         CubeMap _cubemap
         Material _material
         skybox* c_class
+
+cdef extern from "../src/Emitter.h":
+    cdef cppclass particle:
+        particle() except *
+        particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) except *
+
+        vec3 position, velocity
+        vec2 scale
+        vec4 color
+        float life
+
+    cdef cppclass emitter:
+        emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, size_t rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, RC[material*]* material) except *
+
+        inline void start()
+        inline void stop()
+        inline void render(const camera & cam)
+        
+        vector[particle] particles
+
+        vec3* position
+        quaternion* direction
+        vec2* scale_min
+        vec2* scale_max
+        size_t rate
+        float decay_rate
+        float spread, velocity_decay, start_velocity_min, start_velocity_max, start_lifetime_min, start_lifetime_max
+        vec4* color_min
+        vec4* color_max
+        RC[material*]* material
+        bint emitting
+
+cdef class Emitter:
+    cdef:
+        emitter* c_class
+        Material _material
+        Vec3 _position
+        Quaternion _direction
+        Vec4 _color_min, _color_max
+        Vec2 _scale_min, _scale_max
+
+    cpdef void start(self)
+    cpdef void stop(self)

@@ -781,6 +781,28 @@ class Window:
         Removes multiple :class:`Text` s from the scene.  Only :class:`Text` s which are in the scene will be rendered by the camera.
         """
 
+    # EMITTER
+
+    def add_emitter(self, obj:Emitter) -> None:
+        """
+        Adds the :class:`Emitter` to the scene.  This ensures that the :class:`Emitter` is rendered by the camera.
+        """
+
+    def remove_emitter(self, obj:Emitter) -> None:
+        """
+        Removes the :class:`Emitter` from the scene.  Only :class:`Emitter` s which are in the scene will be rendered by the camera.
+        """
+
+    def add_emitter_list(self, objs:list[Emitter]) -> None:
+        """
+        Adds multiple :class:`Emitter` s to the scene.  This ensures that they are rendered by the camera.
+        """
+
+    def remove_emitter_list(self, objs:list[Emitter]) -> None:
+        """
+        Removes multiple :class:`Emitter` s from the scene.  Only :class:`Emitter` s which are in the scene will be rendered by the camera.
+        """
+
 class EVENT_FLAG(Enum):
     """
     An IO or engine event flag.
@@ -2212,4 +2234,23 @@ class SkyBox:
     def cubemap(self, value:CubeMap):
         """
         The :class:`CubeMap` used in rendering the :class:`SkyBox` .
+        """
+
+class Emitter:
+    """
+    Emits particles.
+    """
+
+    def __init__(self, position:Vec3, direction:Quaternion, scale_min:Vec2, scale_max:Vec2, rate:int, decay_rate:float, spread:float, velocity_decay:float, start_velocity_min:float, start_velocity_max:float, start_lifetime_min:float, start_lifetime_max:float, color_min:Vec4, color_max:Vec4, material:Material | None = None) -> None:
+        ...
+        
+
+    def start(self) -> None:
+        """
+        Starts emitting particles.
+        """
+
+    def stop(self) -> None:
+        """
+        Stops emitting particles.
         """
