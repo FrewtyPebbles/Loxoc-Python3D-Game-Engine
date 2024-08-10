@@ -84,7 +84,7 @@ text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_robot
 test_emitter = Emitter(
     Vec3(0,0,0),
     Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(-90)),
-    Vec2(10.0,10.0),Vec2(30.0,30.0),
+    Vec2(1.0,1.0),Vec2(10.0,10.0),
     100,
     0.1,
     math.radians(30),

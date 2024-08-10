@@ -267,6 +267,10 @@ And voila!  Your 3D assets are now imported and ready to be used in objects and 
 
  - Add window/fullscreen scaling.
 
+ - Add depth and/or layer system for 2D sprites.
+
+ - Add low level api for use with the geometry shader.
+
 # Future Plans:
 
- - Switch to Vulkan.
+ - Add Vulkan backend.
