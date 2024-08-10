@@ -83,16 +83,16 @@ text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_robot
 
 test_emitter = Emitter(
     Vec3(0,0,0),
-    Quaternion.from_axis_angle(Vec3(0,1,0), 0),
-    Vec2(1.0,1.0),Vec2(2.0,2.0),
-    200,
+    Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(-90)),
+    Vec2(10.0,10.0),Vec2(30.0,30.0),
+    100,
     0.1,
-    math.radians(10),
+    math.radians(30),
     0,
-    0.1, 1.0,
-    10, 15,
+    0.1, 2.0,
+    20, 50,
     Vec4(1,0,0,1),
-    Vec4(0,1,0,1)
+    Vec4(0.5,0.5,0.5,1)
 )
 
 window.add_text_list([

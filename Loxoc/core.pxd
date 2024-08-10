@@ -82,7 +82,9 @@ cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFilte
 cdef extern from "../src/Shader.h":
     cpdef enum class ShaderType:
         FRAGMENT,
-        VERTEX
+        VERTEX,
+        GEOMETRY,
+        COMPUTE
     cdef cppclass shader:
         shader() except *
         shader(string source, ShaderType type) except *
@@ -108,12 +110,16 @@ cdef extern from "../src/Material.h":
     cdef cppclass material:
         material() except *
         material(RC[shader*]* vertex, RC[shader*]* fragment) except *
+        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry) except *
+        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry, RC[shader*]* compute) except *
         void set_uniform(string name, uniform_type value) except *
         void register_uniforms() except *
         void link_shaders() except *
         void use_material() except *
         RC[shader*]* vertex
         RC[shader*]* fragment
+        RC[shader*]* geometry
+        RC[shader*]* compute
         RC[texture*]* diffuse_texture
         RC[texture*]* specular_texture
         RC[texture*]* normals_texture
@@ -125,7 +131,7 @@ cdef extern from "../src/Material.h":
     
 cdef class Material:
     cdef RC[material*]* c_class
-    cdef public Shader _vertex_shader, _fragment_shader
+    cdef public Shader _vertex_shader, _fragment_shader, _geometry_shader, _compute_shader
     cdef public Texture _diffuse_texture
     cdef public Texture _specular_texture
     cdef public Texture _normals_texture
@@ -712,7 +718,7 @@ cdef class Mesh:
     @staticmethod
     cdef Mesh from_cpp(RC[mesh*]* cppinst)
     
-cpdef MeshDict mesh_from_file(str file_path) except *
+cpdef MeshDict mesh_from_file(str file_path)
 
 cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:

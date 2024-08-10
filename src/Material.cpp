@@ -57,9 +57,18 @@ void TRAIT_has_uniform::register_uniforms() {
 void material::link_shaders() {
     this->vertex->data->compile();
     this->fragment->data->compile();
+    if (this->geometry)
+        this->geometry->data->compile();
+    if (this->compute)
+        this->compute->data->compile();
     this->shader_program = glCreateProgram();
     glAttachShader(this->shader_program, this->vertex->data->shader_handle);
     glAttachShader(this->shader_program, this->fragment->data->shader_handle);
+    if (this->geometry)
+        glAttachShader(this->shader_program, this->geometry->data->shader_handle);
+    if (this->compute)
+        glAttachShader(this->shader_program, this->compute->data->shader_handle);
+    
     glLinkProgram(this->shader_program);
     
     // Check for linking errors
@@ -77,6 +86,10 @@ void material::link_shaders() {
     // glDetachShader(this->shader_program, this->fragment_shader.shader_handle);
     glDeleteShader(this->vertex->data->shader_handle);
     glDeleteShader(this->fragment->data->shader_handle);
+    if (this->geometry)
+        glDeleteShader(this->geometry->data->shader_handle);
+    if (this->compute)
+        glDeleteShader(this->compute->data->shader_handle);
 }
 
 void material::set_material() {

@@ -7,6 +7,7 @@
 #include <variant>
 #include <random>
 #include "glad/gl.h"
+#define PI 3.1415927f
 
 inline void ogl_err_print() {
   GLenum err;

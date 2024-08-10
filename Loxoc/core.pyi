@@ -18,6 +18,8 @@ class ShaderType(Enum):
     """
     FRAGMENT: 'ShaderType'
     VERTEX: 'ShaderType'
+    GEOMETRY: 'ShaderType'
+    COMPUTE: 'ShaderType'
 
 class Camera:
     """
@@ -145,7 +147,7 @@ class Material:
 
     You may supply your own :class:`Shader` s to customize how Objects are rendered.
     """
-    def __init__(self, vertex:Shader = None, fragment:Shader = None) -> None:...
+    def __init__(self, vertex:Shader|None = None, fragment:Shader|None = None, geometry:Shader|None = None, compute:Shader|None = None) -> None:...
 
     def set_uniform(self, name:str, value:UniformValueType) ->None:
         """

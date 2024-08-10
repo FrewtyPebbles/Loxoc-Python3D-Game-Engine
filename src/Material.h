@@ -52,8 +52,8 @@ typedef RC<shader*>* rc_shader;
 class material : public TRAIT_has_uniform {
 public:
     
-    material(rc_shader vertex, rc_shader fragment)
-    : vertex(vertex), fragment(fragment)
+    material(rc_shader vertex, rc_shader fragment, rc_shader geometry = nullptr, rc_shader compute = nullptr)
+    : vertex(vertex), fragment(fragment), geometry(geometry), compute(compute)
     {
         this->link_shaders();
     }
@@ -69,6 +69,8 @@ public:
 
     rc_shader vertex;
     rc_shader fragment;
+    rc_shader geometry;
+    rc_shader compute;
     GLuint shader_program;
     string name;
     vec3 ambient = vec3(0.1f, 0.1f, 0.1f);

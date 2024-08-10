@@ -1005,7 +1005,7 @@ cdef Vec2 vec2_from_cpp(vec2 cppinst):
 ctypedef material* material_ptr
 
 cdef class Material:
-    def __init__(self, Shader vertex = None, Shader fragment = None) -> None:
+    def __init__(self, Shader vertex = None, Shader fragment = None, Shader geometry = None, Shader compute = None) -> None:
         if vertex:
             self._vertex_shader = vertex
         else:
@@ -1016,7 +1016,18 @@ cdef class Material:
         else:
             self._fragment_shader = Shader.from_file(path.join(path.dirname(__file__), "default_fragment.glsl"), ShaderType.FRAGMENT)
 
-        self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class))
+        if geometry and not compute:
+            self._geometry_shader = geometry
+            self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class, self._geometry_shader.c_class))
+        elif compute and not geometry:
+            self._compute_shader = compute
+            self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class, NULL, self._compute_shader.c_class))
+        elif compute and geometry:
+            self._geometry_shader = geometry
+            self._compute_shader = compute
+            self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class, self._geometry_shader.c_class, self._compute_shader.c_class))
+        else:
+            self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class))
         
     def __dealloc__(self):
         RC_collect(self.c_class)
@@ -2601,7 +2612,11 @@ cdef class Emitter:
         self._color_max = color_max
         self._scale_min = scale_min
         self._scale_max = scale_max
-        self._material = material if material else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_particle.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_particle.glsl"), ShaderType.FRAGMENT))
+        self._material = material if material else Material(
+            Shader.from_file(path.join(path.dirname(__file__), "default_vertex_particle.glsl"), ShaderType.VERTEX),
+            Shader.from_file(path.join(path.dirname(__file__), "default_fragment_particle.glsl"), ShaderType.FRAGMENT),
+            Shader.from_file(path.join(path.dirname(__file__), "default_geometry_particle.glsl"), ShaderType.GEOMETRY)
+        )
         self._material.diffuse_texture = Texture.from_file(path.join(path.dirname(__file__), "default_particle.png"))
 
         self.c_class = new emitter(

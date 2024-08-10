@@ -24,9 +24,14 @@ void shader::compile() {
     case ShaderType::FRAGMENT:
         this->shader_handle = glCreateShader(GL_FRAGMENT_SHADER);
         break;
-
     case ShaderType::VERTEX:
         this->shader_handle = glCreateShader(GL_VERTEX_SHADER);
+        break;
+    case ShaderType::GEOMETRY:
+        this->shader_handle = glCreateShader(GL_GEOMETRY_SHADER);
+        break;
+    case ShaderType::COMPUTE:
+        this->shader_handle = glCreateShader(GL_COMPUTE_SHADER);
         break;
     default:
         break;
@@ -42,7 +47,7 @@ void shader::compile() {
     {
         glGetShaderInfoLog(this->shader_handle, 512, NULL, infoLog);
         std::stringstream ss;
-        ss << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
+        ss << "ERROR::SHADER::" << this->type << "::COMPILATION_FAILED\n" << infoLog << "\n";
         std::cerr << ss.str();
         throw std::runtime_error(ss.str());
     }

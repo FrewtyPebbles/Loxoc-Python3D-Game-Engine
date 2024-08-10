@@ -9,7 +9,9 @@ using std::string;
 
 enum class ShaderType {
     FRAGMENT,
-    VERTEX
+    VERTEX,
+    GEOMETRY,
+    COMPUTE
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ShaderType& self) {
@@ -21,6 +23,12 @@ inline std::ostream& operator<<(std::ostream& os, const ShaderType& self) {
         break;
     
     case ShaderType::VERTEX:
+        os << "VERTEX";
+        break;
+    case ShaderType::GEOMETRY:
+        os << "GEOMETRY";
+        break;
+    case ShaderType::COMPUTE:
         os << "VERTEX";
         break;
     }

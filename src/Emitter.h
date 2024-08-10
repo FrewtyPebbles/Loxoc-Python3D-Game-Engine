@@ -12,88 +12,18 @@
 
 using std::vector;
 
-// TODO: add deltatime for decay_rate AND REFACTOR QUAD PRODUCTION INTO GEOMETRY SHADER.
-
-const float quad_array[20] = {
-    // Positions        // Texture Coords
-    -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // Top-left
-    0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // Top-right
-    0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // Bottom-right
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f   // Bottom-left
-};
-
-const unsigned int tex_indices[6] = {
-    0, 1, 2,  // First triangle
-    2, 3, 0   // Second triangle
-};
+// TODO: add deltatime for decay_rate
+const unsigned int indicie[1] = {0};
 
 class particle {
 public:
     particle(){}
-    particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) : position(position), velocity(velocity), scale(scale), color(color), life(life) {
-        create_VAO_init();
-    }
+    particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) : position(position), velocity(velocity), scale(scale), color(color), life(life) {}
 
     vec3 position, velocity; // position is relative to the emitter
     vec2 scale;
     vec4 color;
     float life;
-
-    inline void create_VAO_init() {
-        // Create VAO
-        glGenVertexArrays(1, &gl_VAO);
-        glBindVertexArray(gl_VAO);
-
-        // Create VBO
-        glGenBuffers(1, &gl_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, gl_VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quad_array), quad_array, GL_STATIC_DRAW);
-
-        // Create EBO
-        glGenBuffers(1, &gl_EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(tex_indices), tex_indices, GL_STATIC_DRAW);
-
-        // Vertex attributes
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-
-    inline void create_VAO() {
-
-        // Instance buffer
-        glBindVertexArray(gl_VAO);
-
-        // Offset (position)
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(2);
-        
-
-        // Color
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-
-        // Scale
-        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
-        glEnableVertexAttribArray(4);
-
-        // life
-        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(9 * sizeof(float)));
-        glEnableVertexAttribArray(5);
-        
-        
-        glVertexAttribDivisor(2, 1);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-
-        glBindVertexArray(0);
-    }
-
-    GLuint gl_VAO, gl_VBO, gl_EBO;
 };
 
 class emitter {
@@ -119,8 +49,6 @@ public:
     {
         create_particles();
         this->create_VAO();
-        for (particle & p : particles)
-            p.create_VAO();
     }
 
     inline void start() {
@@ -163,9 +91,13 @@ private:
     inline particle create_particle() {
         
         quaternion dir = *direction;
-        dir.rotate(vec3(0.0f,1.0f,0.0f), (float)rand_range(-spread, spread));
-        dir.rotate(vec3(1.0f,0.0f,0.0f), (float)rand_range(-spread, spread));
-        dir.rotate(vec3(0.0f,0.0f,1.0f), (float)rand_range(-spread, spread));
+
+        float random_angle = rand_range(0.0f, 1.0f) * PI * 2;
+        float vel = rand_range(start_velocity_min, start_velocity_max);
+
+        dir.rotate(dir.get_forward(), random_angle);
+        dir.rotate(dir.get_up(), rand_range(-spread, spread));
+        dir.rotate(dir.get_right(), rand_range(-spread, spread));
         
         vec4 color(rand_range(color_min->axis.x, color_max->axis.x), rand_range(color_min->axis.y, color_max->axis.y), rand_range(color_min->axis.z, color_max->axis.z), rand_range(color_min->axis.w, color_max->axis.w));
         
@@ -174,7 +106,7 @@ private:
         return particle(
             *position,
             scale,
-            dir.get_forward() * rand_range(start_velocity_min, start_velocity_max),
+            dir.get_forward() * vel,
             color,
             rand_range(start_lifetime_min, start_lifetime_max)
         );
@@ -217,7 +149,7 @@ private:
             
             i++;
         }
-        glBindBuffer(GL_ARRAY_BUFFER, gl_instanced_VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gl_VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, instance_vbo_update.size() * sizeof(float), instance_vbo_update.data());// BUG
 
         material->data->set_uniform("projection", cam.projection);
@@ -227,18 +159,67 @@ private:
         glActiveTexture(GL_TEX_N_ITTER[0]);
         material->data->diffuse_texture->data->bind();
 
-        for (particle &p : particles) {
-            glBindVertexArray(p.gl_VAO);
-            glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(6), GL_UNSIGNED_INT, 0, rate);
-            glBindVertexArray(0);
-        }
+        glBindVertexArray(gl_VAO);
+        glDrawArrays(GL_POINTS, 0, rate);
+        glBindVertexArray(0);
     }
 
     inline void create_VAO() {
-        glGenBuffers(1, &gl_instanced_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, gl_instanced_VBO);
-        glBufferData(GL_ARRAY_BUFFER, rate * 10 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+        vector<float> instance_vbo_update;
+        unsigned int i = 0;
+        for (particle & p : particles) {
+            update_particle(&p);
+            instance_vbo_update.push_back(p.position.axis.x);
+            instance_vbo_update.push_back(p.position.axis.y);
+            instance_vbo_update.push_back(p.position.axis.z);
+
+            instance_vbo_update.push_back(p.color.axis.x);
+            instance_vbo_update.push_back(p.color.axis.y);
+            instance_vbo_update.push_back(p.color.axis.z);
+            instance_vbo_update.push_back(p.color.axis.w);
+
+            instance_vbo_update.push_back(p.scale.axis.x);
+            instance_vbo_update.push_back(p.scale.axis.y);
+
+            instance_vbo_update.push_back(p.life);
+            
+            i++;
+        }
+        
+        // Create VAO
+        glGenVertexArrays(1, &gl_VAO);
+        glBindVertexArray(gl_VAO);
+
+        // Create VBO
+        glGenBuffers(1, &gl_VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, gl_VBO);
+        glBufferData(GL_ARRAY_BUFFER, instance_vbo_update.size() * sizeof(float), instance_vbo_update.data(), GL_DYNAMIC_DRAW);
+
+        // Create EBO
+        // glGenBuffers(1, &gl_EBO);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_EBO);
+        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int), indicie, GL_STATIC_DRAW);
+
+        // position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(0 * sizeof(float)));
+        glEnableVertexAttribArray(0);
+        
+
+        // Color
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        // Scale
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+
+        // life
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(9 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+
+        glBindVertexArray(0);
     }
 
-    GLuint gl_VAO, gl_VBO, gl_EBO, gl_instanced_VBO;
+    GLuint gl_VAO, gl_VBO, gl_EBO;
 };
