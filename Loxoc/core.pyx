@@ -7,6 +7,8 @@ from cython.operator import dereference, preincrement, postincrement
 from typing import Generator
 from libcpp.pair cimport pair
 from libcpp.algorithm cimport remove
+import math
+
 
 # IMPORTANT: All data must be written saved within the CPP classes.
 # All classes here just wrap CPP class pointers.
@@ -1611,17 +1613,93 @@ cdef class Collider:
         
         return False
 
+    @property
+    def show(self):
+        return self.c_class.data.show_collider
+
+    @show.setter
+    def show(self, bint value):
+        self.c_class.data.show_collider = value
+
+    @property
+    def rotation(self) -> Quaternion:
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, Quaternion value) -> None:
+        self._rotation.c_class[0] = value.c_class[0]
+
+    @property
+    def scale(self) -> Vec3:
+        return self._scale
+
+    @scale.setter
+    def scale(self, Vec3 value) -> None:
+        self._scale.c_class[0] = value.c_class[0]
+
 ctypedef collider* collider_ptr
 
 cdef class BoxCollider(Collider):
-    def __init__(self, Vec3 upper_bound = Vec3(0.0,0.0,0.0), Vec3 lower_bound = Vec3(-100,-100,-100), Vec3 offset = Vec3(0,0,0), rotation_offset: Vec3 | Quaternion = Vec3(0,0,0)) -> None:
-        self.c_class = new RC[collider_ptr](new collider_box(upper_bound.c_class[0], lower_bound.c_class[0]))
+    def __init__(self, Object3D object, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> None:
+        self._offset = offset
+        self._scale = scale
+        if isinstance(rotation, Vec3):
+            self._rotation = rotation.to_quaternion()
+        elif isinstance(rotation, Quaternion):
+            self._rotation = rotation
+
+        self.c_class = new RC[collider_ptr](new collider_box(object.c_class, self._offset.c_class, self._rotation.c_class, self._scale.c_class))
 
     @classmethod
-    def from_object(cls, Object3D object) -> BoxCollider:
+    def from_bounds(cls, Vec3 upper_bound = Vec3(0.0,0.0,0.0), Vec3 lower_bound = Vec3(-100,-100,-100), Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
         cdef:
             BoxCollider ret = BoxCollider.__new__(BoxCollider)
-        ret.c_class = new RC[collider_ptr](new collider_box(object.c_class))
+        ret._offset = offset
+        ret._scale = scale
+        if isinstance(rotation, Vec3):
+            ret._rotation = rotation.to_quaternion()
+        elif isinstance(rotation, Quaternion):
+            ret._rotation = rotation
+        ret.c_class = new RC[collider_ptr](new collider_box(upper_bound.c_class[0], lower_bound.c_class[0], ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
+        return ret
+
+    def __dealloc__(self):
+        RC_collect(self.c_class)
+
+cdef class ConvexCollider(Collider):
+    def __init__(self, Object3D object, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> None:
+        self._offset = offset
+        self._scale = scale
+        if isinstance(rotation, Vec3):
+            self._rotation = rotation.to_quaternion()
+        elif isinstance(rotation, Quaternion):
+            self._rotation = rotation
+        self.c_class = new RC[collider_ptr](new collider_convex(object.c_class, self._offset.c_class, self._rotation.c_class, self._scale.c_class))
+
+    @classmethod
+    def from_mesh(cls, Mesh msh, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+        cdef:
+            BoxCollider ret = BoxCollider.__new__(BoxCollider)
+        ret._offset = offset
+        ret._scale = scale
+        if isinstance(rotation, Vec3):
+            ret._rotation = rotation.to_quaternion()
+        elif isinstance(rotation, Quaternion):
+            ret._rotation = rotation
+        ret.c_class = new RC[collider_ptr](new collider_convex(msh.c_class, ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
+        return ret
+
+    @classmethod
+    def from_mesh_dict(cls, MeshDict msh_dict, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+        cdef:
+            BoxCollider ret = BoxCollider.__new__(BoxCollider)
+        ret._offset = offset
+        ret._scale = scale
+        if isinstance(rotation, Vec3):
+            ret._rotation = rotation.to_quaternion()
+        elif isinstance(rotation, Quaternion):
+            ret._rotation = rotation
+        ret.c_class = new RC[collider_ptr](new collider_convex(msh_dict.c_class, ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
         return ret
 
     def __dealloc__(self):
@@ -2605,7 +2683,7 @@ cdef class SkyBox:
 
 cdef class Emitter:
 
-    def __init__(self, Vec3 position, Quaternion direction, Vec2 scale_min, Vec2 scale_max, int rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, Vec4 color_min, Vec4 color_max, Material material = None) -> None:
+    def __init__(self, Vec3 position, Quaternion direction, Vec2 scale_min = Vec2(1.0, 1.0), Vec2 scale_max = Vec2(1.0, 1.0), int rate = 50, float decay_rate = 1.0, float spread = math.radians(30), float velocity_decay = 1.0, float start_velocity_min = 1.0, float start_velocity_max = 1.0, float start_lifetime_min = 10.0, float start_lifetime_max = 10.0, Vec4 color_min = Vec4(1.0,1.0,1.0,1.0), Vec4 color_max = Vec4(1.0,1.0,1.0,1.0), Material material = None) -> None:
         self._position = position
         self._direction = direction
         self._color_min = color_min
@@ -2634,7 +2712,148 @@ cdef class Emitter:
 
     def __dealloc__(self):
         del self.c_class
-        
+
+    # MATERIAL
+
+    @property
+    def material(self) -> Material:
+        return self._material
+
+    @material.setter
+    def material(self, Material value):
+        self._material.c_class.data[0] = value.c_class.data[0]
+
+    # POSITION
+
+    @property
+    def position(self) -> Vec3:
+        return self._position
+
+    @position.setter
+    def position(self, Vec3 value) -> None:
+        self._position.c_class[0] = value.c_class[0]
+
+    # DIRECTION
+
+    @property
+    def direction(self) -> Quaternion:
+        return self._direction
+
+    @direction.setter
+    def direction(self, Quaternion value) -> None:
+        self._direction.c_class[0] = value.c_class[0]
+
+    # COLOR
+
+    @property
+    def color_min(self) -> Vec4:
+        return self._color_min
+
+    @color_min.setter
+    def color_min(self, Vec4 value) -> None:
+        self._color_min.c_class[0] = value.c_class[0]
+
+    @property
+    def color_max(self) -> Vec4:
+        return self._color_max
+
+    @color_max.setter
+    def color_max(self, Vec4 value) -> None:
+        self._color_max.c_class[0] = value.c_class[0]
+
+    # SCALE
+
+    @property
+    def scale_min(self) -> Vec2:
+        return self._scale_min
+
+    @scale_min.setter
+    def scale_min(self, Vec2 value) -> None:
+        self._scale_min.c_class[0] = value.c_class[0]
+
+    @property
+    def scale_max(self) -> Vec2:
+        return self._scale_max
+
+    @scale_max.setter
+    def scale_max(self, Vec2 value) -> None:
+        self._scale_max.c_class[0] = value.c_class[0]
+
+    # rate
+    
+    @property
+    def rate(self) -> int:
+        return self.c_class.rate
+
+    @rate.setter
+    def rate(self, int value) -> None:
+        self.c_class.rate = value
+
+    # decay_rate
+    
+    @property
+    def decay_rate(self) -> float:
+        return self.c_class.decay_rate
+
+    @decay_rate.setter
+    def decay_rate(self, float value) -> None:
+        self.c_class.decay_rate = value
+
+    # spread
+    
+    @property
+    def spread(self) -> float:
+        return self.c_class.spread
+
+    @spread.setter
+    def spread(self, float value) -> None:
+        self.c_class.spread = value
+
+    # velocity_decay
+    
+    @property
+    def velocity_decay(self) -> float:
+        return self.c_class.velocity_decay
+
+    @velocity_decay.setter
+    def velocity_decay(self, float value) -> None:
+        self.c_class.velocity_decay = value
+
+    # start_velocity_min, start_velocity_max
+    
+    @property
+    def start_velocity_min(self) -> float:
+        return self.c_class.start_velocity_min
+
+    @start_velocity_min.setter
+    def start_velocity_min(self, float value) -> None:
+        self.c_class.start_velocity_min = value
+
+    @property
+    def start_velocity_max(self) -> float:
+        return self.c_class.start_velocity_max
+
+    @start_velocity_max.setter
+    def start_velocity_max(self, float value) -> None:
+        self.c_class.start_velocity_max = value
+    
+    # start_lifetime_min, start_lifetime_max
+
+    @property
+    def start_lifetime_min(self) -> float:
+        return self.c_class.start_lifetime_min
+
+    @start_lifetime_min.setter
+    def start_lifetime_min(self, float value) -> None:
+        self.c_class.start_lifetime_min = value
+
+    @property
+    def start_lifetime_max(self) -> float:
+        return self.c_class.start_lifetime_max
+
+    @start_lifetime_max.setter
+    def start_lifetime_max(self, float value) -> None:
+        self.c_class.start_lifetime_max = value
 
     cpdef void start(self):
         self.c_class.start()

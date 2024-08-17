@@ -31,6 +31,7 @@ class vec3 {
 public:
     vec3()=default;
     vec3(float x, float y, float z) : axis(x,y,z) {}
+    vec3(float val) : axis(val,val,val) {}
     vec3(const glm::vec3& axis) : axis(axis) {}
     vec3(const vec3& rhs) : axis(rhs.axis) {}
     vec3(const vec2& rhs, float z);
@@ -44,7 +45,10 @@ public:
             return std::strong_ordering::less;
         return std::strong_ordering::equal;
     }
-    
+
+    friend inline bool operator==(const vec3& lhs, const vec3& rhs) {
+        return lhs.axis.x == rhs.axis.x && lhs.axis.y == rhs.axis.y && lhs.axis.z == rhs.axis.z;
+    }
     
     friend inline bool operator<=(const vec3& lhs, const vec3& rhs) {
         return lhs.axis.x <= rhs.axis.x && lhs.axis.y <= rhs.axis.y && lhs.axis.z <= rhs.axis.z;
@@ -121,7 +125,7 @@ public:
 
     inline vec3 operator-(vec3 const& other)
     {
-        return axis - other.axis;
+        return vec3(axis - other.axis);
     }
 
     inline vec3 operator-(float const& other)
@@ -166,7 +170,7 @@ public:
         return glm::dot(this->axis, other.axis);
     }
 
-    inline vec3 cross(const vec3& other)
+    inline vec3 cross(vec3 other)
     {
         return glm::cross(this->axis, other.axis);
     }

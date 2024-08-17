@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Generator
+import math
 
 UniformValueType = int | float | Matrix2x2 | Matrix2x3 | Matrix2x4 | Matrix3x2 | Matrix3x3 | Matrix3x4 | Matrix4x2 | Matrix4x3 | Matrix4x4 | Vec2 | Vec3 | Vec4
 """
@@ -1598,17 +1599,85 @@ class Collider:
         Checks for a collision between this :class:`Collider`  and another :class:`Collider` or :class:`Vec3` .
         """
 
+    @property
+    def offset(self) -> Vec3:
+        """
+        The :class:`Vec3` offset of the collider.
+        """
+
+    @offset.setter
+    def offset(self, value: Vec3) -> None:
+        """
+        The :class:`Vec3` offset of the collider.
+        """
+
+    @property
+    def rotation(self) -> Quaternion:
+        """
+        The :class:`Quaternion` rotation of the collider.
+        """
+
+    @rotation.setter
+    def rotation(self, value: Quaternion) -> None:
+        """
+        The :class:`Quaternion` rotation of the collider.
+        """
+
+    @property
+    def scale(self) -> Vec3:
+        """
+        The :class:`Vec3` scale of the collider.
+        """
+
+    @scale.setter
+    def scale(self, value: Vec3) -> None:
+        """
+        The :class:`Vec3` scale of the collider.
+        """
+
+    @property
+    def show(self):
+        """
+        Makes the collider visible.  Good for debugging purposes.
+        """
+
+    @show.setter
+    def show(self, value: bool):
+        """
+        Makes the collider visible.  Good for debugging purposes.
+        """
+
 class BoxCollider(Collider):
     """
     An Oriented Box Collider.
     """
-    def __init__(self, upper_bound:Vec3 = Vec3(0.0,0.0,0.0), lower_bound:Vec3 = Vec3(-100,-100,-100), offset:Vec3 = Vec3(0,0,0), rotation_offset: Vec3 | Quaternion = Vec3(0,0,0)) -> None:
+    def __init__(self, object: Object3D, offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> None:
         ...
 
     @classmethod
-    def from_object(cls, object: Object3D) -> BoxCollider:
+    def from_bounds(cls, upper_bound: Vec3 = Vec3(0.0,0.0,0.0), lower_bound: Vec3 = Vec3(-100,-100,-100), offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> BoxCollider:
         """
-        Constructs an :class:`BoxCollider` from an instance of :class:`Object3D` .
+        Constructs an :class:`BoxCollider` from the provided bounds.
+        """
+
+class ConvexCollider(Collider):
+    """
+    A convex hull collider.
+    """
+
+    def __init__(self, object:Object3D, offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> None:
+        ...
+
+    @classmethod
+    def from_mesh(cls, msh:Mesh, offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+        """
+        Creates a :class:`ConvexCollider` from the provided :class:`Mesh` .
+        """
+
+    @classmethod
+    def from_mesh_dict(cls, msh_dict:MeshDict, offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+        """
+        Creates a :class:`ConvexCollider` from the provided :class:`MeshDict` .
         """
 
 
@@ -2243,7 +2312,7 @@ class Emitter:
     Emits particles.
     """
 
-    def __init__(self, position:Vec3, direction:Quaternion, scale_min:Vec2, scale_max:Vec2, rate:int, decay_rate:float, spread:float, velocity_decay:float, start_velocity_min:float, start_velocity_max:float, start_lifetime_min:float, start_lifetime_max:float, color_min:Vec4, color_max:Vec4, material:Material | None = None) -> None:
+    def __init__(self, position:Vec3, direction:Quaternion, scale_min:Vec2 = Vec2(1.0, 1.0), scale_max:Vec2 = Vec2(1.0, 1.0), rate:int = 50, decay_rate:float = 1.0, spread:float = math.radians(30), velocity_decay:float = 1.0, start_velocity_min:float = 1.0, start_velocity_max:float = 1.0, start_lifetime_min:float = 10.0, start_lifetime_max:float = 10.0, color_min:Vec4 = Vec4(1.0,1.0,1.0,1.0), color_max:Vec4 = Vec4(1.0,1.0,1.0,1.0), material:Material | None = None) -> None:
         ...
         
 
@@ -2255,4 +2324,206 @@ class Emitter:
     def stop(self) -> None:
         """
         Stops emitting particles.
+        """
+
+    # MATERIAL
+
+    @property
+    def material(self) -> Material:
+        """
+        The :class:`Material` for the particle.
+        """
+
+    @material.setter
+    def material(self, value:Material):
+        """
+        The :class:`Material` for the particle.
+        """
+
+    # POSITION
+
+    @property
+    def position(self) -> Vec3:
+        """
+        The :class:`Vec3` position of the emitter.
+        """
+
+    @position.setter
+    def position(self, value:Vec3) -> None:
+        """
+        The :class:`Vec3` position of the emitter.
+        """
+
+    # DIRECTION
+
+    @property
+    def direction(self) -> Quaternion:
+        """
+        The :class:`Quaternion` direction of the emitter.
+        """
+
+    @direction.setter
+    def direction(self, value:Quaternion) -> None:
+        """
+        The :class:`Quaternion` direction of the emitter.
+        """
+
+    # COLOR
+
+    @property
+    def color_min(self) -> Vec4:
+        """
+        The :class:`Vec4` minimum color of the particles.  The color of the particle will be randomly selected between `Emitter.color_min` and `Emitter.color_max` .
+        """
+
+    @color_min.setter
+    def color_min(self, value:Vec4) -> None:
+        """
+        The :class:`Vec4` minimum color of the particles.  The color of the particle will be randomly selected between `Emitter.color_min` and `Emitter.color_max` .
+        """
+
+    @property
+    def color_max(self) -> Vec4:
+        """
+        The :class:`Vec4` maximum color of the particles.  The color of the particle will be randomly selected between `Emitter.color_min` and `Emitter.color_max` .
+        """
+
+    @color_max.setter
+    def color_max(self, value:Vec4) -> None:
+        """
+        The :class:`Vec4` maximum color of the particles.  The color of the particle will be randomly selected between `Emitter.color_min` and `Emitter.color_max` .
+        """
+
+    # SCALE
+
+    @property
+    def scale_min(self) -> Vec2:
+        """
+        The :class:`Vec2` minimum scale of the particles.  The scale of the particle will be randomly selected between `Emitter.scale_min` and `Emitter.scale_max` .
+        """
+
+    @scale_min.setter
+    def scale_min(self, value:Vec2) -> None:
+        """
+        The :class:`Vec2` minimum scale of the particles.  The scale of the particle will be randomly selected between `Emitter.scale_min` and `Emitter.scale_max` .
+        """
+
+    @property
+    def scale_max(self) -> Vec2:
+        """
+        The :class:`Vec2` maximum scale of the particles.  The scale of the particle will be randomly selected between `Emitter.scale_min` and `Emitter.scale_max` .
+        """
+
+    @scale_max.setter
+    def scale_max(self, value:Vec2) -> None:
+        """
+        The :class:`Vec2` maximum scale of the particles.  The scale of the particle will be randomly selected between `Emitter.scale_min` and `Emitter.scale_max` .
+        """
+
+    # rate
+    
+    @property
+    def rate(self) -> int:
+        """
+        The ammount of particles present at any one time.
+        """
+
+    @rate.setter
+    def rate(self, value:int) -> None:
+        """
+        The ammount of particles present at any one time.
+        """
+
+    # decay_rate
+    
+    @property
+    def decay_rate(self) -> float:
+        """
+        The speed of decay, or how much a particle's life decreases each second.  When a particle's life reaches 0, it disappears.
+        """
+
+    @decay_rate.setter
+    def decay_rate(self, value:float) -> None:
+        """
+        The speed of decay, or how much a particle's life decreases each second.  When a particle's life reaches 0, it disappears.
+        """
+
+    # spread
+    
+    @property
+    def spread(self) -> float:
+        """
+        The radius of the cone of particle spread.
+        """
+
+    @spread.setter
+    def spread(self, value:float) -> None:
+        """
+        The radius of the cone of particle spread.
+        """
+
+    # velocity_decay
+    
+    @property
+    def velocity_decay(self) -> float:
+        """
+        The ammount a particle's velocity decreases over time.
+        """
+
+    @velocity_decay.setter
+    def velocity_decay(self, value:float) -> None:
+        """
+        The ammount a particle's velocity decreases over time.
+        """
+
+    # start_velocity_min, start_velocity_max
+    
+    @property
+    def start_velocity_min(self) -> float:
+        """
+        The minimum starting velocity of a particle.    The start velocity of a particle will be randomly selected between `Emitter.start_velocity_min` and `Emitter.start_velocity_max` .
+        """
+
+    @start_velocity_min.setter
+    def start_velocity_min(self, value:float) -> None:
+        """
+        The minimum starting velocity of a particle.    The start velocity of a particle will be randomly selected between `Emitter.start_velocity_min` and `Emitter.start_velocity_max` .
+        """
+
+    @property
+    def start_velocity_max(self) -> float:
+        """
+        The maximum starting velocity of a particle.    The start velocity of a particle will be randomly selected between `Emitter.start_velocity_min` and `Emitter.start_velocity_max` .
+        """
+
+    @start_velocity_max.setter
+    def start_velocity_max(self, value:float) -> None:
+        """
+        The maximum starting velocity of a particle.    The start velocity of a particle will be randomly selected between `Emitter.start_velocity_min` and `Emitter.start_velocity_max` .
+        """
+    
+    # start_lifetime_min, start_lifetime_max
+
+    @property
+    def start_lifetime_min(self) -> float:
+        """
+        The minimum starting life value of a particle.    The start life value of a particle will be randomly selected between `Emitter.start_lifetime_min` and `Emitter.start_lifetime_max` .
+        """
+
+    @start_lifetime_min.setter
+    def start_lifetime_min(self, value:float) -> None:
+        """
+        The minimum starting life value of a particle.    The start life value of a particle will be randomly selected between `Emitter.start_lifetime_min` and `Emitter.start_lifetime_max` .
+        """
+
+    @property
+    def start_lifetime_max(self) -> float:
+        """
+        The maximum starting life value of a particle.    The start life value of a particle will be randomly selected between `Emitter.start_lifetime_min` and `Emitter.start_lifetime_max` .
+        """
+
+    @start_lifetime_max.setter
+    def start_lifetime_max(self, value:float) -> None:
+        """
+        The maximum starting life value of a particle.    The start life value of a particle will be randomly selected between `Emitter.start_lifetime_min` and `Emitter.start_lifetime_max` .
         """

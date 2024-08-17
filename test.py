@@ -4,7 +4,7 @@ from Loxoc import (
     Material, Shader, ShaderType, EVENT_STATE, Quaternion,
     Texture, Sprite, Object2D, Vec2, PointLight, MeshDict, 
     DirectionalLight, SpotLight, BoxCollider, Matrix4x4 as Mat4,
-    Vec4, Font, Text, CubeMap, SkyBox, Emitter
+    Vec4, Font, Text, CubeMap, SkyBox, Emitter, ConvexCollider
 )
 import math
 from copy import copy
@@ -48,8 +48,6 @@ default_material = Material()
 
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 
-
-
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
@@ -86,20 +84,26 @@ test_emitter = Emitter(
     Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(-90)),
     Vec2(1.0,1.0),Vec2(10.0,10.0),
     100,
-    0.1,
+    10.0,
     math.radians(30),
     0,
-    0.1, 2.0,
+    0.10, 20.0,
     20, 50,
     Vec4(1,0,0,1),
     Vec4(0.5,0.5,0.5,1)
 )
+
+space_ship_mesh = Mesh.from_file("./meshes/space_ship/Space_Ship.gltf")
+
+space_ship = Object3D(space_ship_mesh,
+    Vec3(0.0, 100,500), Vec3(0,0,0), Vec3(1,1,1))
 
 window.add_text_list([
     text
 ])
 
 window.add_object_list([
+    space_ship,
     car,
     car2,
     teapot,
@@ -131,11 +135,18 @@ window.add_emitter_list([
 test_emitter.start()
 window.lock_mouse(True)
 
-car_collider = BoxCollider.from_object(car)
-car.add_collider(car_collider)
-
-pirate_ship_collider = BoxCollider.from_object(pirate_ship)
+pirate_ship_collider = ConvexCollider(pirate_ship)
 pirate_ship.add_collider(pirate_ship_collider)
+
+
+space_ship_collider = ConvexCollider(space_ship)
+space_ship.add_collider(space_ship_collider)
+
+# teapot_collider = ConvexCollider(teapot)
+# teapot.add_collider(teapot_collider)
+
+car_collider = ConvexCollider(car)
+car.add_collider(car_collider)
 
 vel_yaw = 0.0
 vel = 0.0
@@ -145,10 +156,10 @@ cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
-    if window.dt > 0:
-        print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
-    else:
-        print("FRAMERATE: inf fps")
+    # if window.dt > 0:
+    #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
+    # else:
+    #     print("FRAMERATE: inf fps")
     
     if car.check_collision(pirate_ship):
         mat = Mat4.from_unit(1.0)

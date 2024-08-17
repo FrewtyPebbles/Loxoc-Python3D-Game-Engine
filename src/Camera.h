@@ -25,4 +25,7 @@ public:
     float fov;
     void recalculate_pv();
     matrix4x4 projection, view;
+    double * deltatime;
+    long long * time_ns;
+    long long * time;
 }; 

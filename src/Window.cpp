@@ -22,6 +22,9 @@ window::window() {
 
 window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
     this->create_window();
+    cam->deltatime = &deltatime;
+    cam->time = &time;
+    cam->time_ns = &time_ns;
 }
 
 void window::create_window() {
@@ -105,6 +108,11 @@ void window::update() {
     
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
+        for (auto col : ob->colliders) {
+            if (auto box = dynamic_cast<collider_convex*>(col->data)) {
+                box->render_hull(*this->cam);
+            }
+        }
     }
     
     glDepthMask(GL_FALSE);// TODO Make this per sprite based on wether the sprite is marked as translucent

@@ -24,7 +24,7 @@ void main() {
     for (int i = 0; i < g_in.length(); ++i) {
 
         vec3 right = _right * g_in[i].scale.x;
-        vec3 up = _up * g_in[i].scale.y;
+        vec3 up = _up * g_in[i].scale.x;
 
         // Center position of the point (the center of the quad)
         vec4 center = gl_in[0].gl_Position;

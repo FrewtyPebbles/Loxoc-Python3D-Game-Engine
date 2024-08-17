@@ -30,7 +30,7 @@ class emitter {
     /// Uses a set of attributes to determine how the particles are emitted.
 public:
     emitter() {}
-    emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, size_t rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, rc_material material) :
+    emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, int rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, rc_material material) :
         position(position),
         direction(direction),
         scale_min(scale_min),
@@ -60,6 +60,13 @@ public:
     }
     
     inline void render(const camera & cam) {
+        while(particles.size() != rate) {
+            if (particles.size() < rate) {
+                particles.push_back(create_particle());
+            } else {
+                particles.pop_back();
+            }
+        }
         if (emitting) {
             material->data->use_material();
             update_instance_batch(cam);
@@ -72,7 +79,7 @@ public:
     quaternion* direction;
     vec2* scale_min;
     vec2* scale_max;
-    size_t rate = 30; // particles per max lifetime
+    int rate = 30; // particles per max lifetime
     float decay_rate = 0.1f;
     float spread, velocity_decay, start_velocity_min, start_velocity_max, start_lifetime_min, start_lifetime_max;
     vec4* color_min;
@@ -112,8 +119,8 @@ private:
         );
     }
 
-    inline void update_particle(particle *p) {
-        p->life -= decay_rate;
+    inline void update_particle(particle *p, const camera * cam = nullptr) {
+        p->life -= cam ? decay_rate * *cam->deltatime : decay_rate;
         if (p->life <= 0.0f) {
             auto new_p = create_particle();
             p->color = new_p.color;
@@ -123,8 +130,8 @@ private:
             p->scale = new_p.scale;
             return;
         }
-        p->position += p->velocity;
-        p->velocity -= velocity_decay;
+        p->position += cam ? p->velocity * *cam->deltatime : p->velocity;
+        p->velocity -= cam ? velocity_decay * *cam->deltatime : velocity_decay;
     }
 
     inline void update_instance_batch(const camera & cam) {
@@ -132,7 +139,7 @@ private:
         vector<float> instance_vbo_update;
         unsigned int i = 0;
         for (particle & p : particles) {
-            update_particle(&p);
+            update_particle(&p, &cam);
             instance_vbo_update.push_back(p.position.axis.x);
             instance_vbo_update.push_back(p.position.axis.y);
             instance_vbo_update.push_back(p.position.axis.z);

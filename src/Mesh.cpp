@@ -181,19 +181,34 @@ void mesh::create_VAO() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_STATIC_DRAW);
 
+    int attrib_size = 6 * sizeof(float);// this will be replaced with Vertex::size() later
+    if (!this->faces->empty())
+        attrib_size += 2 * sizeof(float);
+    if (this->is_animated())
+        attrib_size += 4 * sizeof(int) + 4 * sizeof(float);
+
     // Vertex attributes (verticies)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, attrib_size, (void*)0);
     glEnableVertexAttribArray(0);
 
     // Vertex attributes (normals)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, attrib_size, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     if (!this->faces->empty()) {
         // Vertex attributes (texcoords)
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, attrib_size,
             (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
+    }
+
+    if (this->is_animated()) {
+        // Vertex attributes (ids)
+        glVertexAttribIPointer(3, 4, GL_INT, attrib_size, (void*)(attrib_size - (4 * sizeof(int) + 4 * sizeof(float))));
+        glEnableVertexAttribArray(3);
+        // Vertex attributes (weights)
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, attrib_size, (void*)(attrib_size - (4 * sizeof(float))));
+        glEnableVertexAttribArray(4);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

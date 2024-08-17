@@ -29,6 +29,7 @@ class vec2 {
 public:
     vec2()=default;
     vec2(float x, float y) : axis(x,y) {}
+    vec2(float val) : axis(val,val) {}
     vec2(const glm::vec2& axis) : axis(axis) {}
     vec2(const vec2& rhs) : axis(rhs.axis) {}
     vec2(const vec3& rhs);

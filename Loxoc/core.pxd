@@ -530,7 +530,7 @@ cdef extern from "../src/Vec3.h":
         vec3 operator/(vec3& other)
         vec3 operator/(float& other)
         float dot(vec3& other)
-        vec3 cross(vec3& other)
+        vec3 cross(vec3 other)
         float get_magnitude()
         vec3 get_normalized()
         float distance(vec3& other)
@@ -1193,26 +1193,46 @@ cdef extern from "../src/Colliders.h":
         pair[float, float] minmax_vertex_SAT(const vec3 & axis)
         bint check_SAT(vec3 axis, collider *other)
         object3d* owner
+        vec3* offset
+        vec3* scale
+        quaternion* rotation
+        bint show_collider
 
     cdef cppclass collider_box(collider):
         collider_box() except *
-        collider_box(object3d* owner) except *
-        collider_box(vec3 upper_bounds, vec3 lower_bounds) except *
+        collider_box(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
+        collider_box(vec3 upper_bounds, vec3 lower_bounds, vec3* offset, quaternion* rotation, vec3* scale) except *
         bint check_collision(vec3 intersection)
         bint check_collision(collider* other)
         bint check_collision(collider_box* collider)
+        bint check_collision(collider_convex* collider)
         pair[float, float] minmax_vertex_SAT(const vec3 & axis)
         vec3 upper_bounds
         vec3 lower_bounds
         vec3[8] bounds
-        
+
+    cdef cppclass collider_convex(collider):
+        collider_convex() except *
+        collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
+        collider_convex(RC[mesh*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
+        collider_convex(RC[mesh_dict*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
+        bint check_collision(const vec3& intersection)
+        bint check_collision(collider* other)
+        bint check_collision(collider_box* collider)
+        bint check_collision(collider_convex* collider)
 
 cdef class Collider:
     cdef:
         RC[collider*]* c_class
+        Vec3 _offset
+        Quaternion _rotation
+        Vec3 _scale
 
 
 cdef class BoxCollider(Collider):
+    pass
+
+cdef class ConvexCollider(Collider):
     pass
 
 # MAT TYPES ------------------------------------------------------------------------------------
@@ -1380,7 +1400,7 @@ cdef extern from "../src/Emitter.h":
         quaternion* direction
         vec2* scale_min
         vec2* scale_max
-        size_t rate
+        int rate
         float decay_rate
         float spread, velocity_decay, start_velocity_min, start_velocity_max, start_lifetime_min, start_lifetime_max
         vec4* color_min

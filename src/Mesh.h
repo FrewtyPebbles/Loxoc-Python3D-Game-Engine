@@ -19,6 +19,9 @@
 #include "RC.h"
 #include <variant>
 #include "Material.h"
+#include "util.h"
+
+#define MAX_BONE_INFLUENCE 4
 
 using std::vector;
 using std::string;
@@ -83,15 +86,20 @@ public:
     static rc_mesh_dict from_file(string file_path);
     string name;
     rc_material mesh_material;
+    // TODO: group all vertex attributes into a struct called vertex and send that to gpu instead.
     // VVV THESE SHOULD BE HEAP ALLOCATED
     vector<vec3>* vertexes;
     vector<vec3>* diffuse_coordinates;
     vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
+    vector<int[MAX_BONE_INFLUENCE]> bone_ids;
+    vector<float[MAX_BONE_INFLUENCE]> weights;
+
     vec3 transform;
     float radius = 0;
     void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
     void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
+    inline bool is_animated() {return bone_ids.size() != 0;}
 
     unsigned int gl_VAO, gl_VBO, gl_EBO;
     size_t indicies_size;
@@ -167,6 +175,20 @@ public:
     }
     inline mesh_dict_child operator[](string name) {
         return this->data[name];
+    }
+    inline vector<vec3> gather_mesh_verticies() {
+        vector<vec3> ret;
+        for (auto [key, m] : *this) {
+            if (std::holds_alternative<rc_mesh>(m)) {
+                auto msh = std::get<rc_mesh>(m);
+                vec_extend(ret, *msh->data->vertexes); // verticies
+            } else if (std::holds_alternative<rc_mesh_dict>(m)) {
+                auto msh_d = std::get<rc_mesh_dict>(m);
+                auto m_data = msh_d->data->gather_mesh_verticies();
+                vec_extend(ret, m_data);
+            }
+        }
+        return ret;
     }
     inline meshmap_iterator begin() { return this->data.begin(); }
     inline const_meshmap_iterator cbegin() const { return this->data.cbegin(); }
