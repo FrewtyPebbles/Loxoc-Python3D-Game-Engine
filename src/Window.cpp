@@ -8,6 +8,8 @@
 #include "Object2d.h"
 #include "Octree.h"
 #include "Mesh.h"
+#include "Model.h"
+#include "Animation.h"
 
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
@@ -108,6 +110,7 @@ void window::update() {
     
     for (object3d* ob : render_list) {
         ob->render(*this->cam, this);
+        
         for (auto col : ob->colliders) {
             if (auto box = dynamic_cast<collider_convex*>(col->data)) {
                 box->render_hull(*this->cam);
@@ -129,7 +132,7 @@ void window::update() {
         ob->render(*this->cam);
     }
     glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
-
+ 
     SDL_GL_SwapWindow(this->app_window);
     this->new_time = std::chrono::steady_clock::now();
     this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();

@@ -7,24 +7,25 @@
 #include "util.h"
 #include <filesystem>
 #include <sstream>
+#include "Model.h"
+#include "Animation.h"
 
 
 string fix_texture_path(string file_path, string file) {
     return std::filesystem::absolute(std::filesystem::path(str_tool::rem_file_from_path(file_path) + "/textures/" + str_tool::rem_path_from_file(file))).string();
 }
 
-void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path) {
+void mesh::process_node(rc_model model, aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path) {
     
     // itterate meshes for the node
     auto t_aivec3 = transform * aiVector3D(1.0f, 1.0f, 1.0f);
     for (size_t m_n = 0; m_n < node->mNumMeshes; m_n++) {
         auto msh = scene->mMeshes[node->mMeshes[m_n]];
         auto mesh_name = string(msh->mName.C_Str());
-        rc_material mesh_material = new RC(new material(new RC(shader::from_file(get_mod_path() + "/default_vertex.glsl", ShaderType::VERTEX)), new RC(shader::from_file(get_mod_path() + "/default_fragment.glsl", ShaderType::FRAGMENT))));
-        vector<vec3>* _vertexes = new vector<vec3>();
-        vector<vec3>* _diffuse_coordinates = new vector<vec3>();
-        vector<vec3>* _vertex_normals = new vector<vec3>();
+        rc_material mesh_material = new RC(new material(new RC(shader::from_file(get_mod_path() + (model->data->animated ? "/default_vertex_animated.glsl" : "/default_vertex.glsl"), ShaderType::VERTEX)), new RC(shader::from_file(get_mod_path() + "/default_fragment.glsl", ShaderType::FRAGMENT))));
         vector<tup<unsigned int, 3>>* faces = new vector<tup<unsigned int, 3>>();
+        vector<vertex>* _vertexes = new vector<vertex>();
+
         vec3 _transform = vec3(t_aivec3.x, t_aivec3.y, t_aivec3.z);
         vec3 aabb_max = vec3(0,0,0);
         vec3 aabb_min = vec3(0,0,0);
@@ -66,8 +67,12 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
         bool has_norms = msh->HasNormals();
         // get mesh data
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
+            vertex push_vert;
+
+            model::set_vertex_bone_data_to_default(push_vert);
+
             auto vert = transform * msh->mVertices[v_n];
-            _vertexes->push_back(vec3(vert.x, vert.y, vert.z));
+            push_vert.position = glm::vec3(vert.x, vert.y, vert.z);
             auto new_vert_mag = vec3(vert.x, vert.y, vert.z).get_magnitude();
             if (radius < new_vert_mag) {
                 radius = new_vert_mag;
@@ -88,14 +93,16 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
                 aabb_min.axis.z = vert.z;
 
             auto uv_coord = msh->mTextureCoords[0][v_n];// 0 = diffuse
-            _diffuse_coordinates->push_back(vec3(uv_coord.x, uv_coord.y, uv_coord.z));
+            push_vert.tex_coords = glm::vec3(uv_coord.x, uv_coord.y, uv_coord.z);
 
             if (has_norms) {
                 auto norm_coord = msh->mNormals[v_n];// 0 = diffuse
-                _vertex_normals->push_back(vec3(norm_coord.x, norm_coord.y, norm_coord.z));
+                push_vert.normal = glm::vec3(norm_coord.x, norm_coord.y, norm_coord.z);
             } else {
-                _vertex_normals->push_back(vec3(0.0f, 0.0f, 0.0f));
+                push_vert.normal = glm::vec3(0.0f, 0.0f, 0.0f);
             }
+
+            _vertexes->push_back(push_vert);
         }
 
         for (size_t f_n = 0; f_n < msh->mNumFaces; f_n++) {
@@ -107,15 +114,10 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
             // insert default texture
             mesh_material->data->diffuse_texture = new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR));
         }
-        auto ret_mesh = new RC(new mesh(
-            mesh_name,
-            mesh_material,
-            _vertexes,
-            _diffuse_coordinates,
-            _vertex_normals,
-            faces,
-            _transform
-        ));
+
+        model->data->extract_bone_weight_for_vertices(*_vertexes, msh, scene);
+
+        auto ret_mesh = new RC(new mesh(mesh_name, mesh_material, _vertexes, faces, _transform, model->data->animated));
         ret_mesh->data->radius = radius;
         ret_mesh->data->aabb_max = aabb_max;
         ret_mesh->data->aabb_min = aabb_min;
@@ -126,7 +128,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
     for (size_t c_n = 0; c_n < node->mNumChildren; c_n++) {
         auto child_mesh_dict = new RC(new mesh_dict());
         child_mesh_dict->data->name = node->mChildren[c_n]->mName.C_Str();
-        process_node(node->mChildren[c_n], scene, child_mesh_dict, transform * node->mChildren[c_n]->mTransformation, file_path);
+        process_node(model, node->mChildren[c_n], scene, child_mesh_dict, transform * node->mChildren[c_n]->mTransformation, file_path);
         
         if (child_mesh_dict->data->data.size() == 1 && // Check if it is duplicating the name with the dict
                     child_mesh_dict->data->data.contains(child_mesh_dict->data->name)) {
@@ -140,7 +142,7 @@ void mesh::process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_me
 }
 
 
-rc_mesh_dict mesh::from_file(string file_path) {
+rc_model mesh::from_file(string file_path, bool animated) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile( file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -152,10 +154,20 @@ rc_mesh_dict mesh::from_file(string file_path) {
     auto curren_mesh_dict = new RC(new mesh_dict());
 
     curren_mesh_dict->data->name = file_path;
+    auto ret = new RC(new model(
+        curren_mesh_dict,
+        animated
+    ));
+
+    for (int i = 0; i < scene->mNumAnimations; i++)  {
+        ret->data->animations[scene->mAnimations[i]->mName.data] = new animation(scene, scene->mAnimations[i], ret);
+        ret->data->animated = true;
+    }
     
-    process_node(scene->mRootNode, scene, curren_mesh_dict, scene->mRootNode->mTransformation, file_path);
+    process_node(ret, scene->mRootNode, scene, curren_mesh_dict, scene->mRootNode->mTransformation, file_path);
     
-    return curren_mesh_dict;
+    
+    return ret;
 }
 
 void mesh::create_VAO() {
@@ -163,76 +175,56 @@ void mesh::create_VAO() {
     glGenVertexArrays(1, &this->gl_VAO);
     glBindVertexArray(this->gl_VAO);
 
-    vector<GLfloat> gl_verts;
     vector<GLuint> gl_inds;
-    this->get_gl_vert_inds(*this->vertexes, &gl_inds);
-    this->get_gl_verts(*this->vertexes, &gl_verts);
-
+    this->get_gl_vert_inds(&gl_inds);
     
     this->indicies_size = gl_inds.size();
-    this->verticies_size = gl_verts.size();
+
+    int attrib_size = 6 * sizeof(float);// this will be replaced with Vertex::size() later
+    if (!this->faces->empty())
+        attrib_size += 2 * sizeof(float);
+    if (this->is_animated)
+        attrib_size += 4 * sizeof(int) + 4 * sizeof(float);
+
     //VBO
     glGenBuffers(1, &this->gl_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->gl_VBO);
-    glBufferData(GL_ARRAY_BUFFER, this->verticies_size * sizeof(GLfloat), &gl_verts[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices->size() * sizeof(vertex), &(*vertices)[0], GL_STATIC_DRAW); 
     
     //EBO
     glGenBuffers(1, &this->gl_EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->gl_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indicies_size * sizeof(GLuint), &gl_inds[0], GL_STATIC_DRAW);
 
-    int attrib_size = 6 * sizeof(float);// this will be replaced with Vertex::size() later
-    if (!this->faces->empty())
-        attrib_size += 2 * sizeof(float);
-    if (this->is_animated())
-        attrib_size += 4 * sizeof(int) + 4 * sizeof(float);
-
     // Vertex attributes (verticies)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, attrib_size, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)0);
     glEnableVertexAttribArray(0);
 
     // Vertex attributes (normals)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, attrib_size, (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
     glEnableVertexAttribArray(1);
 
     if (!this->faces->empty()) {
         // Vertex attributes (texcoords)
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, attrib_size,
-            (void*)(6 * sizeof(float)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex),
+            (void*)offsetof(vertex, tex_coords));
         glEnableVertexAttribArray(2);
     }
 
-    if (this->is_animated()) {
-        // Vertex attributes (ids)
-        glVertexAttribIPointer(3, 4, GL_INT, attrib_size, (void*)(attrib_size - (4 * sizeof(int) + 4 * sizeof(float))));
+    if (this->is_animated) {
+        // Vertex attributes (bone_ids)
+        glVertexAttribIPointer(3, 4, GL_INT, sizeof(vertex), (void*)offsetof(vertex, bone_ids));
         glEnableVertexAttribArray(3);
         // Vertex attributes (weights)
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, attrib_size, (void*)(attrib_size - (4 * sizeof(float))));
-        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, weights));
+        glEnableVertexAttribArray(4); 
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void mesh::get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts) {
-    vec3 vert;
-    for (size_t i = 0; i < vertexes.size(); i++) {
-        vert = vertexes[i];
-        mut_verts->push_back(vert.axis.x);
-        mut_verts->push_back(vert.axis.y);
-        mut_verts->push_back(vert.axis.z);
-        mut_verts->push_back((*this->vertex_normals)[i].axis.x);
-        mut_verts->push_back((*this->vertex_normals)[i].axis.y);
-        mut_verts->push_back((*this->vertex_normals)[i].axis.z);
-        if (!this->diffuse_coordinates->empty()) {
-            mut_verts->push_back((*this->diffuse_coordinates)[i].axis.x);
-            mut_verts->push_back((*this->diffuse_coordinates)[i].axis.y);
-        }
-    }
-}
-
-void mesh::get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds) {
+void mesh::get_gl_vert_inds(vector<unsigned int>* mut_inds) {
     for (tup<unsigned int, 3> fce : *this->faces) {
         mut_inds->push_back(fce[0]);
         mut_inds->push_back(fce[1]);

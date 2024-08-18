@@ -10,18 +10,25 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include "Window.h"
 #include "SpotLight.h"
-
+#include "Model.h"
+#include "Animation.h"
 
 #define ATTENUATION_THRESHOLD 0.003
 
+object3d::object3d(rc_model model_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat, RC<collider*>* collider) : model_data(model_data), position(position), rotation(rotation), scale(scale), mat(mat) {
+    if (collider)
+        this->colliders.push_back(collider);
+}
+
 std::ostream& operator<<(std::ostream& os, const object3d& self){
-    os << "object3d< \"" << self.mesh_data->data->name << "\" { position: " << *self.position << "} >";
+    os << "object3d< \"" << self.model_data->data->mesh_data->data->name << "\" { position: " << *self.position << "} >";
     return os;
 }
 
 void object3d::render(camera& camera, window* window) {
     // opengl renderer
     this->get_model_matrix();
+
     if (this->mat != nullptr) {
 
         // set mvp
@@ -43,132 +50,7 @@ void object3d::render(camera& camera, window* window) {
     }
 
     // render mesh tree
-    this->render_meshdict(this->mesh_data, camera, window);
-}
-
-void object3d::render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, window* window) {
-    size_t i;
-    for (auto [_mesh_name, _mesh_variant] : *_mesh_data->data) {
-        if (std::holds_alternative<rc_mesh>(_mesh_variant)) {
-            auto _mesh = std::get<rc_mesh>(_mesh_variant);
-            // get material from mesh if object does not have a material
-            if (this->mat != nullptr) if (this->mat->data->diffuse_texture != nullptr) {
-                glActiveTexture(GL_TEX_N_ITTER[0]);
-                this->mat->data->diffuse_texture->data->bind();
-            }
-
-            if (this->mat == nullptr) { // Use mesh material.
-
-                // set mvp
-                _mesh->data->mesh_material->data->use_material();
-                _mesh->data->mesh_material->data->set_uniform("model", this->model_matrix);
-                _mesh->data->mesh_material->data->set_uniform("view", camera.view);
-                _mesh->data->mesh_material->data->set_uniform("projection", camera.projection);
-
-                // camera view pos
-                _mesh->data->mesh_material->data->set_uniform("viewPos", *camera.position);
-
-                // ambient light
-                _mesh->data->mesh_material->data->set_uniform("ambient_light", *window->ambient_light);
-
-                _mesh->data->mesh_material->data->set_material();
-
-                _mesh->data->mesh_material->data->register_uniforms();
-                this->register_uniforms(); // register object level uniforms
-                
-                // Point Lights:
-                
-                i = 0;
-                for (point_light* pl : window->render_list_point_lights) {
-                    // calculate when to remove light by having an attenuation threshhold.
-                    float l_distance = pl->position->distance(*this->position);
-                    float attenuation = 1.0 / (pl->constant + pl->linear * l_distance + (1/(pl->radius*pl->radius)) * (l_distance * l_distance));
-                    if (attenuation > ATTENUATION_THRESHOLD) {
-                        pl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
-                        i++;
-                    }
-                }
-
-                _mesh->data->mesh_material->data->set_uniform("total_point_lights", (int)i);
-                
-                // Directional Lights:
-                
-                i = 0;
-                for (directional_light* dl : window->render_list_directional_lights) {
-                    dl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
-                    i++;
-                }
-
-                _mesh->data->mesh_material->data->set_uniform("total_directional_lights", (int)i);
-
-                // Spot Lights:
-
-                i = 0;
-                for (spot_light* sl : window->render_list_spot_lights) {
-                    // calculate when to remove light by having an attenuation threshhold.
-                    float l_distance = sl->position->distance(*this->position);
-                    float attenuation = 1.0 / (sl->constant + sl->linear * l_distance + (1/(sl->reach*sl->reach)) * (l_distance * l_distance));
-                    if (attenuation > ATTENUATION_THRESHOLD) {
-                        sl->set_uniforms(_mesh->data->mesh_material->data->shader_program, i);
-                        i++;
-                    }
-                }
-
-                _mesh->data->mesh_material->data->set_uniform("total_spot_lights", (int)i);
-
-            } else { // Use object material.
-
-                // Point Lights:
-
-                i = 0;
-                for (point_light* pl : window->render_list_point_lights) {
-                    // calculate when to remove light by having an attenuation threshhold.
-                    float l_distance = pl->position->distance(*this->position);
-                    float attenuation = 1.0 / (pl->constant + pl->linear * l_distance + (1/(pl->radius*pl->radius)) * (l_distance * l_distance));
-                    if (attenuation > ATTENUATION_THRESHOLD) {
-                        pl->set_uniforms(this->mat->data->shader_program, i);
-                        i++;
-                    }
-                }
-                
-                this->mat->data->set_uniform("total_point_lights", (int)i);
-
-                // Directional Lights:
-                
-                i = 0;
-                for (directional_light* dl : window->render_list_directional_lights) {
-                    dl->set_uniforms(this->mat->data->shader_program, i);
-                    i++;
-                }
-
-                this->mat->data->set_uniform("total_directional_lights", (int)i);
-
-                // Spot Lights:
-
-                i = 0;
-                for (spot_light* sl : window->render_list_spot_lights) {
-                    // calculate when to remove light by having an attenuation threshhold.
-                    float l_distance = sl->position->distance(*this->position);
-                    float attenuation = 1.0 / (sl->constant + sl->linear * l_distance + (1/(sl->reach*sl->reach)) * (l_distance * l_distance));
-                    if (attenuation > ATTENUATION_THRESHOLD) {
-                        sl->set_uniforms(this->mat->data->shader_program, i);
-                        i++;
-                    }
-                }
-
-                this->mat->data->set_uniform("total_spot_lights", (int)i);
-            }
-            
-            glBindVertexArray(_mesh->data->gl_VAO);
-            
-            glDrawElements(GL_TRIANGLES, _mesh->data->indicies_size, GL_UNSIGNED_INT, 0);
-            
-            glBindVertexArray(0);
-        } else if (std::holds_alternative<rc_mesh_dict>(_mesh_variant)) {
-            auto _mesh_dict = std::get<rc_mesh_dict>(_mesh_variant);
-            this->render_meshdict(_mesh_dict, camera, window);
-        }
-    }
+    this->model_data->data->render(this, camera, window);
 }
 
 void object3d::set_uniform(string name, uniform_type value) {

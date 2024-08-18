@@ -12,29 +12,29 @@ uniform mat4 projection;
 
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
-uniform mat4 finalBonesMatrices[MAX_BONES];
+uniform mat4 final_bones_matrices[MAX_BONES];
 
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
 
 void main() {
-    vec4 totalPosition = vec4(0.0f);
+    vec4 totalPosition = vec4(0.0);
     for(int i = 0 ; i < MAX_BONE_INFLUENCE; i++)
     {
         if(aBoneIds[i] == -1) 
             continue;
         if(aBoneIds[i] >= MAX_BONES) 
         {
-            totalPosition = vec4(pos, 1.0f);
+            totalPosition = vec4(aPos, 1.0);
             break;
         }
         
-        vec4 localPosition = finalBonesMatrices[aBoneIds[i]] * vec4(pos,1.0f);
+        vec4 localPosition = final_bones_matrices[aBoneIds[i]] * vec4(aPos,1.0);
 
         totalPosition += localPosition * aWeights[i];
 
-        vec3 localNormal = mat3(finalBonesMatrices[aBoneIds[i]]) * norm;
+        vec3 localNormal = mat3(final_bones_matrices[aBoneIds[i]]) * aNormal;
     }
 
     gl_Position = projection * view * model * totalPosition;

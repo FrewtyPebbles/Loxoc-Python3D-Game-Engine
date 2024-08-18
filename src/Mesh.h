@@ -28,8 +28,11 @@ using std::string;
 using std::map;
 class mesh_dict;
 class mesh;
+class model;
 
 typedef RC<mesh*>* rc_mesh;
+
+typedef RC<model*>* rc_model;
 
 typedef RC<mesh_dict*>* rc_mesh_dict;
 
@@ -41,7 +44,20 @@ enum illum_model {
     DIFFUSE_AND_SPECULAR
 };
 
-typedef RC<texture*>* rc_texture; 
+typedef RC<texture*>* rc_texture;
+
+struct vertex {
+    // position
+    glm::vec3 position;
+    // normal
+    glm::vec3 normal;
+    // texCoords
+    glm::vec2 tex_coords;
+	//bone indexes which will influence this vertex
+	int bone_ids[MAX_BONE_INFLUENCE];
+	//weights from each bone
+	float weights[MAX_BONE_INFLUENCE];
+};
 
 class mesh {
 public:
@@ -49,28 +65,24 @@ public:
     mesh(const mesh& rhs):
     name(rhs.name),
     mesh_material(rhs.mesh_material),
-    vertexes(rhs.vertexes),
-    diffuse_coordinates(rhs.diffuse_coordinates),
-    vertex_normals(rhs.vertex_normals),
+    vertices(rhs.vertices),
     faces(rhs.faces),
     transform(rhs.transform)
     {}
     mesh(
         string name,
         rc_material mesh_material,
-        vector<vec3>* vertexes,
-        vector<vec3>* diffuse_coordinates,
-        vector<vec3>* vertex_normals,
+        vector<vertex>* vertices,
         vector<tup<unsigned int, 3>>* faces,
-        vec3 transform
+        vec3 transform,
+        bool is_animated = false
     ):
     name(name),
     mesh_material(mesh_material),
-    vertexes(vertexes),
-    diffuse_coordinates(diffuse_coordinates),
-    vertex_normals(vertex_normals),
+    vertices(vertices),
     faces(faces),
-    transform(transform)
+    transform(transform),
+    is_animated(is_animated)
     {
         this->create_VAO();
     }
@@ -78,37 +90,29 @@ public:
         glDeleteVertexArrays(1, &gl_VAO);
         glDeleteBuffers(1, &gl_VBO);
         glDeleteBuffers(1, &gl_EBO);
-        delete vertexes;
-        delete diffuse_coordinates;
-        delete vertex_normals;
         delete faces;
+        delete vertices;
     }
-    static rc_mesh_dict from_file(string file_path);
+    static rc_model from_file(string file_path, bool animated);
     string name;
     rc_material mesh_material;
-    // TODO: group all vertex attributes into a struct called vertex and send that to gpu instead.
+
     // VVV THESE SHOULD BE HEAP ALLOCATED
-    vector<vec3>* vertexes;
-    vector<vec3>* diffuse_coordinates;
-    vector<vec3>* vertex_normals;
     vector<tup<unsigned int, 3>>* faces;
-    vector<int[MAX_BONE_INFLUENCE]> bone_ids;
-    vector<float[MAX_BONE_INFLUENCE]> weights;
+    vector<vertex>* vertices;
+    bool is_animated = false;
 
     vec3 transform;
     float radius = 0;
-    void get_gl_verts(vector<vec3> vertexes, vector<float>* mut_verts);
-    void get_gl_vert_inds(vector<vec3> vertexes, vector<unsigned int>* mut_inds);
-    inline bool is_animated() {return bone_ids.size() != 0;}
+    void get_gl_vert_inds(vector<unsigned int>* mut_inds);
 
     unsigned int gl_VAO, gl_VBO, gl_EBO;
     size_t indicies_size;
-    size_t verticies_size;
     vec3 aabb_max = vec3(0,0,0);
     vec3 aabb_min = vec3(0,0,0);
 private:
     // RETURNS A HEAP ALLOCATED POINTER
-    static void process_node(aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path);
+    static void process_node(rc_model model, aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path);
     void create_VAO();
 };
 
@@ -181,7 +185,9 @@ public:
         for (auto [key, m] : *this) {
             if (std::holds_alternative<rc_mesh>(m)) {
                 auto msh = std::get<rc_mesh>(m);
-                vec_extend(ret, *msh->data->vertexes); // verticies
+                // verticies
+                for (const auto & v : *msh->data->vertices)
+                    ret.push_back(v.position);
             } else if (std::holds_alternative<rc_mesh_dict>(m)) {
                 auto msh_d = std::get<rc_mesh_dict>(m);
                 auto m_data = msh_d->data->gather_mesh_verticies();

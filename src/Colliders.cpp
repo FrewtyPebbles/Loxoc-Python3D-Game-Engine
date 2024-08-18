@@ -10,6 +10,7 @@
 #include <set>
 #include "util.h"
 #include "Camera.h"
+#include "Model.h"
 
 using std::set;
 
@@ -17,7 +18,7 @@ collider_box::collider_box(object3d* owner, vec3* offset, quaternion* rotation, 
     this->owner = owner;
     vec3 box_max = vec3(0,0,0);
     vec3 box_min = vec3(0,0,0);
-    collider_box::mutate_max_min(this->owner->mesh_data->data, &box_max, &box_min);
+    collider_box::mutate_max_min(this->owner->model_data->data->mesh_data->data, &box_max, &box_min);
     this->upper_bounds = box_max;
     this->lower_bounds = box_min;
     this->bounds[0] = upper_bounds;
@@ -178,7 +179,7 @@ bool collider::check_SAT(vec3 axis, collider *other) {
 collider_convex::collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) {
     this->owner = owner;
     this->offset = offset;
-    generate_hull(this->owner->mesh_data->data->gather_mesh_verticies());
+    generate_hull(this->owner->model_data->data->mesh_data->data->gather_mesh_verticies());
     render_hull_create_shader_program();
     this->offset = offset;
     this->rotation = rotation;
@@ -186,7 +187,10 @@ collider_convex::collider_convex(object3d* owner, vec3* offset, quaternion* rota
 }
 
 collider_convex::collider_convex(rc_mesh owner, vec3* offset, quaternion* rotation, vec3* scale) {
-    generate_hull(*owner->data->vertexes);
+    vector<vec3> verts;
+    for (const auto & v : *owner->data->vertices)
+        verts.push_back(v.position);
+    generate_hull(verts);
     this->offset = offset;
     render_hull_create_shader_program();
     this->offset = offset;

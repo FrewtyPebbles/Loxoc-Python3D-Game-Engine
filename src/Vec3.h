@@ -13,6 +13,8 @@
 #include "Quaternion.h"
 #include <compare>
 
+// TODO: add lerp operation to python frontend
+
 #define xyz_comp(sign) self.axis.x sign other.axis.x && self.axis.y sign other.axis.y && self.axis.z sign other.axis.z
 
 // cpp class names are camelcase, python class names are title case
@@ -185,6 +187,10 @@ public:
 
     inline float distance(vec3 const& other) {
         return glm::distance(this->axis, other.axis);
+    }
+
+    inline vec3 lerp(vec3 const& other, float ratio) {
+        return glm::mix(this->axis, other.axis, ratio);
     }
 
     // Quaternion operations:

@@ -6,7 +6,9 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <iostream>
- 
+
+// TODO: add slerp operation to python frontend
+
 class vec3;
 
 typedef glm::quat glmquat;
@@ -116,12 +118,17 @@ public:
         return quaternion(glm::cross(this->quat, other.quat));
     }
 
+    inline quaternion slerp(quaternion const& other, float ratio)
+    {
+        return glm::slerp(this->quat, other.quat, ratio);
+    }
+
     inline float get_magnitude() {
         return glm::length2(this->quat);
     }
 
     inline quaternion get_normalized() {
-        return quaternion(glm::normalize(this->quat));
+        return glm::normalize(this->quat);
     }
 
     inline quaternion lerp(const quaternion& other, float ratio) {

@@ -1,6 +1,13 @@
 #include "Model.h"
+#include "Animation.h"
 
 #define ATTENUATION_THRESHOLD 0.003
+
+void model::play_animation(const string& animation) {
+    animation_player->play(animations[animation]);
+}
+
+model::model(RC<mesh_dict*>* mesh_data, bool animated) : mesh_data(mesh_data), animated(animated), animation_player(new animator(nullptr)) {}
 
 void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& camera, window* window) {
     size_t i;
@@ -72,6 +79,10 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
                 _mesh->data->mesh_material->data->set_uniform("total_spot_lights", (int)i);
 
+                // update animations
+                if (obj->model_data->data->animated)
+                    obj->model_data->data->animation_player->update(window->deltatime, _mesh->data->mesh_material->data->shader_program);
+
             } else { // Use object material.
 
                 // Point Lights:
@@ -113,6 +124,10 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                 }
 
                 obj->mat->data->set_uniform("total_spot_lights", (int)i);
+
+                // update animations
+                if (obj->model_data->data->animated)
+                    obj->model_data->data->animation_player->update(window->deltatime, obj->mat->data->shader_program);
             }
             
             glBindVertexArray(_mesh->data->gl_VAO);

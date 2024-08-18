@@ -62,9 +62,9 @@ class Mesh:
     """
 
     @staticmethod
-    def from_file(file_path: str) -> MeshDict:
+    def from_file(file_path: str, animated:bool = False) -> Model:
         """
-        Returns all of the meshes from the supplied path to the 3d file.
+        Returns the :class:`Model` instance created from the provided file.  If the 3D asset contains animations, set `animated` to `True` .
         """
 
     @property
@@ -148,26 +148,80 @@ class Material:
 
     You may supply your own :class:`Shader` s to customize how Objects are rendered.
     """
-    def __init__(self, vertex:Shader|None = None, fragment:Shader|None = None, geometry:Shader|None = None, compute:Shader|None = None) -> None:...
+    def __init__(self, vertex:Shader|None = None, fragment:Shader|None = None, geometry:Shader|None = None, compute:Shader|None = None, animated:bool = False) -> None:...
 
     def set_uniform(self, name:str, value:UniformValueType) ->None:
         """
         Sets the value of a uniform for the shaders in the material.
         """
 
+class Model:
+    """
+    Holds all model data for an imported 3D asset file.
+    """
+
+    def __init__(self, mesh_dict:MeshDict, animated:bool) -> None:
+        ...
+
+    def play_animation(self, animation:str) -> None:
+        """
+        Plays the specified animation.
+        """
+    
+
+    @property
+    def mesh_dict(self) -> MeshDict:
+        """
+        The :class:`Model` 's :class:`MeshDict` .
+        """
+
+    @mesh_dict.setter
+    def mesh_dict(self, value:MeshDict) -> None:
+        """
+        The :class:`Model` 's :class:`MeshDict` .
+        """
+
+    @property
+    def animated(self) -> bool:
+        """
+        Whether or not the model has animations.  If it does set this to true.
+        """
+
+    @animated.setter
+    def animated(self, value:bool) -> None:
+        """
+        Whether or not the model has animations.  If it does set this to true.
+        """
+
 class Object3D:
     """
     This class is your 3D game object.
     """
-    mesh_data:MeshDict
-    """
-    The :class:`MeshDict` which stores all of the :class:`Mesh` s for the :class:`Object3D`
-    """
-    material:Material
-    """
-    The :class:`Material` used to specify how to render the :class:`Object3D`
-    """
-    def __init__(self, mesh_data:MeshDict, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), collider:Collider | None = None, material:Material | None = None) -> None:...
+    def __init__(self, model_data:Model, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), collider:Collider | None = None, material:Material | None = None) -> None:...
+
+    @property
+    def material(self) -> Vec3:
+        """
+        The :class:`Material` used to specify how to render the :class:`Object3D`
+        """
+
+    @material.setter
+    def material(self, value:Material) -> None:
+        """
+        The :class:`Material` used to specify how to render the :class:`Object3D`
+        """
+
+    @property
+    def model(self) -> Model:
+        """
+        The :class:`Model` of the :class:`Object3D`
+        """
+
+    @model.setter
+    def model(self, value:Model) -> None:
+        """
+        The :class:`Model` of the :class:`Object3D`
+        """
 
     def add_collider(self, collider:Collider) -> None:
         """

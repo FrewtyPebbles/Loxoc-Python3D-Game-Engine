@@ -129,6 +129,10 @@ public:
         return glm::dot(this->axis, other.axis);
     }
 
+    inline vec2 lerp(vec2 const& other, float ratio) {
+        return glm::mix(this->axis, other.axis, ratio);
+    }
+
     inline float get_magnitude() {
         return glm::length(this->axis);
     }

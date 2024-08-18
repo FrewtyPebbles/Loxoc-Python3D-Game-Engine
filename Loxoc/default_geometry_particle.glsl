@@ -7,11 +7,13 @@ in VS_OUT {
     vec4 particle_color;
     vec2 scale;
     float life;
+    float starting_life;
 } g_in[];
 
 out vec2 tex_coords;
 out vec4 particle_color;
 out float life;
+out float starting_life;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -46,6 +48,7 @@ void main() {
             gl_Position = projection * view * corners[j];
             particle_color = g_in[i].particle_color;
             life = g_in[i].life;
+            starting_life = g_in[i].starting_life;
             EmitVertex();
         }
 

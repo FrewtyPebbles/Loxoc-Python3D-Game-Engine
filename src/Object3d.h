@@ -9,26 +9,25 @@
 #include "Colliders.h"
 #include "Matrix.h"
 
+
 using std::vector;
 class mesh;
 class camera;
 class mesh_dict;
 class window;
-// Shaders
+class model;
+
+typedef RC<model*>* rc_model;
 
 
 class object3d : public TRAIT_has_uniform {
 public:
     object3d(){};
-    object3d(RC<mesh_dict*>* mesh_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat = nullptr, RC<collider*>* collider = nullptr) : mesh_data(mesh_data), position(position), rotation(rotation), scale(scale), mat(mat) {
-        this->mesh_data = mesh_data;
-        if (collider)
-            this->colliders.push_back(collider);
-    }
+    object3d(rc_model model_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat = nullptr, RC<collider*>* collider = nullptr);
     
     ~object3d(){}
 
-    RC<mesh_dict*>* mesh_data;
+    rc_model model_data;
     vec3* position;
     quaternion* rotation;
     vec3* scale;
@@ -72,6 +71,4 @@ public:
         }
         return false;
     }
-private:
-    void render_meshdict(RC<mesh_dict*>* _mesh_data, camera& camera, window* window);
 };

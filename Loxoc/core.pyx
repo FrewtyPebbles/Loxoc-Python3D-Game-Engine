@@ -225,39 +225,79 @@ cdef class Mesh:
         return ret
 
     @staticmethod
-    def from_file(file_path:str) -> MeshDict:
-        return mesh_from_file(file_path)
+    def from_file(str file_path, bint animated = False) -> Model:
+        return model_from_file(file_path, animated)
 
-cpdef MeshDict mesh_from_file(str file_path):
-    return MeshDict.from_cpp_ptr(mesh.from_file(file_path.encode()))
+cpdef Model model_from_file(str file_path, bint animated):
+    return Model.from_cpp_ptr(mesh.from_file(file_path.encode(), animated))
+
+ctypedef model* model_ptr
+
+cdef class Model:
+
+    def __init__(self, MeshDict mesh_dict, bint animated) -> None:
+        self._mesh_data = mesh_dict
+        self.c_class = new RC[model_ptr](new model(self._mesh_data.c_class, animated))
+
+    cpdef void play_animation(self, str animation):
+        self.c_class.data.play_animation(animation.encode())
+
+    @property
+    def mesh_dict(self) -> MeshDict:
+        return self._mesh_data
+
+    @mesh_dict.setter
+    def mesh_dict(self, MeshDict value) -> None:
+        self._mesh_data.c_class[0] = value.c_class[0]
+
+    @property
+    def animated(self) -> bint:
+        return self.c_class.data.animated
+
+    @animated.setter
+    def animated(self, bint value) -> None:
+        self.c_class.data.animated = value
+
+    @staticmethod
+    cdef Model from_cpp(model cppinst):
+        cdef Model ret = Model.__new__(Model)
+        ret._mesh_data = MeshDict.from_cpp_ptr(cppinst.mesh_data)
+        ret.c_class = new RC[model_ptr](new model(ret._mesh_data.c_class, cppinst.animated))
+        return ret
+
+    @staticmethod
+    cdef Model from_cpp_ptr(RC[model*]* cppinst):
+        cdef Model ret = Model.__new__(Model)
+        ret._mesh_data = MeshDict.from_cpp_ptr(cppinst.data.mesh_data)
+        ret.c_class = cppinst
+        ret.c_class.inc()
+        return ret
+
+    def __dealloc__(self):
+        RC_collect(self.c_class)
 
 cdef class Object3D:
-    def __init__(self, MeshDict mesh_data, Vec3 position = Vec3(0.0,0.0,0.0),
+    def __init__(self, Model model_data, Vec3 position = Vec3(0.0,0.0,0.0),
     Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
     Collider collider = None, Material material = None) -> None:
         self._position = position
         self._rotation = rotation.to_quaternion()
         self._scale = scale
-        self.mesh_data = mesh_data
-        
-        # create the mesh vector for the cppclass
-        cdef:
-            Mesh m
-            str name
+        self._model_data = model_data
         
         if material:
-            self.material = material
+            self._material = material
             if collider is not None:
-                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class, collider.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self._material.c_class, collider.c_class)
             else:
-                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self.material.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self._material.c_class)
         else:
             if collider is not None:
-                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
                 collider.c_class.inc()
                 self.c_class.colliders.push_back(collider.c_class)
             else:
-                self.c_class = new object3d(mesh_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
 
     cpdef Matrix4x4 get_model_matrix(self):
         return mat4x4_from_cpp(self.c_class.get_model_matrix())
@@ -290,6 +330,22 @@ cdef class Object3D:
     @position.setter
     def position(self, Vec3 value):
         self._position.c_class[0] = value.c_class[0]
+
+    @property
+    def material(self) -> Vec3:
+        return self._material
+
+    @material.setter
+    def material(self, Material value) -> None:
+        self._material.c_class[0] = value.c_class[0]
+
+    @property
+    def model(self) -> Model:
+        return self._model_data
+
+    @model.setter
+    def model(self, Model value) -> None:
+        self._model_data.c_class[0] = value.c_class[0]
 
     @property
     def rotation(self) -> Quaternion:
@@ -1007,11 +1063,11 @@ cdef Vec2 vec2_from_cpp(vec2 cppinst):
 ctypedef material* material_ptr
 
 cdef class Material:
-    def __init__(self, Shader vertex = None, Shader fragment = None, Shader geometry = None, Shader compute = None) -> None:
+    def __init__(self, Shader vertex = None, Shader fragment = None, Shader geometry = None, Shader compute = None, bint animated = False) -> None:
         if vertex:
             self._vertex_shader = vertex
         else:
-            self._vertex_shader = Shader.from_file(path.join(path.dirname(__file__), "default_vertex.glsl"), ShaderType.VERTEX)
+            self._vertex_shader = Shader.from_file(path.join(path.dirname(__file__), "default_vertex_animated.glsl" if animated else "default_vertex.glsl"), ShaderType.VERTEX)
 
         if fragment:
             self._fragment_shader = fragment

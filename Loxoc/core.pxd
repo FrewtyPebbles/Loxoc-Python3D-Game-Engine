@@ -663,19 +663,20 @@ cdef extern from "../src/Mesh.h":
         DIFFUSE,
         DIFFUSE_AND_SPECULAR
         
+    cdef cppclass vertex:
+        pass
 
     cdef cppclass mesh:
         mesh() except *
         mesh(const mesh& rhs) except *
-        mesh(string name, RC[material*]* mesh_material, vector[vec3]* vertexes, vector[vec3]* diffuse_coordinates, vector[vec3]* vertex_normals, vector[tup3ui]* faces, vec3 transform) except *
+        mesh(string name, RC[material*]* mesh_material, vector[vertex]* vertices, vector[tup3ui]* faces, vec3 transform) except *
         @staticmethod
-        RC[mesh_dict*]* from_file(string file_path) except *
+        RC[model*]* from_file(string file_path, bint animated)
         string name
         RC[material*]* mesh_material
-        vector[vec3]* vertexes
-        vector[vec3]* diffuse_coordinates
-        vector[vec3]* vertex_normals
         vector[tup3ui]* faces
+        vector[vertex]* vertices
+        bint is_animated
         vec3 transform
         float radius
         
@@ -718,15 +719,37 @@ cdef class Mesh:
     @staticmethod
     cdef Mesh from_cpp(RC[mesh*]* cppinst)
     
-cpdef MeshDict mesh_from_file(str file_path)
+cpdef Model model_from_file(str file_path, bint animated)
+
+cdef extern from "../src/Model.h":
+    cdef cppclass model:
+        model() except *
+        model(RC[mesh_dict*]* mesh_data, bint animated) except *
+        void play_animation(const string& animation)
+        RC[mesh_dict*]* mesh_data
+        bint animated
+
+cdef class Model:
+    cdef:
+        RC[model*]* c_class
+        MeshDict _mesh_data
+
+    cpdef void play_animation(self, str animation)
+
+    @staticmethod
+    cdef Model from_cpp(model cppinst)
+    @staticmethod
+    cdef Model from_cpp_ptr(RC[model*]* cppinst)
+
+
 
 cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:
         object3d() except *
-        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale) except *
-        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except *
-        object3d(RC[mesh_dict*]* mesh, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat, RC[collider*]* collider) except *
-        RC[mesh_dict*]* mesh_data
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale) except *
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except *
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat, RC[collider*]* collider) except *
+        RC[model*]* model_data
         vec3* position
         quaternion* rotation
         vec3* scale
@@ -751,8 +774,8 @@ cdef extern from "../src/Object3d.h":
 cdef class Object3D:
     cdef:
         object3d* c_class
-        public MeshDict mesh_data
-        public Material material
+        public Model _model_data
+        public Material _material
         Vec3 _position, _scale
         Quaternion _rotation
     
@@ -1386,6 +1409,7 @@ cdef extern from "../src/Emitter.h":
         vec2 scale
         vec4 color
         float life
+        float starting_life
 
     cdef cppclass emitter:
         emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, size_t rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, RC[material*]* material) except *

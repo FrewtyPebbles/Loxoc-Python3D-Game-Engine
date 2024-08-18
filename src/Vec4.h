@@ -156,6 +156,10 @@ public:
         return glm::distance(this->axis, other.axis);
     }
 
+    inline vec4 lerp(vec4 const& other, float ratio) {
+        return glm::mix(this->axis, other.axis, ratio);
+    }
+
     // Quaternion operations:
 
     vec4 operator*(quaternion const& other);

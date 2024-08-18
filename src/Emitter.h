@@ -18,12 +18,13 @@ const unsigned int indicie[1] = {0};
 class particle {
 public:
     particle(){}
-    particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) : position(position), velocity(velocity), scale(scale), color(color), life(life) {}
+    particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) : position(position), velocity(velocity), scale(scale), color(color), life(life), starting_life(life) {}
 
     vec3 position, velocity; // position is relative to the emitter
     vec2 scale;
     vec4 color;
     float life;
+    float starting_life;
 };
 
 class emitter {
@@ -109,7 +110,7 @@ private:
         vec4 color(rand_range(color_min->axis.x, color_max->axis.x), rand_range(color_min->axis.y, color_max->axis.y), rand_range(color_min->axis.z, color_max->axis.z), rand_range(color_min->axis.w, color_max->axis.w));
         
         vec2 scale(rand_range(scale_min->axis.x, scale_max->axis.x), rand_range(scale_min->axis.y, scale_max->axis.y));
-        
+
         return particle(
             *position,
             scale,
@@ -120,18 +121,19 @@ private:
     }
 
     inline void update_particle(particle *p, const camera * cam = nullptr) {
-        p->life -= cam ? decay_rate * *cam->deltatime : decay_rate;
+        p->life -= cam ? decay_rate * (float)*cam->deltatime : decay_rate;
         if (p->life <= 0.0f) {
             auto new_p = create_particle();
             p->color = new_p.color;
             p->position = new_p.position;
             p->velocity = new_p.velocity;
             p->life = new_p.life;
+            p->starting_life = new_p.starting_life;
             p->scale = new_p.scale;
             return;
         }
-        p->position += cam ? p->velocity * *cam->deltatime : p->velocity;
-        p->velocity -= cam ? velocity_decay * *cam->deltatime : velocity_decay;
+        p->position += cam ? p->velocity * (float)*cam->deltatime : p->velocity;
+        p->velocity -= cam ? velocity_decay * (float)*cam->deltatime : velocity_decay;
     }
 
     inline void update_instance_batch(const camera & cam) {
@@ -153,6 +155,8 @@ private:
             instance_vbo_update.push_back(p.scale.axis.y);
 
             instance_vbo_update.push_back(p.life);
+
+            instance_vbo_update.push_back(p.starting_life);
             
             i++;
         }
@@ -190,6 +194,8 @@ private:
             instance_vbo_update.push_back(p.scale.axis.y);
 
             instance_vbo_update.push_back(p.life);
+
+            instance_vbo_update.push_back(p.starting_life);
             
             i++;
         }
@@ -209,21 +215,25 @@ private:
         // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int), indicie, GL_STATIC_DRAW);
 
         // position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(0 * sizeof(float)));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(0 * sizeof(float)));
         glEnableVertexAttribArray(0);
         
 
         // Color
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
         // Scale
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(7 * sizeof(float)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(7 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
         // life
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(9 * sizeof(float)));
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
         glEnableVertexAttribArray(3);
+
+        // starting life
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(10 * sizeof(float)));
+        glEnableVertexAttribArray(4);
 
         glBindVertexArray(0);
     }
