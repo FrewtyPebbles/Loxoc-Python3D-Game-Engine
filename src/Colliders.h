@@ -79,7 +79,6 @@ public:
     vertices{v1, v2, v3}
     {
         if (!hull_face::validate_face(v1, v2, v3)) {
-            std::cout << "DUPLICATE VERT IN FACE.\n";
             throw std::runtime_error("DUPLICATE VERT IN FACE.");
         }
     }
@@ -89,7 +88,6 @@ public:
     vertices{v1, v2, v3}
     {
         if (!hull_face::validate_face(v1, v2, v3)) {
-            std::cout << "DUPLICATE VERT IN FACE.\n";
             throw std::runtime_error("DUPLICATE VERT IN FACE.");
         }
     }

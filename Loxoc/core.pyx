@@ -323,6 +323,9 @@ cdef class Object3D:
         
         return False
 
+    cpdef void play_animation(self, str animation_name):
+        self._model_data.play_animation(animation_name)
+
     @property
     def position(self) -> Vec3:
         return self._position
@@ -607,6 +610,9 @@ cdef class Quaternion:
     cpdef Quaternion lerp(self, Quaternion other, float ratio):
         return quat_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
+    cpdef Quaternion slerp(self, Quaternion other, float ratio):
+        return quat_from_cpp(self.c_class.slerp(other.c_class[0], ratio))
+
 cdef Quaternion quat_from_cpp(quaternion cppinst):
     cdef Quaternion ret = Quaternion.__new__(Quaternion)
     ret.c_class = new quaternion(cppinst)
@@ -615,6 +621,9 @@ cdef Quaternion quat_from_cpp(quaternion cppinst):
 cdef class Vec4:
     def __init__(self, float x, float y, float z, float w) -> None:
         self.c_class = new vec4(x,y,z,w)
+
+    cpdef Vec4 lerp(self, Vec4 other, float ratio):
+        return vec4_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
     def __copy__(self) -> Quaternion:
         return vec4_from_cpp(self.c_class[0])
@@ -766,6 +775,9 @@ cdef Vec4 vec4_from_cpp(vec4 cppinst):
 cdef class Vec3:
     def __init__(self, float x, float y, float z) -> None:
         self.c_class = new vec3(x,y,z)
+    
+    cpdef Vec3 lerp(self, Vec3 other, float ratio):
+        return vec3_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
     def __copy__(self) -> Quaternion:
         return vec3_from_cpp(self.c_class[0])
@@ -935,6 +947,9 @@ cdef Vec3 vec3_from_cpp(vec3 cppinst):
 cdef class Vec2:
     def __init__(self, float x, float y) -> None:
         self.c_class = new vec2(x,y)
+
+    cpdef Vec2 lerp(self, Vec2 other, float ratio):
+        return vec2_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
     def __repr__(self) -> str:
         return f"<{self.x}, {self.y}>"
@@ -1797,6 +1812,9 @@ cdef class Matrix4x4:
     cpdef Matrix4x4 inverse(self):
         return mat4x4_from_cpp(self.c_class.inverse())
 
+    cpdef Matrix4x4 transpose(self):
+        return mat4x4_from_cpp(self.c_class.transpose())
+
     cpdef float determinant(self):
         return self.c_class.determinant()
 
@@ -1877,6 +1895,9 @@ cdef class Matrix3x4:
         ret.c_class = new matrix[glmmat3x4](value)
         return ret
 
+    cpdef Matrix4x3 transpose(self):
+        return mat4x3_from_cpp(matrix[glmmat4x3](self.c_class.transpose3x4()))
+
     def __dealloc__(self):
         del self.c_class
 
@@ -1935,6 +1956,9 @@ cdef class Matrix2x4:
 
     def __init__(self, float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1) -> None:
         self.c_class = new matrix[glmmat2x4](x0, y0, z0, w0, x1, y1, z1, w1)
+
+    cpdef Matrix4x2 transpose(self):
+        return mat4x2_from_cpp(matrix[glmmat4x2](self.c_class.transpose2x4()))
 
     @staticmethod
     def from_unit(float value) -> Matrix2x4:
@@ -2020,6 +2044,9 @@ cdef class Matrix3x3:
     cpdef Matrix3x3 inverse(self):
         return mat3x3_from_cpp(self.c_class.inverse())
 
+    cpdef Matrix3x3 transpose(self):
+        return mat3x3_from_cpp(self.c_class.transpose())
+
     cpdef float determinant(self):
         return self.c_class.determinant()
 
@@ -2092,6 +2119,9 @@ cdef class Matrix4x3:
     def __init__(self, float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3) -> None:
         self.c_class = new matrix[glmmat4x3](x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3)
 
+    cpdef Matrix3x4 transpose(self):
+        return mat3x4_from_cpp(matrix[glmmat3x4](self.c_class.transpose4x3()))
+
     @staticmethod
     def from_unit(float value) -> Matrix4x3:
         cdef Matrix4x3 ret = Matrix4x3.__new__(Matrix4x3)
@@ -2154,6 +2184,9 @@ cdef class Matrix2x3:
 
     def __init__(self, float x0, float y0, float z0, float x1, float y1, float z1) -> None:
         self.c_class = new matrix[glmmat2x3](x0, y0, z0, x1, y1, z1)
+
+    cpdef Matrix3x2 transpose(self):
+        return mat3x2_from_cpp(matrix[glmmat3x2](self.c_class.transpose2x3()))
 
     @staticmethod
     def from_unit(float value) -> Matrix2x3:
@@ -2231,6 +2264,9 @@ cdef class Matrix2x2:
     cpdef Matrix2x2 inverse(self):
         return mat2x2_from_cpp(self.c_class.inverse())
 
+    cpdef Matrix2x2 transpose(self):
+        return mat2x2_from_cpp(self.c_class.transpose())
+
     cpdef float determinant(self):
         return self.c_class.determinant()
 
@@ -2303,6 +2339,9 @@ cdef class Matrix3x2:
     def __init__(self, float x0, float y0, float x1, float y1, float x2, float y2) -> None:
         self.c_class = new matrix[glmmat3x2](x0, y0, x1, y1, x2, y2)
 
+    cpdef Matrix2x3 transpose(self):
+        return mat2x3_from_cpp(matrix[glmmat2x3](self.c_class.transpose3x2()))
+
     @staticmethod
     def from_unit(float value) -> Matrix3x2:
         cdef Matrix3x2 ret = Matrix3x2.__new__(Matrix3x2)
@@ -2365,6 +2404,9 @@ cdef class Matrix4x2:
 
     def __init__(self, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) -> None:
         self.c_class = new matrix[glmmat4x2](x0, y0, x1, y1, x2, y2, x3, y3)
+
+    cpdef Matrix2x4 transpose(self):
+        return mat2x4_from_cpp(matrix[glmmat2x4](self.c_class.transpose4x2()))
 
     @staticmethod
     def from_unit(float value) -> Matrix4x2:

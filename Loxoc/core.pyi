@@ -243,6 +243,11 @@ class Object3D:
         Returns an instance of the model matrix as a :class:`Matrix4x4` .
         """
 
+    def play_animation(self, animation_name: str) -> None:
+        """
+        Plays the specified animation by name of the model.
+        """
+
     @property
     def position(self) -> Vec3:
         """
@@ -1307,6 +1312,11 @@ class Quaternion:
         Returns a lerped :class:`Quaternion` between two :class:`Quaternion` by the provided ratio.
         """
 
+    def slerp(self, other: Quaternion, ratio: float) -> Quaternion:
+        """
+        Returns a slerped :class:`Quaternion` between two :class:`Quaternion` by the provided ratio.
+        """
+
 class TextureFiltering(Enum):
     """
     The texture filtering setting for a :class:`Texture` .
@@ -1784,6 +1794,11 @@ class Matrix4x4:
         Returns the inverse of the :class:`Matrix4x4` .
         """
 
+    def transpose(self) -> Matrix4x4:
+        """
+        Transposes the matrix.
+        """
+
     def determinant(self) -> float:
         """
         Returns the determinant of the :class:`Matrix4x4` .
@@ -1867,6 +1882,11 @@ class Matrix3x4:
         Divides the :class:`Matrix3x4` by a scalar .
         """
 
+    def transpose(self) -> Matrix4x3:
+        """
+        Transposes the matrix.
+        """
+
 # MAT2x4
 
 class Matrix2x4:
@@ -1911,6 +1931,11 @@ class Matrix2x4:
     def __truediv__(self, other:float) -> Matrix2x4:
         """
         Divides the :class:`Matrix2x4` by a scalar .
+        """
+
+    def transpose(self) -> Matrix4x2:
+        """
+        Transposes the matrix.
         """
 
 # MAT3x3
@@ -1989,6 +2014,11 @@ class Matrix3x3:
         Divides the :class:`Matrix3x3` .
         """
 
+    def transpose(self) -> Matrix3x3:
+        """
+        Transposes the matrix.
+        """
+
 # MAT4x3
 
 class Matrix4x3:
@@ -2037,6 +2067,11 @@ class Matrix4x3:
         Divides the :class:`Matrix4x3` by a scalar.
         """
 
+    def transpose(self) -> Matrix3x4:
+        """
+        Transposes the matrix.
+        """
+
 # MAT2x3
 
 class Matrix2x3:
@@ -2083,6 +2118,11 @@ class Matrix2x3:
     def __truediv__(self, other:float) -> Matrix2x3:
         """
         Divides the :class:`Matrix2x3` by a scalar.
+        """
+
+    def transpose(self) -> Matrix3x2:
+        """
+        Transposes the matrix.
         """
 
 # MAT2x2
@@ -2141,6 +2181,11 @@ class Matrix2x2:
         Divides the :class:`Matrix2x2` .
         """
 
+    def transpose(self) -> Matrix2x2:
+        """
+        Transposes the matrix.
+        """
+
 # MAT3x2
 
 class Matrix3x2:
@@ -2188,6 +2233,11 @@ class Matrix3x2:
         """
         Divides the :class:`Matrix3x2` by a scalar.
         """
+    
+    def transpose(self) -> Matrix2x3:
+        """
+        Transposes the matrix.
+        """
 
 # MAT4x2
 
@@ -2233,6 +2283,11 @@ class Matrix4x2:
     def __truediv__(self, other:float) -> Matrix4x2:
         """
         Divides the :class:`Matrix4x2` by a scalar.
+        """
+
+    def transpose(self) -> Matrix2x4:
+        """
+        Transposes the matrix.
         """
 
 

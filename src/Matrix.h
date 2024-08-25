@@ -33,6 +33,38 @@ using mat_ret_deduce =
     void
 >>>;
 
+template<typename T>
+using mat_transpose_ret_deduce = 
+    // if
+    std::conditional_t<
+    std::is_same_v<T, glm::mat2x3>, glm::mat3x2,
+    std::conditional_t<
+    std::is_same_v<T, glm::mat3x2>, glm::mat2x3,
+    std::conditional_t<
+    std::is_same_v<T, glm::mat4x2>, glm::mat2x4,
+    std::conditional_t<
+    std::is_same_v<T, glm::mat2x4>, glm::mat4x2,
+    std::conditional_t<
+    std::is_same_v<T, glm::mat3x4>, glm::mat4x3,
+    std::conditional_t<
+    std::is_same_v<T, glm::mat4x3>, glm::mat3x4,
+    // else
+    T
+>>>>>>;
+
+//glm mats
+typedef glm::mat2x2 glmmat2x2;
+typedef glm::mat2x3 glmmat2x3;
+typedef glm::mat2x4 glmmat2x4;
+
+typedef glm::mat3x2 glmmat3x2;
+typedef glm::mat3x3 glmmat3x3;
+typedef glm::mat3x4 glmmat3x4;
+
+typedef glm::mat4x2 glmmat4x2;
+typedef glm::mat4x3 glmmat4x3;
+typedef glm::mat4x4 glmmat4x4;
+
 template<typename glm_mat_type>
 class matrix {
 public:
@@ -207,7 +239,16 @@ public:
         return glm::inverse(this->mat);
     }
 
-    inline matrix<glm_mat_type> transpose() {// add to python api
+    // CYTHON HELPERS
+    glmmat2x3 transpose3x2();
+    glmmat3x2 transpose2x3();
+    glmmat4x2 transpose2x4();
+    glmmat2x4 transpose4x2();
+    glmmat3x4 transpose4x3();
+    glmmat4x3 transpose3x4();
+
+    template<typename T = glm_mat_type>
+    inline auto transpose() -> matrix<mat_transpose_ret_deduce<T>> {
         return glm::transpose(this->mat);
     }
 
@@ -220,18 +261,6 @@ public:
     quaternion to_quaternion();
 
 };
-//glm mats
-typedef glm::mat2x2 glmmat2x2;
-typedef glm::mat2x3 glmmat2x3;
-typedef glm::mat2x4 glmmat2x4;
-
-typedef glm::mat3x2 glmmat3x2;
-typedef glm::mat3x3 glmmat3x3;
-typedef glm::mat3x4 glmmat3x4;
-
-typedef glm::mat4x2 glmmat4x2;
-typedef glm::mat4x3 glmmat4x3;
-typedef glm::mat4x4 glmmat4x4;
 
 //mats
 typedef matrix<glm::mat2x2> matrix2x2;

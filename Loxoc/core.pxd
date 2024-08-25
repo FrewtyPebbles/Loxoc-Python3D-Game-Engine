@@ -242,6 +242,7 @@ cdef extern from "../src/Vec3.h":
         float get_magnitude()
         quaternion get_normalized()
         quaternion lerp(const quaternion& other, float ratio)
+        quaternion slerp(const quaternion& other, float ratio)
 
         vec3 cross(vec3& other)
 
@@ -286,38 +287,46 @@ cdef class Quaternion:
     
     cpdef Quaternion lerp(self, Quaternion other, float ratio)
     
+    cpdef Quaternion slerp(self, Quaternion other, float ratio)
+    
 cdef Quaternion quat_from_cpp(quaternion cppinst)
 
+cdef extern from "glm/glm.hpp" namespace "glm":
+    cdef cppclass mat2x2:
+        pass
+    cdef cppclass mat2x3:
+        pass
+    cdef cppclass mat2x4:
+        pass
+
+    cdef cppclass mat3x2:
+        pass
+    cdef cppclass mat3x3:
+        pass
+    cdef cppclass mat3x4:
+        pass
+
+    cdef cppclass mat4x2:
+        pass
+    cdef cppclass mat4x3:
+        pass
+    cdef cppclass mat4x4:
+        pass
+
+# Now define the aliases in Cython
+ctypedef mat2x2 glmmat2x2
+ctypedef mat2x3 glmmat2x3
+ctypedef mat2x4 glmmat2x4
+
+ctypedef mat3x2 glmmat3x2
+ctypedef mat3x3 glmmat3x3
+ctypedef mat3x4 glmmat3x4
+
+ctypedef mat4x2 glmmat4x2
+ctypedef mat4x3 glmmat4x3
+ctypedef mat4x4 glmmat4x4
+
 cdef extern from "../src/Matrix.h":
-    cdef cppclass mat_ret_deduce[T]:
-        pass
-
-    cdef cppclass glmmat2x2:
-        pass
-
-    cdef cppclass glmmat2x3:
-        pass
-
-    cdef cppclass glmmat2x4:
-        pass
-
-    cdef cppclass glmmat3x2:
-        pass
-
-    cdef cppclass glmmat3x3:
-        pass
-
-    cdef cppclass glmmat3x4:
-        pass
-
-    cdef cppclass glmmat4x2:
-        pass
-
-    cdef cppclass glmmat4x3:
-        pass
-
-    cdef cppclass glmmat4x4:
-        pass
 
     cdef cppclass matrix[glm_mat_type]:
         matrix() except *
@@ -395,6 +404,15 @@ cdef extern from "../src/Matrix.h":
 
         inline matrix[glm_mat_type] inverse()
 
+        inline matrix[glm_mat_type] transpose()
+
+        glmmat2x3 transpose3x2()
+        glmmat3x2 transpose2x3()
+        glmmat4x2 transpose2x4()
+        glmmat2x4 transpose4x2()
+        glmmat3x4 transpose4x3()
+        glmmat4x3 transpose3x4()
+
         inline float determinant()
 
         quaternion to_quaternion()
@@ -466,6 +484,8 @@ cdef extern from "../src/Vec4.h":
         vec3 to_vec3()
         vec2 to_vec2()
 
+        inline vec4 lerp(const vec4& other, float ratio)
+
 cdef class Vec4:
     cdef vec4* c_class
 
@@ -493,6 +513,8 @@ cdef class Vec4:
     
     cpdef Vec3 to_vec3(self)
     cpdef Vec2 to_vec2(self)
+
+    cpdef Vec4 lerp(self, Vec4 other, float ratio)
     
 cdef Vec4 vec4_from_cpp(vec4 cppinst)
 
@@ -549,6 +571,8 @@ cdef extern from "../src/Vec3.h":
 
         vec2 to_vec2()
 
+        inline vec3 lerp(const vec3& other, float ratio)
+
 cdef class Vec3:
     cdef vec3* c_class
 
@@ -583,6 +607,8 @@ cdef class Vec3:
     cpdef Vec3 quatmul(self, Quaternion other)
 
     cpdef Quaternion to_quaternion(self)
+    
+    cpdef Vec3 lerp(self, Vec3 other, float ratio)
     
 cdef Vec3 vec3_from_cpp(vec3 cppinst)
 
@@ -619,6 +645,8 @@ cdef extern from "../src/Vec2.h":
         @staticmethod
         vec2 from_angle(float angle)
 
+        inline vec2 lerp(const vec2 & other, float ratio)
+
         matrix2x2 outer_product(const vec2&)
         matrix3x2 outer_product(const vec3&)
         matrix4x2 outer_product(const vec4&)
@@ -648,12 +676,11 @@ cdef class Vec2:
     cpdef Vec2 get_normalized(self)
 
     cpdef float to_angle(self)
+
+    cpdef Vec2 lerp(self, Vec2 other, float ratio)
     
 
 cdef Vec2 vec2_from_cpp(vec2 cppinst)
-
-
-
  
 
 cdef extern from "../src/Mesh.h":
@@ -707,9 +734,9 @@ cdef class MeshDict:
     cpdef void remove(self, str name) except *
 
     @staticmethod
-    cdef MeshDict from_cpp(mesh_dict cppinst) except *
+    cdef MeshDict from_cpp(mesh_dict cppinst)
     @staticmethod
-    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst) except *
+    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst)
 
 
 cdef class Mesh:
@@ -717,9 +744,9 @@ cdef class Mesh:
     cdef public Material material
 
     @staticmethod
-    cdef Mesh from_cpp(RC[mesh*]* cppinst) except *
+    cdef Mesh from_cpp(RC[mesh*]* cppinst)
     
-cpdef Model model_from_file(str file_path, bint animated) except *
+cpdef Model model_from_file(str file_path, bint animated)
 
 cdef extern from "../src/Model.h":
     cdef cppclass model:
@@ -782,6 +809,7 @@ cdef class Object3D:
     cpdef void set_uniform(self, str name, value:UniformValueType)
     cpdef void add_collider(self, Collider collider)
     cpdef void remove_collider(self, Collider collider)
+    cpdef void play_animation(self, str animation_name)
 
     cpdef Matrix4x4 get_model_matrix(self)
 
@@ -1268,6 +1296,8 @@ cdef class Matrix4x4:
 
     cpdef Matrix4x4 inverse(self)
 
+    cpdef Matrix4x4 transpose(self)
+
     cpdef float determinant(self)
 
     cpdef Quaternion to_quaternion(self)
@@ -1287,6 +1317,8 @@ cdef class Matrix3x4:
 
     cdef matrix[glmmat3x4]* c_class
 
+    cpdef Matrix4x3 transpose(self)
+
 cdef Matrix3x4 mat3x4_from_cpp(matrix[glmmat3x4] cppinst)
 
 # 2x4
@@ -1294,6 +1326,8 @@ cdef Matrix3x4 mat3x4_from_cpp(matrix[glmmat3x4] cppinst)
 cdef class Matrix2x4:
 
     cdef matrix[glmmat2x4]* c_class
+
+    cpdef Matrix4x2 transpose(self)
 
 cdef Matrix2x4 mat2x4_from_cpp(matrix[glmmat2x4] cppinst)
 
@@ -1304,6 +1338,8 @@ cdef class Matrix3x3:
     cdef matrix[glmmat3x3]* c_class
 
     cpdef Matrix3x3 inverse(self)
+
+    cpdef Matrix3x3 transpose(self)
 
     cpdef float determinant(self)
 
@@ -1324,6 +1360,8 @@ cdef class Matrix4x3:
 
     cdef matrix[glmmat4x3]* c_class
 
+    cpdef Matrix3x4 transpose(self)
+
 cdef Matrix4x3 mat4x3_from_cpp(matrix[glmmat4x3] cppinst)
 
 # 2x3
@@ -1331,6 +1369,8 @@ cdef Matrix4x3 mat4x3_from_cpp(matrix[glmmat4x3] cppinst)
 cdef class Matrix2x3:
 
     cdef matrix[glmmat2x3]* c_class
+
+    cpdef Matrix3x2 transpose(self)
 
 cdef Matrix2x3 mat2x3_from_cpp(matrix[glmmat2x3] cppinst)
 
@@ -1342,6 +1382,8 @@ cdef class Matrix2x2:
 
     cpdef Matrix2x2 inverse(self)
 
+    cpdef Matrix2x2 transpose(self)
+
     cpdef float determinant(self)
 
 cdef Matrix2x2 mat2x2_from_cpp(matrix[glmmat2x2] cppinst)
@@ -1352,6 +1394,8 @@ cdef class Matrix3x2:
 
     cdef matrix[glmmat3x2]* c_class
 
+    cpdef Matrix2x3 transpose(self)
+
 cdef Matrix3x2 mat3x2_from_cpp(matrix[glmmat3x2] cppinst)
 
 # 4x2
@@ -1359,6 +1403,9 @@ cdef Matrix3x2 mat3x2_from_cpp(matrix[glmmat3x2] cppinst)
 cdef class Matrix4x2:
 
     cdef matrix[glmmat4x2]* c_class
+
+    cpdef Matrix2x4 transpose(self)
+
 
 cdef Matrix4x2 mat4x2_from_cpp(matrix[glmmat4x2] cppinst)
 

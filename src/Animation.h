@@ -348,7 +348,6 @@ public:
     inline void play(animation* animation) {
         // plays the provided animation from the beginning
         current_animation = animation;
-        std::cout << "BIL SIZE: " << animation->bone_info_list.size() << "\n";
         current_time = 0.0f;
     }
 
@@ -371,7 +370,6 @@ public:
 			if (bone_info_list[i].name == node_name) {
                 int index = bone_info_list[i].id;
 				matrix4x4 offset = bone_info_list[i].offset;
-                std::cout << "fbm index " << index << "\n";
 				final_bone_matricies[index] = global_transformation * offset;
 				break;
 			}
