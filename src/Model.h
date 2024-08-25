@@ -34,7 +34,7 @@ public:
     // ANIMATION STUFF
     bool animated = false;
     vector<bone_info> bone_info_list;
-    int bone_counter = 1;
+    int bone_counter = 0;
     std::map<string, animation*> animations;
     animator* animation_player;
     object3d * owner = nullptr;

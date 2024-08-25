@@ -49,7 +49,10 @@ default_material = Material()
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 # "./meshes/test_anim_mesh/test_anim_mesh.gltf"
 # "./meshes/dancing_alien/scene.gltf"
-test_anim_model = Mesh.from_file("./meshes/dancing_alien/scene.gltf")
+# "./meshes/dancing_crab/scene.gltf"
+test_anim_model = Mesh.from_file("./meshes/dancing_crab/scene.gltf")
+
+print(test_anim_model.mesh_dict)
 
 spr_doomguy = Sprite("./textures/doomguy.png")
 
@@ -192,8 +195,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         vel += accel
 
     if window.event.get_flag(EVENT_FLAG.KEY_SPACE) == EVENT_STATE.PRESSED:
-        # "ArmatureAction" or "mixamo.com"
-        test_anim_obj.model.play_animation("mixamo.com")
+        # "ArmatureAction" or "mixamo.com" or "Dance"
+        test_anim_obj.model.play_animation("Dance")
     # apply a quaternion rotation arround the vector vec3(1,1,0)
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(window.time_ns/10000000))
 
