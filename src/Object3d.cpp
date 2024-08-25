@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& os, const object3d& self){
     os << "object3d< \"" << self.model_data->data->mesh_data->data->name << "\" { position: " << *self.position << "} >";
     return os;
 }
-
+ 
 void object3d::render(camera& camera, window* window) {
     // opengl renderer
     this->get_model_matrix();

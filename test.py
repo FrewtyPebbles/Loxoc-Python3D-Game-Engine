@@ -47,8 +47,9 @@ default_material = Material()
 # # The third argument is a magic string that represents the type.  in this case the type is an integer.
 
 car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
-
-dancing_alien = Mesh.from_file("./meshes/dancing_alien/scene.gltf")
+# "./meshes/test_anim_mesh/test_anim_mesh.gltf"
+# "./meshes/dancing_alien/scene.gltf"
+test_anim_model = Mesh.from_file("./meshes/dancing_alien/scene.gltf")
 
 spr_doomguy = Sprite("./textures/doomguy.png")
 
@@ -67,8 +68,8 @@ teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
 cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
     Vec3(100,0,0), Vec3(0,0,0), Vec3(20,20,20))
 
-alien = Object3D(dancing_alien,
-    Vec3(100,30,0), Vec3(0,0,0), Vec3(100,100,100))
+test_anim_obj = Object3D(test_anim_model,
+    Vec3(100,30,60), Vec3(0,0,0), Vec3(100,100,100))
 
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,0,300), Vec3(0,10,0))
@@ -108,7 +109,7 @@ window.add_text_list([
 ])
 
 window.add_object_list([
-    alien,
+    test_anim_obj,
     space_ship,
     car,
     car2,
@@ -191,7 +192,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         vel += accel
 
     if window.event.get_flag(EVENT_FLAG.KEY_SPACE) == EVENT_STATE.PRESSED:
-        alien.model.play_animation("mixamo.com")
+        # "ArmatureAction" or "mixamo.com"
+        test_anim_obj.model.play_animation("mixamo.com")
     # apply a quaternion rotation arround the vector vec3(1,1,0)
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(window.time_ns/10000000))
 

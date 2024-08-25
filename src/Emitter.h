@@ -161,7 +161,7 @@ private:
             i++;
         }
         glBindBuffer(GL_ARRAY_BUFFER, gl_VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, instance_vbo_update.size() * sizeof(float), instance_vbo_update.data());// BUG
+        glBufferSubData(GL_ARRAY_BUFFER, 0, instance_vbo_update.size() * sizeof(float), instance_vbo_update.data());
 
         material->data->set_uniform("projection", cam.projection);
         material->data->set_uniform("view", cam.view);

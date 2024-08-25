@@ -272,20 +272,20 @@ void collider_convex::render_hull_create_shader_program() {
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cerr << "ERROR: Vertex Shader Compilation Failed\n" << infoLog << std::endl;
-    }
+    }   
     
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cerr << "ERROR: Fragment Shader Compilation Failed\n" << infoLog << std::endl;
-    }
+    } 
     
     glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
         std::cerr << "ERROR: Shader Program Linking Failed\n" << infoLog << std::endl;
-    }
-    
+    }  
+     
     // Clean up shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -295,7 +295,7 @@ void collider_convex::render_hull_create_shader_program() {
     
     // Generate and bind VAO
     glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO); 
 
     // Generate and bind VBO for vertices
     glGenBuffers(1, &VBO);
@@ -306,13 +306,13 @@ void collider_convex::render_hull_create_shader_program() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 }
-
+ 
 void collider_convex::render_hull(const camera& cam) {
     if (show_collider) {
         auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
-        glDepthMask(GL_FALSE);
+        glDepthMask(GL_FALSE); 
         // Use shader program
-        glUseProgram(shader_program);
+        glUseProgram(shader_program); 
 
         auto t_loc = glGetUniformLocation(shader_program, "transform");
 
@@ -321,21 +321,21 @@ void collider_convex::render_hull(const camera& cam) {
         auto t2_loc = glGetUniformLocation(shader_program, "model");
 
         glUniformMatrix4fv(t2_loc, 1, GL_FALSE, glm::value_ptr(this_mat.mat));
-
+ 
         // Draw the wireframe
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, (GLint)raw_vertices.size() / 3);
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
-    }
-}
-
+    } 
+}      
+ 
 float collider_convex::tetrahedron_volume(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4) {
     vec3 v1 = p2 - p1;
     vec3 v2 = p3 - p1;
     vec3 v3 = p4 - p1;
     return std::fabs(v1.dot(v2.cross(v3))) / 6.0f;
-}
+}  
 
 
 std::vector<hull_face> collider_convex::find_tetrahedron(const std::vector<vec3>& vertices) {

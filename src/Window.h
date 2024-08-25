@@ -37,8 +37,8 @@ public:
     event current_event;
     bool fullscreen = false;
     void update();
-    double deltatime;
-    long long time_ns, time;
+    double deltatime = 1.0f;
+    long long time_ns = 1, time = 1;
 
     inline void lock_mouse(bool lock) {
         SDL_SetRelativeMouseMode(SDLBOOL(lock));

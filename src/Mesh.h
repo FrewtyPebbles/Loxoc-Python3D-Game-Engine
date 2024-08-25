@@ -54,9 +54,9 @@ struct vertex {
     // texCoords
     glm::vec2 tex_coords;
 	//bone indexes which will influence this vertex
-	int bone_ids[MAX_BONE_INFLUENCE];
+	glm::ivec4 bone_ids;
 	//weights from each bone
-	float weights[MAX_BONE_INFLUENCE];
+	glm::vec4 weights;
 };
 
 class mesh {

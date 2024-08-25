@@ -7,7 +7,7 @@ void material::set_uniform(string name, uniform_type value) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
     this->inner_set_uniform(loc, value);
 }
-
+ 
 void material::use_material() {
     glUseProgram(this->shader_program);
 }

@@ -69,10 +69,10 @@ void mesh::process_node(rc_model model, aiNode* node, const aiScene* scene, rc_m
         for (size_t v_n = 0; v_n < msh->mNumVertices; v_n++) {
             vertex push_vert;
 
-            model::set_vertex_bone_data_to_default(push_vert);
+            model::set_vertex_bone_data_to_default(&push_vert);
 
             auto vert = transform * msh->mVertices[v_n];
-            push_vert.position = glm::vec3(vert.x, vert.y, vert.z);
+            push_vert.position = glm::vec3(vert.x, vert.y, vert.z); 
             auto new_vert_mag = vec3(vert.x, vert.y, vert.z).get_magnitude();
             if (radius < new_vert_mag) {
                 radius = new_vert_mag;
@@ -110,12 +110,16 @@ void mesh::process_node(rc_model model, aiNode* node, const aiScene* scene, rc_m
             faces->push_back(make_tup<unsigned int, 3>({fce.mIndices[0], fce.mIndices[1], fce.mIndices[2]}));
         }
 
-        if (mesh_material->data->diffuse_texture == nullptr) {
-            // insert default texture
+        if (mesh_material->data->diffuse_texture == nullptr) { // TODO add logic to allow for mesh color
+            // insert default texture 
             mesh_material->data->diffuse_texture = new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR));
         }
 
-        model->data->extract_bone_weight_for_vertices(*_vertexes, msh, scene);
+        model->data->extract_bone_weight_for_vertices(_vertexes, msh, scene);
+  
+        for (auto& v : *_vertexes) {
+            v.weights = glm::normalize(v.weights);
+        }
 
         auto ret_mesh = new RC(new mesh(mesh_name, mesh_material, _vertexes, faces, _transform, model->data->animated));
         ret_mesh->data->radius = radius;
@@ -154,22 +158,24 @@ rc_model mesh::from_file(string file_path, bool animated) {
     auto curren_mesh_dict = new RC(new mesh_dict());
 
     curren_mesh_dict->data->name = file_path;
-    auto ret = new RC(new model(
+    auto ret = new RC(new model( 
         curren_mesh_dict,
         animated
     ));
+    
+    ret->data->animated = scene->mNumAnimations > 0;
+
+    process_node(ret, scene->mRootNode, scene, curren_mesh_dict, scene->mRootNode->mTransformation, file_path);
 
     for (int i = 0; i < scene->mNumAnimations; i++)  {
         ret->data->animations[scene->mAnimations[i]->mName.data] = new animation(scene, scene->mAnimations[i], ret);
         ret->data->animated = true;
     }
     
-    process_node(ret, scene->mRootNode, scene, curren_mesh_dict, scene->mRootNode->mTransformation, file_path);
-    
     
     return ret;
 }
-
+ 
 void mesh::create_VAO() {
     //VAO
     glGenVertexArrays(1, &this->gl_VAO);
@@ -179,12 +185,6 @@ void mesh::create_VAO() {
     this->get_gl_vert_inds(&gl_inds);
     
     this->indicies_size = gl_inds.size();
-
-    int attrib_size = 6 * sizeof(float);// this will be replaced with Vertex::size() later
-    if (!this->faces->empty())
-        attrib_size += 2 * sizeof(float);
-    if (this->is_animated)
-        attrib_size += 4 * sizeof(int) + 4 * sizeof(float);
 
     //VBO
     glGenBuffers(1, &this->gl_VBO);
@@ -204,12 +204,12 @@ void mesh::create_VAO() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
     glEnableVertexAttribArray(1);
 
-    if (!this->faces->empty()) {
+    // if (!this->faces->empty()) {
         // Vertex attributes (texcoords)
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex),
             (void*)offsetof(vertex, tex_coords));
         glEnableVertexAttribArray(2);
-    }
+    // }
 
     if (this->is_animated) {
         // Vertex attributes (bone_ids)
@@ -220,7 +220,6 @@ void mesh::create_VAO() {
         glEnableVertexAttribArray(4); 
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 

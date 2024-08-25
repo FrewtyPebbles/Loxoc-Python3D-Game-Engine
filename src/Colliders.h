@@ -146,14 +146,14 @@ public:
 
     // DEBUG
     void render_hull(const camera& cam);
-private:
+private: 
     void generate_hull(vector<vec3> verticies);
     set<hull_face> create_visible_set(const vec3& point);
     vector<pair<vec3, vec3>> identify_horizon_edges(set<hull_face> visible_set);
     vec3 calculate_midpoint(const set<vec3, vec3_compare>& points);
     void flip_normals(const vec3& center);
 
-    // debug
+    // debug 
     void render_hull_extract_edges();
     void render_hull_create_shader_program();
     vector<hull_face> find_tetrahedron(const std::vector<vec3>& vertices);
@@ -162,7 +162,7 @@ private:
     unsigned int shader_program;
     unsigned int VAO, VBO;
     vector<float> raw_vertices;
-};
+}; 
 
 
 struct vec3_pair_compare {

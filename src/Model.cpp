@@ -7,6 +7,12 @@ void model::play_animation(const string& animation) {
     animation_player->play(animations[animation]);
 }
 
+model::~model() {
+    delete animation_player;
+    for (auto [k, v] : animations)
+        delete v;
+}
+
 model::model(RC<mesh_dict*>* mesh_data, bool animated) : mesh_data(mesh_data), animated(animated), animation_player(new animator(nullptr)) {}
 
 void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& camera, window* window) {
@@ -22,7 +28,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
             if (obj->mat == nullptr) { // Use mesh material.
 
-                // set mvp
+                // set mvp 
                 _mesh->data->mesh_material->data->use_material();
                 _mesh->data->mesh_material->data->set_uniform("model", obj->model_matrix);
                 _mesh->data->mesh_material->data->set_uniform("view", camera.view);
@@ -36,8 +42,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
                 _mesh->data->mesh_material->data->set_material();
 
-                _mesh->data->mesh_material->data->register_uniforms();
-                obj->register_uniforms(); // register object level uniforms
+                
                 
                 // Point Lights:
                 
@@ -81,7 +86,10 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
                 // update animations
                 if (obj->model_data->data->animated)
-                    obj->model_data->data->animation_player->update(window->deltatime, _mesh->data->mesh_material->data->shader_program);
+                    obj->model_data->data->animation_player->set_uniforms(_mesh->data->mesh_material);
+  
+                _mesh->data->mesh_material->data->register_uniforms();
+                obj->register_uniforms(); // register object level uniforms
 
             } else { // Use object material.
 
@@ -112,7 +120,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
                 // Spot Lights:
 
-                i = 0;
+                i = 0; 
                 for (spot_light* sl : window->render_list_spot_lights) {
                     // calculate when to remove light by having an attenuation threshhold.
                     float l_distance = sl->position->distance(*obj->position);
@@ -127,7 +135,9 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
                 // update animations
                 if (obj->model_data->data->animated)
-                    obj->model_data->data->animation_player->update(window->deltatime, obj->mat->data->shader_program);
+                    obj->model_data->data->animation_player->set_uniforms(obj->mat);
+                
+                obj->mat->data->register_uniforms();
             }
             
             glBindVertexArray(_mesh->data->gl_VAO);

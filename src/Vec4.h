@@ -30,7 +30,7 @@ class vec4 {
 public:
     vec4()=default;
     vec4(float x, float y, float z, float w) : axis(x,y,z,w) {}
-    vec4(float val) : axis(val,val,val,val) {}
+    vec4(float val) : axis(val) {}
     vec4(const glm::vec4& axis) : axis(axis) {}
     vec4(const vec4& rhs) : axis(rhs.axis) {}
     vec4(const vec3& rhs, float w);

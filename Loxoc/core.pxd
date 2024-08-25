@@ -671,7 +671,7 @@ cdef extern from "../src/Mesh.h":
         mesh(const mesh& rhs) except *
         mesh(string name, RC[material*]* mesh_material, vector[vertex]* vertices, vector[tup3ui]* faces, vec3 transform) except *
         @staticmethod
-        RC[model*]* from_file(string file_path, bint animated)
+        RC[model*]* from_file(string file_path, bint animated) except *
         string name
         RC[material*]* mesh_material
         vector[tup3ui]* faces
@@ -704,12 +704,12 @@ cdef extern from "../src/Mesh.h":
 
 cdef class MeshDict:
     cdef RC[mesh_dict*]* c_class
-    cpdef void remove(self, str name)
+    cpdef void remove(self, str name) except *
 
     @staticmethod
-    cdef MeshDict from_cpp(mesh_dict cppinst)
+    cdef MeshDict from_cpp(mesh_dict cppinst) except *
     @staticmethod
-    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst)
+    cdef MeshDict from_cpp_ptr(RC[mesh_dict*]* cppinst) except *
 
 
 cdef class Mesh:
@@ -717,15 +717,15 @@ cdef class Mesh:
     cdef public Material material
 
     @staticmethod
-    cdef Mesh from_cpp(RC[mesh*]* cppinst)
+    cdef Mesh from_cpp(RC[mesh*]* cppinst) except *
     
-cpdef Model model_from_file(str file_path, bint animated)
+cpdef Model model_from_file(str file_path, bint animated) except *
 
 cdef extern from "../src/Model.h":
     cdef cppclass model:
         model() except *
         model(RC[mesh_dict*]* mesh_data, bint animated) except *
-        void play_animation(const string& animation)
+        void play_animation(const string& animation) except *
         RC[mesh_dict*]* mesh_data
         bint animated
 

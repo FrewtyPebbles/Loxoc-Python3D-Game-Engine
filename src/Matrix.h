@@ -154,12 +154,6 @@ public:
     {
         return mat * other;
     }
-
-    inline matrix<glm_mat_type> operator=(matrix<glm_mat_type> const& other)
-    {
-        mat = other.mat;
-        return *this;
-    }
     
     inline matrix<glm_mat_type> operator/(matrix<glm_mat_type> const& other)
     {
@@ -211,6 +205,10 @@ public:
 
     inline matrix<glm_mat_type> inverse() {
         return glm::inverse(this->mat);
+    }
+
+    inline matrix<glm_mat_type> transpose() {// add to python api
+        return glm::transpose(this->mat);
     }
 
     inline float determinant() {

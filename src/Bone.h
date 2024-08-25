@@ -38,8 +38,8 @@ struct key_scale {
 class bone {
 public:
     string name;
-    int id;
-    matrix4x4 local_transform; // This is the transform matrix that all of the lerp'd keyframes are baked into
+    int id = -1;
+    matrix4x4 local_transform = matrix4x4(1.0f); // This is the transform matrix that all of the lerp'd keyframes are baked into
     // it is the orientation of the bone in the animation at the current frame.
 private:
     vector<key_position> positions;
@@ -58,10 +58,8 @@ public:
         positions_size = channel->mNumPositionKeys;
         for (int pos_i = 0; pos_i < positions_size; ++pos_i) {
             aiVector3D ai_pos = channel->mPositionKeys[pos_i].mValue;
-            float time_stamp = channel->mPositionKeys[pos_i].mTime;
-            key_position data;
-            data.position = AssimpGLMHelpers::GetGLMVec(ai_pos);
-            data.time_stamp = time_stamp;
+            float time_stamp = (float)channel->mPositionKeys[pos_i].mTime;
+            key_position data = {vec3(ai_pos.x, ai_pos.y, ai_pos.z), time_stamp};
             positions.push_back(data);
         }
 
@@ -70,9 +68,7 @@ public:
         for (int rot_i = 0; rot_i < rotations_size; ++rot_i) {
             aiQuaternion ai_rot = channel->mRotationKeys[rot_i].mValue;
             float time_stamp = channel->mRotationKeys[rot_i].mTime;
-            key_rotation data;
-            data.orientation = AssimpGLMHelpers::GetGLMQuat(ai_rot);
-            data.time_stamp = time_stamp;
+            key_rotation data = {quaternion(ai_rot.w, ai_rot.x, ai_rot.y, ai_rot.z), time_stamp};
             rotations.push_back(data);
         }
 
@@ -81,9 +77,7 @@ public:
         for (int scale_i = 0; scale_i < scales_size; ++scale_i) {
             aiVector3D ai_scale = channel->mScalingKeys[scale_i].mValue;
             float time_stamp = channel->mScalingKeys[scale_i].mTime;
-            key_scale data;
-            data.scale = AssimpGLMHelpers::GetGLMVec(ai_scale);
-            data.time_stamp = time_stamp;
+            key_scale data = {vec3(ai_scale.x, ai_scale.y, ai_scale.z), time_stamp};
             scales.push_back(data);
         }
     }
@@ -105,7 +99,7 @@ public:
             if (animation_time < positions[i + 1].time_stamp)
                 return i;
         }
-        throw std::runtime_error("Did not find a valid animation position keyframe.");
+        return positions_size-2;
     }
 
     inline int get_rotation_index(float animation_time) {
@@ -114,7 +108,7 @@ public:
             if (animation_time < rotations[i + 1].time_stamp)
                 return i;
         }
-        throw std::runtime_error("Did not find a valid animation rotation keyframe.");
+        return rotations_size-2;
     }
 
     inline int get_scale_index(float animation_time) {
@@ -123,7 +117,7 @@ public:
             if (animation_time < scales[i + 1].time_stamp)
                 return i;
         }
-        throw std::runtime_error("Did not find a valid animation scale keyframe.");
+        return scales_size-2;
     }
 
 private:
@@ -160,8 +154,8 @@ private:
         int rot_0_i = get_rotation_index(animation_time);
         int rot_1_i = rot_0_i + 1;
         float scale_factor = get_scale_factor(rotations[rot_0_i].time_stamp, rotations[rot_1_i].time_stamp, animation_time);
-        quaternion final_rot = rotations[rot_0_i].orientation.slerp(rotations[rot_1_i].orientation, scale_factor)
-            .get_normalized();
+        quaternion final_rot = rotations[rot_0_i].orientation.slerp(rotations[rot_1_i].orientation, scale_factor);
+        final_rot = final_rot.get_normalized();
         return matrix4x4(final_rot);
     }
 

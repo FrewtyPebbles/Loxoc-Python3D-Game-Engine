@@ -33,7 +33,7 @@ class vec3 {
 public:
     vec3()=default;
     vec3(float x, float y, float z) : axis(x,y,z) {}
-    vec3(float val) : axis(val,val,val) {}
+    vec3(float val) : axis(val) {}
     vec3(const glm::vec3& axis) : axis(axis) {}
     vec3(const vec3& rhs) : axis(rhs.axis) {}
     vec3(const vec2& rhs, float z);

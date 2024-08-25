@@ -20,6 +20,7 @@ window::~window(){
 window::window() {
     this->title = "Default Window Title";
     this->create_window();
+    current_event = event();
 }
 
 window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
@@ -97,7 +98,11 @@ void window::create_window() {
 
 
 void window::update() {
-    
+    this->new_time = std::chrono::steady_clock::now();
+    this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
+    this->time = std::chrono::duration_cast<std::chrono::seconds>(this->starttime - this->old_time).count();
+    this->deltatime = std::chrono::duration_cast<std::chrono::nanoseconds>(this->new_time - this->old_time).count()/1000000000.0;// dt in seconds
+    this->old_time = this->new_time;
     this->current_event.handle_events(this);
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -109,6 +114,11 @@ void window::update() {
     glDepthMask(GL_TRUE);
     
     for (object3d* ob : render_list) {
+        // update animations
+        if (ob->model_data->data->animated) {
+            ob->model_data->data->animation_player->update(deltatime);
+        }
+
         ob->render(*this->cam, this);
         
         for (auto col : ob->colliders) {
@@ -116,6 +126,9 @@ void window::update() {
                 box->render_hull(*this->cam);
             }
         }
+
+        if (ob->model_data->data->animated)
+            ob->model_data->data->animation_player->render_debug(this->cam, ob->model_matrix);
     }
     
     glDepthMask(GL_FALSE);// TODO Make this per sprite based on wether the sprite is marked as translucent
@@ -134,11 +147,6 @@ void window::update() {
     glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
  
     SDL_GL_SwapWindow(this->app_window);
-    this->new_time = std::chrono::steady_clock::now();
-    this->time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(this->starttime - this->old_time).count();
-    this->time = std::chrono::duration_cast<std::chrono::seconds>(this->starttime - this->old_time).count();
-    this->deltatime = std::chrono::duration_cast<std::chrono::nanoseconds>(this->new_time - this->old_time).count()/1000000000.0;// dt in seconds
-    this->old_time = this->new_time;
 } 
 
 void window::add_object(object3d* obj) {
@@ -248,7 +256,7 @@ void window::remove_spot_light_list(vector<spot_light*> objs) {
 }
 
 // text
-
+    
 void window::add_text(text* obj) {
     this->render_list_text.insert(obj);
 }
