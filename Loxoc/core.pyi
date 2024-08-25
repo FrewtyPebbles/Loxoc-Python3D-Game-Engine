@@ -163,6 +163,20 @@ class Model:
     def __init__(self, mesh_dict:MeshDict, animated:bool) -> None:
         ...
 
+    @property
+    def use_default_material_properties(self) -> bool:
+        """
+        Uses the :class:`Material` properties defined by each :class:`Mesh` 's :class:`Material` . This only has an effect if the :class:`Object3D` of interest has an object-level :class:`Material` set (having an object-level :class:`Material` means the :class:`Object3D` 's `Object3D.material` attribute is set.).
+        When there is an object-level :class:`Material` set, the default value for `use_default_material_properties` is `False`.
+        """
+
+    @use_default_material_properties.setter
+    def use_default_material_properties(self, value:bool) -> None:
+        """
+        Uses the :class:`Material` properties defined by each :class:`Mesh` 's :class:`Material` . This only has an effect if the :class:`Object3D` of interest has an object-level :class:`Material` set (having an object-level :class:`Material` means the :class:`Object3D` 's `Object3D.material` attribute is set.).
+        When there is an object-level :class:`Material` set, the default value for `use_default_material_properties` is `False`.
+        """
+
     def play_animation(self, animation:str) -> None:
         """
         Plays the specified animation.
@@ -198,6 +212,20 @@ class Object3D:
     This class is your 3D game object.
     """
     def __init__(self, model_data:Model, position:Vec3 = Vec3(0.0,0.0,0.0), rotation:Vec3 = Vec3(0.0,0.0,0.0), scale:Vec3 = Vec3(1.0,1.0,1.0), collider:Collider | None = None, material:Material | None = None) -> None:...
+
+    @property
+    def use_default_material_properties(self) -> bool:
+        """
+        Uses the :class:`Material` properties defined by each :class:`Mesh` 's :class:`Material` . This only has an effect if the :class:`Object3D` of interest has an object-level :class:`Material` set (having an object-level :class:`Material` means the :class:`Object3D` 's `Object3D.material` attribute is set.).
+        When there is an object-level :class:`Material` set, the default value for `use_default_material_properties` is `False`.
+        """
+
+    @use_default_material_properties.setter
+    def use_default_material_properties(self, value:bool) -> None:
+        """
+        Uses the :class:`Material` properties defined by each :class:`Mesh` 's :class:`Material` . This only has an effect if the :class:`Object3D` of interest has an object-level :class:`Material` set (having an object-level :class:`Material` means the :class:`Object3D` 's `Object3D.material` attribute is set.).
+        When there is an object-level :class:`Material` set, the default value for `use_default_material_properties` is `False`.
+        """
 
     @property
     def material(self) -> Vec3:

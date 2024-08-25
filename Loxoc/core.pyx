@@ -239,6 +239,14 @@ cdef class Model:
         self._mesh_data = mesh_dict
         self.c_class = new RC[model_ptr](new model(self._mesh_data.c_class, animated))
 
+    @property
+    def use_default_material_properties(self) -> bint:
+        return self.c_class.data.use_default_material_properties
+
+    @use_default_material_properties.setter
+    def use_default_material_properties(self, bint value) -> None:
+        self.c_class.data.use_default_material_properties = value
+
     cpdef void play_animation(self, str animation):
         self.c_class.data.play_animation(animation.encode())
 
@@ -298,6 +306,14 @@ cdef class Object3D:
                 self.c_class.colliders.push_back(collider.c_class)
             else:
                 self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+
+    @property
+    def use_default_material_properties(self) -> bint:
+        return self.c_class.model_data.data.use_default_material_properties
+
+    @use_default_material_properties.setter
+    def use_default_material_properties(self, bint value) -> None:
+        self.c_class.model_data.data.use_default_material_properties = value
 
     cpdef Matrix4x4 get_model_matrix(self):
         return mat4x4_from_cpp(self.c_class.get_model_matrix())

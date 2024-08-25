@@ -99,8 +99,10 @@ void material::set_material() {
     GLuint ambient_loc = glGetUniformLocation(this->shader_program, (prefix + "ambient").c_str());
     glUniform3fv(ambient_loc, 1, glm::value_ptr(this->ambient.axis));
     
-    glActiveTexture(GL_TEX_N_ITTER[0]);
-    this->diffuse_texture->data->bind();
+    if (this->diffuse_texture) {
+        glActiveTexture(GL_TEX_N_ITTER[0]);
+        this->diffuse_texture->data->bind();
+    }
     
     if (this->specular_texture != nullptr) {
         glActiveTexture(GL_TEX_N_ITTER[1]);
@@ -110,4 +112,28 @@ void material::set_material() {
     
     GLuint shine_loc = glGetUniformLocation(this->shader_program, (prefix + "shine").c_str());
     glUniform1f(shine_loc, this->shine);
+}
+
+void material::set_material_fallback(bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties) {
+    string prefix = "material.";
+    // set struct parameters
+    if (use_default_material_properties) {
+        GLuint ambient_loc = glGetUniformLocation(this->shader_program, (prefix + "ambient").c_str());
+        glUniform3fv(ambient_loc, 1, glm::value_ptr(this->ambient.axis));
+    }
+    
+    if (has_diffuse) {
+        glActiveTexture(GL_TEX_N_ITTER[0]);
+        this->diffuse_texture->data->bind();
+    }
+    
+    if (has_specular) {
+        glActiveTexture(GL_TEX_N_ITTER[1]);
+        this->specular_texture->data->bind();
+    }
+    
+    if (use_default_material_properties) {
+        GLuint shine_loc = glGetUniformLocation(this->shader_program, (prefix + "shine").c_str());
+        glUniform1f(shine_loc, this->shine);
+    }
 }

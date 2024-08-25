@@ -67,6 +67,8 @@ public:
 
     void set_material();
 
+    void set_material_fallback(bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties);
+
     rc_shader vertex;
     rc_shader fragment;
     rc_shader geometry;

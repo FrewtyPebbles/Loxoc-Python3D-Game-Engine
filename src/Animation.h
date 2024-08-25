@@ -306,7 +306,7 @@ class animator {
 public:
     // attributes
     vector<matrix4x4> final_bone_matricies;
-    animation* current_animation;
+    animation* current_animation = nullptr;
     float current_time;
     float delta_time;
     bool show_debug = false;
@@ -318,7 +318,7 @@ public:
 
     // CONSTRUCTORS
 
-    animator(animation* animation) {
+    animator(animation* animation = nullptr) {
         current_time = 0.0f;
         current_animation = animation;
         final_bone_matricies.reserve(100);

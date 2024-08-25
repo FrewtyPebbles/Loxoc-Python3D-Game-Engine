@@ -93,6 +93,12 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
 
             } else { // Use object material.
 
+                _mesh->data->mesh_material->data->set_material_fallback(
+                    obj->mat->data->diffuse_texture == nullptr,
+                    obj->mat->data->specular_texture == nullptr,
+                    obj->mat->data->normals_texture == nullptr,
+                    use_default_material_properties || (obj->mat == nullptr)
+                );
                 // Point Lights:
 
                 i = 0;

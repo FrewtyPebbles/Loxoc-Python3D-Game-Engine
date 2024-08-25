@@ -30,6 +30,7 @@ public:
 
     ~model();
     RC<mesh_dict*>* mesh_data;
+    bool use_default_material_properties = false;
     
     // ANIMATION STUFF
     bool animated = false;

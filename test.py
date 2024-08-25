@@ -52,8 +52,6 @@ car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 # "./meshes/dancing_crab/scene.gltf"
 test_anim_model = Mesh.from_file("./meshes/dancing_crab/scene.gltf")
 
-print(test_anim_model.mesh_dict)
-
 spr_doomguy = Sprite("./textures/doomguy.png")
 
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))

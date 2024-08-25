@@ -755,6 +755,7 @@ cdef extern from "../src/Model.h":
         void play_animation(const string& animation) except *
         RC[mesh_dict*]* mesh_data
         bint animated
+        bint use_default_material_properties
 
 cdef class Model:
     cdef:
