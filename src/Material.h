@@ -69,17 +69,17 @@ public:
 
     void set_material_fallback(bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties);
 
-    rc_shader vertex;
-    rc_shader fragment;
-    rc_shader geometry;
-    rc_shader compute;
+    rc_shader vertex = nullptr;
+    rc_shader fragment = nullptr;
+    rc_shader geometry = nullptr;
+    rc_shader compute = nullptr;
     GLuint shader_program;
     string name;
     vec3 ambient = vec3(0.1f, 0.1f, 0.1f);
     vec3 diffuse = vec3(1.0f, 1.0f, 1.0f);
     vec3 specular = vec3(1.0f, 1.0f, 1.0f);
     float shine = 1.0f;
-    float specular_exponent, optical_density, transparency;
+    float specular_exponent = 0, optical_density = 0, transparency = 0;
     rc_texture diffuse_texture = nullptr;
     rc_texture specular_texture = nullptr;
     rc_texture normals_texture = nullptr;

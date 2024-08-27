@@ -674,6 +674,18 @@ class Window:
         """
 
     @property
+    def resizeable(self) -> bool:
+        """
+        This flag determines wether or not the window is resizeable.  The default value is `True`.
+        """
+
+    @resizeable.setter
+    def resizeable(self, value: bool):
+        """
+        This flag determines wether or not the window is resizeable.  The default value is `True`.
+        """
+
+    @property
     def sky_box(self) -> SkyBox:
         """
         The :class:`Skybox` .
@@ -982,6 +994,9 @@ class EVENT_FLAG(Enum):
     MOUSE_BUTTON_UP: 'EVENT_FLAG'
     MOUSE_WHEEL: 'EVENT_FLAG'
     MOUSE_MOTION: 'EVENT_FLAG'
+
+    # MORE WINDOW EVENTS
+    WINDOW_RESIZE: 'EVENT_FLAG'
 
 class EVENT_STATE(Enum):
     """
@@ -1686,9 +1701,9 @@ class Collider:
     """
     The Collider base class.
     """
-    def check_collision(self, intersection: Vec3 | Collider) -> bool:
+    def check_collision(self, intersection: Vec3 | Collider | Object3D) -> bool:
         """
-        Checks for a collision between this :class:`Collider`  and another :class:`Collider` or :class:`Vec3` .
+        Checks for a collision between this :class:`Collider`  and another :class:`Collider` , :class:`Object3D` or :class:`Vec3` .
         """
 
     @property
@@ -1738,6 +1753,11 @@ class Collider:
         """
         Makes the collider visible.  Good for debugging purposes.
         """
+    
+    def dbg_render(self, cam: Camera) -> None:
+        """
+        Call this function when you wish to show a collider's collision mesh despite the collider not having an owner.  (This api is temporary until future game engine systems are implemented.)
+        """
 
 class BoxCollider(Collider):
     """
@@ -1747,7 +1767,7 @@ class BoxCollider(Collider):
         ...
 
     @classmethod
-    def from_bounds(cls, upper_bound: Vec3 = Vec3(0.0,0.0,0.0), lower_bound: Vec3 = Vec3(-100,-100,-100), offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+    def from_bounds(cls, upper_bound: Vec3 = Vec3(10, 10, 10), lower_bound: Vec3 = Vec3(-10, -10, -10), offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> BoxCollider:
         """
         Constructs an :class:`BoxCollider` from the provided bounds.
         """

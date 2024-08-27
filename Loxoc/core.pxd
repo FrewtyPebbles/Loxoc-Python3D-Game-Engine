@@ -936,6 +936,7 @@ cdef extern from "../src/Window.h":
         camera* cam
         string title
         int width, height
+        bint resizeable
         void update() except *
         void lock_mouse(bint lock) except *
 
@@ -1119,7 +1120,10 @@ cdef extern from "../src/Event.h":
         MOUSE_BUTTON_DOWN,
         MOUSE_BUTTON_UP,
         MOUSE_WHEEL,
-        MOUSE_MOTION
+        MOUSE_MOTION,
+        
+        # More Window Events
+        WINDOW_RESIZE
 
     cpdef enum class EVENT_STATE:
         NONE,
@@ -1242,8 +1246,10 @@ cdef extern from "../src/Colliders.h":
         collider() except *
         bint check_collision(vec3 intersection)
         bint check_collision(collider* intersection)
+        bint check_collision(object3d* intersection)
         pair[float, float] minmax_vertex_SAT(const vec3 & axis)
         bint check_SAT(vec3 axis, collider *other)
+        void dbg_render(const camera& cam)
         object3d* owner
         vec3* offset
         vec3* scale
@@ -1258,7 +1264,9 @@ cdef extern from "../src/Colliders.h":
         bint check_collision(collider* other)
         bint check_collision(collider_box* collider)
         bint check_collision(collider_convex* collider)
+
         pair[float, float] minmax_vertex_SAT(const vec3 & axis)
+        void dbg_render(const camera& cam)
         vec3 upper_bounds
         vec3 lower_bounds
         vec3[8] bounds
@@ -1280,9 +1288,12 @@ cdef class Collider:
         Quaternion _rotation
         Vec3 _scale
 
+    cpdef void dbg_render(self, Camera cam)
+
 
 cdef class BoxCollider(Collider):
     pass
+    
 
 cdef class ConvexCollider(Collider):
     pass

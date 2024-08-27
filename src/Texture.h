@@ -25,7 +25,7 @@ public:
 
     void bind();
 
-    int width, height, number_of_channels;
+    int width = 0, height = 0, number_of_channels = 0;
     GLuint gl_texture;
     string file_path;
 };

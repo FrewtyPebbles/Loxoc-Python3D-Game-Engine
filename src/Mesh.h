@@ -48,15 +48,15 @@ typedef RC<texture*>* rc_texture;
 
 struct vertex {
     // position
-    glm::vec3 position;
+    glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
     // normal
-    glm::vec3 normal;
+    glm::vec3 normal = glm::vec3(0.0f,0.0f,0.0f);
     // texCoords
-    glm::vec2 tex_coords;
+    glm::vec2 tex_coords = glm::vec2(0.0f,0.0f);
 	//bone indexes which will influence this vertex
-	glm::ivec4 bone_ids;
+	glm::ivec4 bone_ids = glm::ivec4(0,0,0,0);
 	//weights from each bone
-	glm::vec4 weights;
+	glm::vec4 weights = glm::vec4(0.0f,0.0f,0.0f,0.0f);
 };
 
 class mesh {
@@ -102,14 +102,14 @@ public:
     vector<vertex>* vertices;
     bool is_animated = false;
 
-    vec3 transform;
-    float radius = 0;
+    vec3 transform = vec3(0.0f,0.0f,0.0f);
+    float radius = 0.0f;
     void get_gl_vert_inds(vector<unsigned int>* mut_inds);
 
     unsigned int gl_VAO, gl_VBO, gl_EBO;
-    size_t indicies_size;
-    vec3 aabb_max = vec3(0,0,0);
-    vec3 aabb_min = vec3(0,0,0);
+    size_t indicies_size = 0;
+    vec3 aabb_max = vec3(0.0f,0.0f,0.0f);
+    vec3 aabb_min = vec3(0.0f,0.0f,0.0f);
 private:
     // RETURNS A HEAP ALLOCATED POINTER
     static void process_node(rc_model model, aiNode* node, const aiScene* scene, rc_mesh_dict last_mesh_dict, const aiMatrix4x4& transform, string file_path);

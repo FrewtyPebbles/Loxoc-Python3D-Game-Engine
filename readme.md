@@ -269,7 +269,7 @@ And voila!  Your 3D assets are now imported and ready to be used in objects and 
 
  - Add depth and/or layer system for 2D sprites.
 
- - Add low level api for use with the geometry shader.
+ - Port over modified openGL api.
 
 # Future Plans:
 

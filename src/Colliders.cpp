@@ -32,6 +32,7 @@ collider_box::collider_box(object3d* owner, vec3* offset, quaternion* rotation, 
     this->offset = offset;
     this->rotation = rotation;
     this->scale = scale;
+    dbg_create_shader_program();
 }
 
 void collider_box::mutate_max_min(mesh_dict* m_d, vec3* aabb_max, vec3* aabb_min) {
@@ -53,7 +54,7 @@ void collider_box::mutate_max_min(mesh_dict* m_d, vec3* aabb_max, vec3* aabb_min
 }
 
 bool collider_box::check_collision(vec3 intersection) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
 
 
     intersection = (vec3(
@@ -77,8 +78,8 @@ bool collider_box::check_collision(collider* other) {
 }
 
 bool collider_box::check_collision(collider_box* other) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
-    auto other_mat = (other->owner->model_matrix.scale(other->scale) * matrix4x4(other->rotation)).translate(other->offset);
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
+    auto other_mat = ((other->owner ? other->owner->model_matrix : matrix4x4(1.0f)).translate(other->offset) * matrix4x4(other->rotation)).scale(other->scale);
 
     vec3 dirs_this[3] = {
         this->owner ? this_mat[0] : vec3(1.0f, 0.0f, 0.0f),
@@ -109,8 +110,8 @@ bool collider_box::check_collision(collider_box* other) {
 }
 
 bool collider_box::check_collision(collider_convex* other) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
-
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
+    
     vec3 dirs_this[3] = {
         this->owner ? this_mat[0] : vec3(1.0f, 0.0f, 0.0f),
         this->owner ? this_mat[1] : vec3(0.0f, 1.0f, 0.0f),
@@ -134,6 +135,143 @@ bool collider_box::check_collision(collider_convex* other) {
     return true;
 }
 
+// BOX DEBUG
+
+void collider_box::dbg_create_shader_program() {
+    unsigned int vertexShader, fragmentShader;
+    
+    // Vertex Shader source code
+    const char* vertexShaderSource = R"(
+        #version 450 core
+        layout(location = 0) in vec3 aPos;
+        out vec3 frag_pos;
+
+        uniform mat4 transform;
+        uniform mat4 model;
+
+        void main() {
+            gl_Position = transform * vec4(aPos, 1.0);
+            frag_pos = vec3(model * vec4(aPos, 1.0));
+        }
+    )";
+
+    // Fragment Shader source code
+    const char* fragmentShaderSource = R"(
+        #version 450 core
+        out vec4 FragColor;
+        in vec3 frag_pos;
+        void main() {
+            FragColor = vec4(0.0, 1.0, 0.0, 0.1); // Green color
+        }
+    )";
+    
+    // Vertex Shader
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    
+    // Fragment Shader
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    
+    // Shader Program
+    shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertexShader);
+    glAttachShader(shader_program, fragmentShader);
+    glLinkProgram(shader_program);
+
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cerr << "ERROR: Vertex Shader Compilation Failed\n" << infoLog << std::endl;
+    }   
+    
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cerr << "ERROR: Fragment Shader Compilation Failed\n" << infoLog << std::endl;
+    } 
+    
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
+        std::cerr << "ERROR: Shader Program Linking Failed\n" << infoLog << std::endl;
+    }  
+     
+    // Clean up shaders
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    
+    // Generate and bind VAO
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    triangles = {
+        // Front face
+        bounds[0].axis, bounds[1].axis, bounds[2].axis,
+        bounds[0].axis, bounds[2].axis, bounds[3].axis,
+
+        // Back face
+        bounds[4].axis, bounds[7].axis, bounds[6].axis,
+        bounds[4].axis, bounds[6].axis, bounds[5].axis,
+
+        // Left face
+        bounds[4].axis, bounds[5].axis, bounds[2].axis,
+        bounds[4].axis, bounds[2].axis, bounds[1].axis,
+
+        // Right face
+        bounds[0].axis, bounds[3].axis, bounds[6].axis,
+        bounds[0].axis, bounds[6].axis, bounds[7].axis,
+
+        // Top face
+        bounds[0].axis, bounds[7].axis, bounds[1].axis,
+        bounds[0].axis, bounds[2].axis, bounds[7].axis,
+
+        // Bottom face
+        bounds[4].axis, bounds[1].axis, bounds[7].axis,
+        bounds[4].axis, bounds[2].axis, bounds[1].axis
+    };
+
+    // Generate and bind VBO for vertices
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, triangles.size() * sizeof(glm::vec3), triangles.data(), GL_STATIC_DRAW);
+
+    // Set vertex attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+}
+
+void collider_box::dbg_render(const camera& cam) {
+    if (show_collider) {
+        auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
+        glDepthMask(GL_FALSE); 
+        // Use shader program
+        glUseProgram(shader_program); 
+
+        auto t_loc = glGetUniformLocation(shader_program, "transform");
+
+        glUniformMatrix4fv(t_loc, 1, GL_FALSE, glm::value_ptr(cam.projection.mat * cam.view.mat * this_mat.mat));
+
+        auto t2_loc = glGetUniformLocation(shader_program, "model");
+
+        glUniformMatrix4fv(t2_loc, 1, GL_FALSE, glm::value_ptr(this_mat.mat));
+ 
+        // Draw the wireframe
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, triangles.size());
+        glBindVertexArray(0);
+        glDepthMask(GL_TRUE);
+    } 
+}
+
+// END BOX DEBUG
+
 std::pair<float, float> collider::minmax_vertex_SAT(const vec3 & axis) {
     if (auto box = dynamic_cast<collider_box*>(this)) {
         return box->minmax_vertex_SAT(axis);
@@ -146,7 +284,7 @@ std::pair<float, float> collider::minmax_vertex_SAT(const vec3 & axis) {
 
 
 std::pair<float, float> collider_box::minmax_vertex_SAT(const vec3 & axis) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
     float min_proj = (vec3(
         this->owner ?
         this_mat * vec4(this->bounds[0], 1.0f)
@@ -246,7 +384,7 @@ void collider_convex::render_hull_create_shader_program() {
         in vec3 pos;
         in vec3 frag_pos;
         void main() {
-            FragColor = vec4(0.0, 1.0, 0.0, 0.5); // Green color
+            FragColor = vec4(0.0, 1.0, 0.0, 0.1); // Green color
         }
     )";
     
@@ -305,11 +443,13 @@ void collider_convex::render_hull_create_shader_program() {
     // Set vertex attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
 }
  
-void collider_convex::render_hull(const camera& cam) {
+void collider_convex::dbg_render(const camera& cam) {
     if (show_collider) {
-        auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
+        auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
         glDepthMask(GL_FALSE); 
         // Use shader program
         glUseProgram(shader_program); 
@@ -328,7 +468,7 @@ void collider_convex::render_hull(const camera& cam) {
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
     } 
-}      
+}
  
 float collider_convex::tetrahedron_volume(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4) {
     vec3 v1 = p2 - p1;
@@ -573,8 +713,8 @@ bool hull_face::is_visible(const vec3& point) const {
 // convex collisions:
 
 bool collider_convex::check_collision(vec3 intersection) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
-    vec3 transformed_point = this->owner ? this_mat.inverse() * vec4(intersection, 1.0f) : vec4(intersection, 1.0f);
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
+    vec3 transformed_point = this_mat.inverse() * vec4(intersection, 1.0f);
     for (const auto& face : hull) {
         if (!face.is_visible(transformed_point - *offset)) {
             return false;
@@ -594,7 +734,7 @@ bool collider_convex::check_collision(collider* other) {
 }
 
 bool collider_convex::check_collision(collider_box* other) {
-    auto other_mat = (other->owner->model_matrix.scale(other->scale) * matrix4x4(other->rotation)).translate(other->offset);
+    auto other_mat = ((other->owner ? other->owner->model_matrix : matrix4x4(1.0f)).translate(other->offset) * matrix4x4(other->rotation)).scale(other->scale);
     vec3 dirs_other[3] = {
         other->owner ? other_mat[0] : vec3(1.0f, 0.0f, 0.0f),
         other->owner ? other_mat[1] : vec3(0.0f, 1.0f, 0.0f),
@@ -637,7 +777,7 @@ bool collider_convex::check_collision(collider_convex* other) {
 }
 
 std::pair<float, float> collider_convex::minmax_vertex_SAT(const vec3 & axis) {
-    auto this_mat = (this->owner->model_matrix.scale(this->scale) * matrix4x4(this->rotation)).translate(this->offset);
+    auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
     float min_proj = axis.dot(vec3(
         this->owner ?
         this_mat * vec4(this->hull[0].vertices[0], 1.0f)
@@ -660,4 +800,26 @@ std::pair<float, float> collider_convex::minmax_vertex_SAT(const vec3 & axis) {
     }
 
     return std::make_pair(min_proj, max_proj);
+}
+
+bool collider::check_collision(object3d* intersection) {    
+    for (auto col : intersection->colliders) {
+        if (auto box = dynamic_cast<collider_box*>(this)) {
+            if (box->check_collision(col->data))
+                return true;
+        } else if (auto convex = dynamic_cast<collider_convex*>(this)) {
+            if (convex->check_collision(col->data))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+void collider::dbg_render(const camera& cam) {
+    if (auto box = dynamic_cast<collider_box*>(this)) {
+        box->dbg_render(cam);
+    } else if (auto convex = dynamic_cast<collider_convex*>(this)) {
+        convex->dbg_render(cam);
+    }
 }

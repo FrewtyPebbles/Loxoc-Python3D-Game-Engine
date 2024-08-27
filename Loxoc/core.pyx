@@ -1195,6 +1195,14 @@ cdef class Window:
         self._ambient_light.c_class[0] = value.c_class[0]
 
     @property
+    def resizeable(self) -> bint:
+        return self.c_class.resizeable
+
+    @resizeable.setter
+    def resizeable(self, bint value):
+        self.c_class.resizeable = value
+
+    @property
     def event(self) -> Event:
         ret = Event()
         ret.c_class = self.c_class.current_event
@@ -1687,16 +1695,20 @@ cdef class SpotLight:
         del self.c_class
 
 cdef class Collider:
-    def check_collision(self, intersection: Vec3 | Collider) -> bool:
+    def check_collision(self, intersection: Vec3 | Collider | Object3D) -> bool:
         cdef:
             Vec3 argvec
             Collider argcol
+            Object3D argobj
         if isinstance(intersection, Vec3):
             argvec = intersection
             return self.c_class.data.check_collision(argvec.c_class[0])
         elif isinstance(intersection, Collider):
             argcol = intersection
             return self.c_class.data.check_collision(argcol.c_class.data)
+        elif isinstance(intersection, Object3D):
+            argobj = intersection
+            return self.c_class.data.check_collision(argobj.c_class)
         
         return False
 
@@ -1724,6 +1736,17 @@ cdef class Collider:
     def scale(self, Vec3 value) -> None:
         self._scale.c_class[0] = value.c_class[0]
 
+    @property
+    def offset(self) -> Vec3:
+        return self._offset
+
+    @offset.setter
+    def offset(self, Vec3 value) -> None:
+        self._offset.c_class[0] = value.c_class[0]
+
+    cpdef void dbg_render(self, Camera cam):
+        self.c_class.data.dbg_render(cam.c_class[0])
+
 ctypedef collider* collider_ptr
 
 cdef class BoxCollider(Collider):
@@ -1738,7 +1761,7 @@ cdef class BoxCollider(Collider):
         self.c_class = new RC[collider_ptr](new collider_box(object.c_class, self._offset.c_class, self._rotation.c_class, self._scale.c_class))
 
     @classmethod
-    def from_bounds(cls, Vec3 upper_bound = Vec3(0.0,0.0,0.0), Vec3 lower_bound = Vec3(-100,-100,-100), Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+    def from_bounds(cls, Vec3 upper_bound = Vec3(10.0,10.0,10.0), Vec3 lower_bound = Vec3(-10.0,-10.0,-10.0), Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
         cdef:
             BoxCollider ret = BoxCollider.__new__(BoxCollider)
         ret._offset = offset

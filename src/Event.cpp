@@ -1,4 +1,5 @@
 #include "Event.h"
+#include "Window.h"
 
 const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
@@ -17,6 +18,8 @@ void event::handle_events(window* _window) {
             case SDL_QUIT:
                 this->set_event_flag(EVENT_FLAG::QUIT, EVENT_STATE::PRESSED);
                 break;
+
+            
 
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
@@ -185,8 +188,20 @@ void event::handle_events(window* _window) {
                     case SDL_WINDOWEVENT_CLOSE:   // exit game
                         this->set_event_flag(EVENT_FLAG::WINDOW_CLOSE, EVENT_STATE::PRESSED);
                         break;
+
+                    case SDL_WINDOWEVENT_RESIZED:
+                        this->set_event_flag(EVENT_FLAG::WINDOW_RESIZE, EVENT_STATE::PRESSED);
+                        
+                        if (_window->resizeable) {
+                            _window->width = event.window.data1;
+                            _window->height = event.window.data2;
+
+                            // Handle window resize
+                            glViewport(0, 0, _window->width, _window->height);
+                        }
+                        break;
                 }
                 break;
         }
     }
-}
+} 

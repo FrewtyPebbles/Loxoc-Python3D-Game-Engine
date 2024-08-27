@@ -9,15 +9,22 @@ from Loxoc import (
 import math
 from copy import copy
 
+##debug
+cc = 1
+def c():
+    global cc
+    print(f"PROGRESSED: {cc}")
+    cc += 1
+
 # The meshes used in this testfile are not provided with the library or source files.
 
 dim = (1280, 720)
 focal_length = 10000
 
 camera = Camera(Vec3(0.0,-10,470), Vec3(0.0,0.0,0.0), *dim, focal_length, math.radians(60))
-
+c()
 window = Window("Loxoc Engine Test Scene", camera, *dim, False, Vec3(0.1,0.1,0.1))
-
+c()
 sky_box = SkyBox(CubeMap(
     "./skyboxes/skybox/right.jpg",
     "./skyboxes/skybox/left.jpg",
@@ -26,12 +33,12 @@ sky_box = SkyBox(CubeMap(
     "./skyboxes/skybox/back.jpg",
     "./skyboxes/skybox/front.jpg",
 ))
-
+c()
 window.sky_box = sky_box
-
+c()
 # Materials are equivalent to shader programs.
 default_material = Material()
-
+c()
 
 # # If you wanted to create a new shader program, normally you would do something like this:
 #
@@ -50,42 +57,46 @@ car_meshes = Mesh.from_file("./meshes/vintage_racing_car/scene.gltf")
 # "./meshes/test_anim_mesh/test_anim_mesh.gltf"
 # "./meshes/dancing_alien/scene.gltf"
 # "./meshes/dancing_crab/scene.gltf"
+c()
 test_anim_model = Mesh.from_file("./meshes/dancing_crab/scene.gltf")
-
+c()
 spr_doomguy = Sprite("./textures/doomguy.png")
-
+c()
 doomguy = Object2D(spr_doomguy, scale=Vec2(0.3, 0.3))
+c()
 doomguy2 = Object2D(spr_doomguy, position=Vec2(0.5,0.5), scale=Vec2(0.3, 0.3))
-
+c()
 car = Object3D(car_meshes,
     Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
-
+c()
 car2 = Object3D(car_meshes,
     Vec3(300,30,500), Vec3(10,3.57,23.2), Vec3(100,100,100))
-
+c()
 teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
     Vec3(-100,0,200), Vec3(0,0,0), Vec3(1000,1000,1000))
-
+c()
 cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
     Vec3(100,0,0), Vec3(0,0,0), Vec3(20,20,20))
-
+c()
 test_anim_obj = Object3D(test_anim_model,
     Vec3(100,30,60), Vec3(0,0,0), Vec3(100,100,100))
-
+c()
 pirate_ship = Object3D(Mesh.from_file("./meshes/pirate_ship/pirate_ship.obj"),
     Vec3(-100,0,300), Vec3(0,10,0))
+c()
 
 test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1), 2.5)
+c()
 test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2), 3)
-
+c()
 dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
-
+c()
 spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
-
+c()
 font_roboto = Font("./fonts/Roboto/Roboto-Regular.ttf")
-
+c()
 text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_roboto)
-
+c()
 test_emitter = Emitter(
     Vec3(0,0,0),
     Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(-90)),
@@ -99,16 +110,16 @@ test_emitter = Emitter(
     Vec4(1,0,0,1),
     Vec4(0.5,0.5,0.5,1)
 )
-
+c()
 space_ship_mesh = Mesh.from_file("./meshes/space_ship/Space_Ship.gltf")
-
+c()
 space_ship = Object3D(space_ship_mesh,
     Vec3(0.0, 100,500), Vec3(0,0,0), Vec3(1,1,1))
-
+c()
 window.add_text_list([
     text
 ])
-
+c()
 window.add_object_list([
     test_anim_obj,
     space_ship,
@@ -118,34 +129,44 @@ window.add_object_list([
     cube,
     pirate_ship
 ])
-
+c()
 window.add_object2d_list([
     doomguy,
     doomguy2,
 ])
-
+c()
 window.add_point_light_list([
     test_light,
     test_light2
 ])
-
+c()
 window.add_directional_light_list([
     dir_light
 ])
-
+c()
 window.add_spot_light_list([
     spot_light
 ])
+c()
 
 window.add_emitter_list([
     test_emitter
 ])
+c()
 test_emitter.start()
+c()
 window.lock_mouse(True)
+c()
+print("START COLLIDERS")
+pirate_ship_collider = ConvexCollider(pirate_ship, Vec3(30,0,0), Vec3(0,math.radians(45),0), Vec3(2,1,1))
+pirate_ship_collider.show = True
+pirate_ship.add_collider(pirate_ship_collider)
 
-# pirate_ship_collider = ConvexCollider(pirate_ship)
-# pirate_ship.add_collider(pirate_ship_collider)
 
+random_box_collider = BoxCollider.from_bounds(Vec3(10,10,10) * 5,Vec3(-10,-10,-10) * 5, Vec3(0.0,-10,500))
+random_box_collider.show = True
+
+print("END COLLIDERS")
 
 # space_ship_collider = ConvexCollider(space_ship)
 # space_ship.add_collider(space_ship_collider)
@@ -153,7 +174,8 @@ window.lock_mouse(True)
 # teapot_collider = ConvexCollider(teapot)
 # teapot.add_collider(teapot_collider)
 
-# car_collider = ConvexCollider(car)
+# car_collider = BoxCollider(car)
+# car_collider.show = True
 # car.add_collider(car_collider)
 
 vel_yaw = 0.0
@@ -169,11 +191,13 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     # else:
     #     print("FRAMERATE: inf fps")
     
-    if car.check_collision(pirate_ship):
+    if random_box_collider.check_collision(pirate_ship):
+        
         mat = Mat4.from_unit(1.0)
         mat2 = Mat4.from_quaternion(Quaternion.from_euler(Vec3(0, math.radians(30 * window.dt), 0)))
         mat *= mat2
         pirate_ship.rotation = (Mat4.from_quaternion(pirate_ship.rotation) * mat).to_quaternion()
+        print("ship collision")
 
     doomguy.position.x = math.sin(window.time_ns/1000000000)
     doomguy.position.y = math.cos(window.time_ns/1000000000)
@@ -194,7 +218,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
     if window.event.get_flag(EVENT_FLAG.KEY_SPACE) == EVENT_STATE.PRESSED:
         # "ArmatureAction" or "mixamo.com" or "Dance"
-        test_anim_obj.model.play_animation("Dance")
+        test_anim_obj.play_animation("Dance")
     # apply a quaternion rotation arround the vector vec3(1,1,0)
     teapot.rotation = Quaternion.from_axis_angle(Vec3(1,1,0), math.radians(window.time_ns/10000000))
 
@@ -228,7 +252,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         camera.rotation = cam_rot
     camera.rotation.rotate(car.rotation.up, mouse_moving*math.radians(window.event.mouse.rel_x * 10) * window.dt)
     
-
+    random_box_collider.offset = car.position + Vec3(0,100,0)
 
     camera.position = car.position - camera.rotation.forward * cam_dist
 
@@ -237,6 +261,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
     # Re-render the scene.
     window.update()
+    random_box_collider.dbg_render(camera)
     # This also refreshes window.current_event.
     
 

@@ -23,7 +23,10 @@ window::window() {
     current_event = event();
 }
 
-window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light) : cam(cam), title(title), width(width), height(height), current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light) {
+window::window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light):
+    cam(cam), title(title), width(width), height(height),
+    current_event(event()), fullscreen(fullscreen), ambient_light(ambient_light)
+{
     this->create_window();
     cam->deltatime = &deltatime;
     cam->time = &time;
@@ -56,7 +59,7 @@ void window::create_window() {
             this->title.c_str(),
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             this->width, this->height,
-            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
+            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
         );
     }
     if (this->app_window == NULL) {
@@ -105,13 +108,7 @@ void window::update() {
     this->old_time = this->new_time;
     this->current_event.handle_events(this);
 
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
     this->cam->recalculate_pv();
-
-    glDepthMask(GL_FALSE);
-    if (sky_box) sky_box->render(*this->cam);
-    glDepthMask(GL_TRUE);
     
     for (object3d* ob : render_list) {
         // update animations
@@ -122,8 +119,10 @@ void window::update() {
         ob->render(*this->cam, this);
         
         for (auto col : ob->colliders) {
-            if (auto box = dynamic_cast<collider_convex*>(col->data)) {
-                box->render_hull(*this->cam);
+            if (auto convex = dynamic_cast<collider_convex*>(col->data)) {
+                convex->dbg_render(*this->cam);
+            } else if (auto box = dynamic_cast<collider_box*>(col->data)) {
+                box->dbg_render(*this->cam);
             }
         }
 
@@ -147,6 +146,11 @@ void window::update() {
     glDepthMask(GL_TRUE);// TODO Make this per sprite based on wether the sprite is marked as translucent
  
     SDL_GL_SwapWindow(this->app_window);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    
+    glDepthMask(GL_FALSE);
+    if (sky_box) sky_box->render(*this->cam);
+    glDepthMask(GL_TRUE);
 } 
 
 void window::add_object(object3d* obj) {

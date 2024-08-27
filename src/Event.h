@@ -13,6 +13,7 @@ class window;
 typedef size_t EVENT_FLAG_T;
 
 enum class EVENT_FLAG {
+    // These are not well organized cuz I dont feel like rewriting the event values
 
     // WINDOW MANAGEMENT
     WINDOW_MINIMIZE = (EVENT_FLAG_T)0,
@@ -87,7 +88,10 @@ enum class EVENT_FLAG {
     MOUSE_BUTTON_DOWN = (EVENT_FLAG_T)65,
     MOUSE_BUTTON_UP = (EVENT_FLAG_T)66,
     MOUSE_WHEEL = (EVENT_FLAG_T)67,
-    MOUSE_MOTION = (EVENT_FLAG_T)68
+    MOUSE_MOTION = (EVENT_FLAG_T)68,
+
+    // Window
+    WINDOW_RESIZE = (EVENT_FLAG_T)69,
 };
 
 enum class EVENT_STATE {
@@ -171,7 +175,7 @@ public:
         return &this->mice[id];
     }
     std::map<size_t, mouse_device> mice; // ordered by device number
-    unsigned char current_mouse_id;
+    unsigned char current_mouse_id = 0;
 private:    
     EVENT_STATE flags[TOTAL_EVENT_FLAGS];
 };

@@ -31,11 +31,12 @@ public:
     window();
     window(string title, camera* cam, int width, int height, bool fullscreen, vec3 * ambient_light);
     ~window();
-    camera* cam;
+    camera* cam = nullptr;
     string title;
-    int width, height;
+    int width = 0, height = 0;
     event current_event;
     bool fullscreen = false;
+    bool resizeable = true;
     void update();
     double deltatime = 1.0f;
     long long time_ns = 1, time = 1;
@@ -84,14 +85,14 @@ public:
     std::set<spot_light*> render_list_spot_lights;
     std::set<text*> render_list_text;
     std::set<emitter*> render_list_emitter;
-    vec3* ambient_light;
+    vec3* ambient_light = nullptr;
     skybox* sky_box = nullptr;
 private:
     void create_window();
-    SDL_Window* app_window = NULL;
-    SDL_Renderer* renderer = NULL;
-    SDL_Texture* texture = NULL;
-    SDL_GLContext gl_context = NULL;
+    SDL_Window* app_window = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    SDL_Texture* texture = nullptr;
+    SDL_GLContext gl_context = nullptr;
     std::chrono::steady_clock::time_point old_time, new_time, starttime;
     std::set<object3d*> render_list;
     std::set<object2d*> render_list2d;

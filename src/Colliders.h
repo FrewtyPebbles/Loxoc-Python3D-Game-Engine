@@ -23,12 +23,14 @@ public:
     collider() {}
     virtual bool check_collision(vec3 intersection) = 0;
     virtual bool check_collision(collider* intersection) = 0;
+    bool check_collision(object3d* intersection);
     virtual std::pair<float, float> minmax_vertex_SAT(const vec3 & axis) = 0;
     bool check_SAT(vec3 axis, collider* other); // Separating Axis Theorem
+    virtual void dbg_render(const camera& cam);
     object3d* owner = nullptr;
-    vec3* offset;
-    vec3* scale;
-    quaternion* rotation;
+    vec3* offset = nullptr;
+    vec3* scale = nullptr;
+    quaternion* rotation = nullptr;
     bool show_collider = false;
 };
 
@@ -39,22 +41,29 @@ public:
     collider_box(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale);
     collider_box(vec3 upper_bounds, vec3 lower_bounds, vec3* offset, quaternion* rotation, vec3* scale) :
         upper_bounds(upper_bounds),
-        lower_bounds(lower_bounds),
-        bounds{
-            upper_bounds,
-            vec3(lower_bounds.axis.x, upper_bounds.axis.y, upper_bounds.axis.z),
-            vec3(lower_bounds.axis.x, lower_bounds.axis.y, upper_bounds.axis.z),
-            vec3(upper_bounds.axis.x, lower_bounds.axis.y, upper_bounds.axis.z),
-            lower_bounds,
-            vec3(upper_bounds.axis.x, lower_bounds.axis.y, lower_bounds.axis.z),
-            vec3(upper_bounds.axis.x, upper_bounds.axis.y, lower_bounds.axis.z),
-            vec3(lower_bounds.axis.x, upper_bounds.axis.y, lower_bounds.axis.z)
-        }
-    {this->offset = offset;};
+        lower_bounds(lower_bounds)
+    {
+
+        this->bounds[0] = upper_bounds;
+        this->bounds[1] = vec3(lower_bounds.axis.x, upper_bounds.axis.y, upper_bounds.axis.z);
+        this->bounds[2] = vec3(lower_bounds.axis.x, lower_bounds.axis.y, upper_bounds.axis.z);
+        this->bounds[3] = vec3(upper_bounds.axis.x, lower_bounds.axis.y, upper_bounds.axis.z);
+        this->bounds[4] = lower_bounds;
+        this->bounds[5] = vec3(upper_bounds.axis.x, lower_bounds.axis.y, lower_bounds.axis.z);
+        this->bounds[6] = vec3(upper_bounds.axis.x, upper_bounds.axis.y, lower_bounds.axis.z);
+        this->bounds[7] = vec3(lower_bounds.axis.x, upper_bounds.axis.y, lower_bounds.axis.z);
+
+        this->offset = offset;
+        this->rotation = rotation;
+        this->scale = scale;
+        dbg_create_shader_program();
+    };
     bool check_collision(vec3 intersection) override;
     bool check_collision(collider* other) override;
     bool check_collision(collider_box* collider);
     bool check_collision(collider_convex* collider);
+
+    void dbg_render(const camera& cam) override;
 
     std::pair<float, float> minmax_vertex_SAT(const vec3 & axis) override;
     vec3 upper_bounds;
@@ -62,6 +71,11 @@ public:
     vec3 bounds[8];
 private:
     static void mutate_max_min(mesh_dict* m, vec3* aabb_max, vec3* aabb_min);
+    void dbg_create_shader_program();
+
+    unsigned int shader_program;
+    unsigned int VAO, VBO;
+    vector<glm::vec3> triangles;
 };
 
 vec3 calculate_normal(const vec3& a, const vec3& b, const vec3& c);
@@ -143,7 +157,7 @@ public:
     vector<hull_face> hull;
 
     // DEBUG
-    void render_hull(const camera& cam);
+    void dbg_render(const camera& cam) override;
 private: 
     void generate_hull(vector<vec3> verticies);
     set<hull_face> create_visible_set(const vec3& point);

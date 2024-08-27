@@ -28,9 +28,9 @@ public:
     ~object3d(){}
 
     rc_model model_data;
-    vec3* position;
-    quaternion* rotation;
-    vec3* scale;
+    vec3* position = nullptr;
+    quaternion* rotation = nullptr;
+    vec3* scale = nullptr;
     rc_material mat;
     map<int, uniform_type> uniforms;
     vector<RC<collider*>*> colliders;
@@ -45,9 +45,12 @@ public:
 
     inline matrix4x4 get_model_matrix() {
         matrix4x4 model = matrix4x4(1.0f);
-        model = model.translate(this->position);
-        model *= matrix4x4(this->rotation);
-        model = model.scale(this->scale);
+        if (this->position)
+            model = model.translate(this->position);
+        if (this->rotation)
+            model *= matrix4x4(this->rotation);
+        if (this->scale)
+            model = model.scale(this->scale);
         this->model_matrix = model;
         return model;
     }
