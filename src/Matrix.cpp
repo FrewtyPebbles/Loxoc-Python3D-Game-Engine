@@ -77,9 +77,15 @@ quaternion matrix<glm::mat4x4>::to_quaternion() {
 }
 
 // CYTHON HELPERS
+template<>
 glmmat2x3 matrix<glm::mat3x2>::transpose3x2() {return glm::transpose(this->mat);}
+template<>
 glmmat3x2 matrix<glm::mat2x3>::transpose2x3() {return glm::transpose(this->mat);}
+template<>
 glmmat4x2 matrix<glm::mat2x4>::transpose2x4() {return glm::transpose(this->mat);}
+template<>
 glmmat2x4 matrix<glm::mat4x2>::transpose4x2() {return glm::transpose(this->mat);}
+template<>
 glmmat3x4 matrix<glm::mat4x3>::transpose4x3() {return glm::transpose(this->mat);}
+template<>
 glmmat4x3 matrix<glm::mat3x4>::transpose3x4() {return glm::transpose(this->mat);}
