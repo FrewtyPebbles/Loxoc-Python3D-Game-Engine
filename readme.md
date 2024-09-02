@@ -30,10 +30,6 @@ For a taste of the api check out the [Quick Start Guide](https://frewtypebbles.g
 
  - Add `from_raw` constructor to mesh to make procedural meshes possible.
 
- - Add window/fullscreen scaling.
-
- - Add depth and/or layer system for 2D sprites.
-
  - Port over modified openGL api.
 
 # Future Plans:
