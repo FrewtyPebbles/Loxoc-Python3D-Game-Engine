@@ -350,6 +350,19 @@ cdef extern from "../src/Matrix.h":
 
         vec3 get_forward()
 
+        # alternate constructors
+        @staticmethod
+        inline matrix[glm_mat_type] from_ortho(float left, float right, float bottom, float top, float zNear, float zFar)
+
+        @staticmethod
+        inline matrix[glm_mat_type] from_ortho(float left, float right, float bottom, float top)
+
+        @staticmethod
+        inline matrix[glm_mat_type] look_at(const vec3& eye, const vec3& center, const vec3& up)
+
+        @staticmethod
+        inline matrix[glm_mat_type] from_perspective(float fovy, float aspect, float near, float far)
+
         inline vec4 get_vec4(int index) const
         inline vec3 get_vec3(int index) const
         inline vec2 get_vec2(int index) const
@@ -824,6 +837,10 @@ cdef extern from "../src/Camera.h":
         int view_width, view_height
         float focal_length
         float fov
+        matrix4x4 projection, view
+        double * deltatime
+        long long * time_ns
+        long long * time
 
 
 
@@ -939,6 +956,7 @@ cdef extern from "../src/Window.h":
         bint resizeable
         void update() except *
         void lock_mouse(bint lock) except *
+        inline void set_fullscreen(bint value)
 
         void add_object(object3d* obj)
         void remove_object(object3d* obj)
@@ -1219,13 +1237,14 @@ cpdef Sprite sprite_from_texture(Texture tex)
 cdef extern from "../src/Object2d.h":
     cdef cppclass object2d:
         object2d() except *
-        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat) except *
+        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat, float depth) except *
         
         sprite* spr
         vec2* position
         float rotation
         vec2* scale
         material* mat
+        float depth
 
         void set_uniform(string name, uniform_type value)
 

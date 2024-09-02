@@ -46,7 +46,7 @@ cdef class Camera:
     def __init__(self, Vec3 position, Vec3 rotation, int view_width, int view_height, float focal_length, float fov) -> None:
         self._position = position
         self._rotation = rotation.to_quaternion()
-        self.c_class = new camera(position.c_class, self._rotation.c_class, view_width, view_height, focal_length, fov)
+        self.c_class = new camera(self._position.c_class, self._rotation.c_class, view_width, view_height, focal_length, fov)
         
         
 
@@ -54,13 +54,62 @@ cdef class Camera:
         del self.c_class
 
     @property
+    def view_width(self) -> int:
+        return self.c_class.view_width
+
+    @view_width.setter
+    def view_width(self, int value):
+        self.c_class.view_width = value
+
+    @property
+    def view_height(self) -> int:
+        return self.c_class.view_height
+
+    @view_height.setter
+    def view_height(self, int value):
+        self.c_class.view_height = value
+
+    @property
+    def focal_length(self) -> float:
+        return self.c_class.focal_length
+
+    @focal_length.setter
+    def focal_length(self, float value):
+        self.c_class.focal_length = value
+
+    @property
+    def fov(self) -> float:
+        return self.c_class.fov
+
+    @fov.setter
+    def fov(self, float value):
+        self.c_class.fov = value
+
+    @property
+    def deltatime(self) -> double:
+        return self.c_class.deltatime[0]
+
+    @property
+    def dt(self) -> double:
+        return self.c_class.deltatime[0]
+
+    @property
+    def time_ns(self) -> int:
+        return self.c_class.time_ns[0]
+
+    @property
+    def time(self) -> int:
+        return self.c_class.time[0]
+
+    # TRANSFORMS
+
+    @property
     def position(self) -> Vec3:
         return self._position
 
     @position.setter
     def position(self, Vec3 value):
-        self._position = value
-        self.c_class.position = value.c_class
+        self._position.c_class[0] = value.c_class[0]
 
     @property
     def rotation(self) -> Quaternion:
@@ -68,11 +117,15 @@ cdef class Camera:
 
     @rotation.setter
     def rotation(self, value: Vec3 | Quaternion):
+        cdef:
+            Vec3 v
+            Quaternion q
         if isinstance(value, Vec3):
-            self._rotation = value.to_quaternion()
+            v = value
+            self._rotation.c_class[0] = v.to_quaternion().c_class[0]
         elif isinstance(value, Quaternion):
-            self._rotation = value
-        self.c_class.rotation = self._rotation.c_class
+            q = value
+            self._rotation.c_class[0] = q.c_class[0]
 
 ctypedef mesh_dict* mesh_dict_ptr
 ctypedef RC[mesh*]* rc_mesh
@@ -235,9 +288,13 @@ ctypedef model* model_ptr
 
 cdef class Model:
 
-    def __init__(self, MeshDict mesh_dict, bint animated) -> None:
+    def __init__(self, MeshDict mesh_dict, bint animated = False) -> None:
         self._mesh_data = mesh_dict
         self.c_class = new RC[model_ptr](new model(self._mesh_data.c_class, animated))
+
+    @staticmethod
+    def from_file(str file_path, bint animated = False) -> Model:
+        return model_from_file(file_path, animated)
 
     @property
     def use_default_material_properties(self) -> bint:
@@ -1178,6 +1235,14 @@ cdef class Window:
         self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
     
     @property
+    def fullscreen(self) -> bint:
+        return self.c_class.fullscreen
+
+    @fullscreen.setter
+    def fullscreen(self, bint value):
+        self.c_class.set_fullscreen(value)
+
+    @property
     def sky_box(self) -> SkyBox:
         return self._sky_box
 
@@ -1460,7 +1525,7 @@ cpdef Sprite sprite_from_texture(Texture tex):
 ctypedef object2d* obj2d_ptr
 
 cdef class Object2D:
-    def __init__(self, Sprite sprite, Vec2 position = Vec2(0.0,0.0),
+    def __init__(self, Sprite sprite, Vec2 position = Vec2(0.0,0.0), float depth = 0.0,
     float rotation = 0.0, Vec2 scale = Vec2(1.0, 1.0),
     Material material = None) -> None:
         self._position = position
@@ -1471,13 +1536,14 @@ cdef class Object2D:
         
         if material:
             self.material = material
-            self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class)
+            
         else:
             self.material = Material(
                 Shader.from_file(path.join(path.dirname(__file__), "default_vertex_2D.glsl"), ShaderType.VERTEX),
                 Shader.from_file(path.join(path.dirname(__file__), "default_fragment_2D.glsl"), ShaderType.FRAGMENT)
             )
-            self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class)
+        
+        self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class, depth)
 
     @property
     def position(self) -> Vec2:
@@ -1486,6 +1552,14 @@ cdef class Object2D:
     @position.setter
     def position(self, Vec2 value):
         self._position.c_class[0] = value.c_class[0]
+
+    @property
+    def depth(self) -> float:
+        return self.c_class.depth
+
+    @depth.setter
+    def depth(self, float value):
+        self.c_class.depth = value
 
     @property
     def rotation(self) -> float:
@@ -1825,9 +1899,30 @@ cdef class Matrix4x4:
         self.c_class = new matrix[glmmat4x4](x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2, x3, y3, z3, w3)
 
     @staticmethod
-    def from_unit(float value) -> Matrix4x4:
+    def from_identity(float value) -> Matrix4x4:
         cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
         ret.c_class = new matrix[glmmat4x4](value)
+        return ret
+
+    @staticmethod
+    def from_ortho(float left, float right, float bottom, float top, zNear:float | None = None, zFar:float | None = None) -> Matrix4x4:
+        cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+        if zNear != None and zFar != None:
+            ret.c_class = new matrix[glmmat4x4](matrix[glmmat4x4].from_ortho(left, right, bottom, top, zNear, zFar))
+        else:
+            ret.c_class = new matrix[glmmat4x4](matrix[glmmat4x4].from_ortho(left, right, bottom, top))
+        return ret
+
+    @staticmethod
+    def look_at(Vec3 eye, Vec3 center, Vec3 up) -> Matrix4x4:
+        cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+        ret.c_class = new matrix[glmmat4x4](matrix[glmmat4x4].look_at(eye.c_class[0], center.c_class[0], up.c_class[0]))
+        return ret
+
+    @staticmethod
+    def from_perspective(float fovy, float aspect, float near, float far) -> Matrix4x4:
+        cdef Matrix4x4 ret = Matrix4x4.__new__(Matrix4x4)
+        ret.c_class = new matrix[glmmat4x4](matrix[glmmat4x4].from_perspective(fovy, aspect, near, far))
         return ret
 
     @staticmethod
@@ -1929,7 +2024,7 @@ cdef class Matrix3x4:
         self.c_class = new matrix[glmmat3x4](x0, y0, z0, w0, x1, y1, z1, w1, x2, y2, z2, w2)
 
     @staticmethod
-    def from_unit(float value) -> Matrix3x4:
+    def from_identity(float value) -> Matrix3x4:
         cdef Matrix3x4 ret = Matrix3x4.__new__(Matrix3x4)
         ret.c_class = new matrix[glmmat3x4](value)
         return ret
@@ -2000,7 +2095,7 @@ cdef class Matrix2x4:
         return mat4x2_from_cpp(matrix[glmmat4x2](self.c_class.transpose2x4()))
 
     @staticmethod
-    def from_unit(float value) -> Matrix2x4:
+    def from_identity(float value) -> Matrix2x4:
         cdef Matrix2x4 ret = Matrix2x4.__new__(Matrix2x4)
         ret.c_class = new matrix[glmmat2x4](value)
         return ret
@@ -2063,7 +2158,7 @@ cdef class Matrix3x3:
         self.c_class = new matrix[glmmat3x3](x0, y0, z0, x1, y1, z1, x2, y2, z2)
 
     @staticmethod
-    def from_unit(float value) -> Matrix3x3:
+    def from_identity(float value) -> Matrix3x3:
         cdef Matrix3x3 ret = Matrix3x3.__new__(Matrix3x3)
         ret.c_class = new matrix[glmmat3x3](value)
         return ret
@@ -2162,7 +2257,7 @@ cdef class Matrix4x3:
         return mat3x4_from_cpp(matrix[glmmat3x4](self.c_class.transpose4x3()))
 
     @staticmethod
-    def from_unit(float value) -> Matrix4x3:
+    def from_identity(float value) -> Matrix4x3:
         cdef Matrix4x3 ret = Matrix4x3.__new__(Matrix4x3)
         ret.c_class = new matrix[glmmat4x3](value)
         return ret
@@ -2228,7 +2323,7 @@ cdef class Matrix2x3:
         return mat3x2_from_cpp(matrix[glmmat3x2](self.c_class.transpose2x3()))
 
     @staticmethod
-    def from_unit(float value) -> Matrix2x3:
+    def from_identity(float value) -> Matrix2x3:
         cdef Matrix2x3 ret = Matrix2x3.__new__(Matrix2x3)
         ret.c_class = new matrix[glmmat2x3](value)
         return ret
@@ -2295,7 +2390,7 @@ cdef class Matrix2x2:
         self.c_class = new matrix[glmmat2x2](x0, y0, x1, y1)
 
     @staticmethod
-    def from_unit(float value) -> Matrix2x2:
+    def from_identity(float value) -> Matrix2x2:
         cdef Matrix2x2 ret = Matrix2x2.__new__(Matrix2x2)
         ret.c_class = new matrix[glmmat2x2](value)
         return ret
@@ -2382,7 +2477,7 @@ cdef class Matrix3x2:
         return mat2x3_from_cpp(matrix[glmmat2x3](self.c_class.transpose3x2()))
 
     @staticmethod
-    def from_unit(float value) -> Matrix3x2:
+    def from_identity(float value) -> Matrix3x2:
         cdef Matrix3x2 ret = Matrix3x2.__new__(Matrix3x2)
         ret.c_class = new matrix[glmmat3x2](value)
         return ret
@@ -2448,7 +2543,7 @@ cdef class Matrix4x2:
         return mat2x4_from_cpp(matrix[glmmat2x4](self.c_class.transpose4x2()))
 
     @staticmethod
-    def from_unit(float value) -> Matrix4x2:
+    def from_identity(float value) -> Matrix4x2:
         cdef Matrix4x2 ret = Matrix4x2.__new__(Matrix4x2)
         ret.c_class = new matrix[glmmat4x2](value)
         return ret

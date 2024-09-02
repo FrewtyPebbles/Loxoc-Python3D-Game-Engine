@@ -19,18 +19,18 @@ using std::string;
 //// Keyframes
 
 struct key_position {
-    vec3 position;
-    float time_stamp;
+    vec3 position = vec3(0.0f);
+    float time_stamp = 0.0f;
 };
 
 struct key_rotation {
-    quaternion orientation;
-    float time_stamp;
+    quaternion orientation = quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+    float time_stamp = 0.0f;
 };
 
 struct key_scale {
-    vec3 scale;
-    float time_stamp;
+    vec3 scale = vec3(0.0f);
+    float time_stamp = 0.0f;
 };
 
 // The bone!
@@ -45,7 +45,7 @@ private:
     vector<key_position> positions;
     vector<key_rotation> rotations;
     vector<key_scale> scales;
-    int positions_size, rotations_size, scales_size;
+    int positions_size=0, rotations_size=0, scales_size=0;
 public:
     // constructors
     bone(const string& name, int id, const aiNodeAnim* channel):// aiNodeAnim is the animation data for a bone

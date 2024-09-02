@@ -91,6 +91,22 @@ public:
 
     // Operators
 
+    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top, float zNear, float zFar) {
+        return glm::ortho(left, right, bottom, top, zNear, zFar);
+    }
+
+    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top) {
+        return glm::ortho(left, right, bottom, top);
+    }
+
+    inline static matrix<glm_mat_type> look_at(const vec3& eye, const vec3& center, const vec3& up) {
+        return glm::lookAt(eye.axis, center.axis, up.axis);
+    }
+
+    inline static matrix<glm_mat_type> from_perspective(float fovy, float aspect, float near, float far) {
+        return glm::perspective(fovy, aspect, near, far);
+    }
+
     template<typename mat_type = glm_mat_type>
     inline auto operator[](int index) const -> mat_ret_deduce<mat_type> {
         return mat[index];

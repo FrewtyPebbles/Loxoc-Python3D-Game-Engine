@@ -33,13 +33,85 @@ class Camera:
         """
 
     @property
+    def view_width(self) -> int:
+        """
+        The view width of the camera.
+        """
+
+    @view_width.setter
+    def view_width(self, value:int) -> None:
+        """
+        The view width of the camera.
+        """
+
+    @property
+    def view_height(self) -> int:
+        """
+        The view height of the camera.
+        """
+
+    @view_height.setter
+    def view_height(self, value:int) -> None:
+        """
+        The view height of the camera.
+        """
+
+    @property
+    def focal_length(self) -> float:
+        """
+        The focal length of the camera.
+        """
+
+    @focal_length.setter
+    def focal_length(self, value:float) -> None:
+        """
+        The focal length of the camera.
+        """
+
+    @property
+    def fov(self) -> float:
+        """
+        The field of view of the camera.
+        """
+
+    @fov.setter
+    def fov(self, value:float) -> None:
+        """
+        The field of view of the camera.
+        """
+
+    @property
+    def deltatime(self) -> float:
+        """
+        The deltatime of the :class:`Window` the camera is attached to.
+        """
+
+    @property
+    def dt(self) -> float:
+        """
+        The deltatime of the :class:`Window` the camera is attached to.
+        """
+
+    @property
+    def time_ns(self) -> int:
+        """
+        The time in nanoseconds since the creation of the :class:`Window` the camera is attached to.
+        """
+
+    @property
+    def time(self) -> int:
+        """
+        The time in seconds since the creation of the :class:`Window` the camera is attached to.
+        """
+
+    @property
     def position(self) -> Vec3:
         """
         The current position of the :class:`Camera` as a :class:`Vec3` .
         """
 
     @position.setter
-    def position(self, value: Vec3):
+    def position(self, value: Vec3) -> None:
         """
         Set the current position of the :class:`Camera` as a :class:`Vec3` .
         """
@@ -51,7 +123,7 @@ class Camera:
         """
 
     @rotation.setter
-    def rotation(self, value: Vec3 | Quaternion):
+    def rotation(self, value: Vec3 | Quaternion) -> None:
         """
         Set the current rotation of the :class:`Camera` as a :class:`Quaternion` .
         """
@@ -77,24 +149,24 @@ class Mesh:
 
 class MeshDict:
     """
-    :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh` by name.
-    This is nessicary because 3D asset files can have more than one :class:`Mesh` in them.  If you have a 3D
-    asset file with more than one :class:`Mesh` inside of it, you can extract them from their :class:`MeshDict`
-    to new individual :class:`MeshDict` s to be used in :class:`Object3D` s like so:
+    :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh<Loxoc.Mesh>` by name.
+    This is nessicary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
+    asset file with more than one :class:`Mesh<Loxoc.Mesh>` inside of it, you can extract them from their :class:`MeshDict<Loxoc.MeshDict>`
+    to new individual :class:`MeshDict<Loxoc.MeshDict>` s and then to :class:`Model<Loxoc.Model>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
-            # Import the 3D asset file.
-            
-            player_model = MeshDict("player_model_mesh", [my_assets["player_model"]])
-            # Extract the Mesh into its own group/MeshDict
+        my_assets: MeshDict = Model.from_file("./assets/models/model_name/model_name.gltf").mesh_dict
+        # Import the 3D asset file.
+        
+        player_md = MeshDict("player_model_mesh", [my_assets["player_model"]])
+        # Extract the Mesh into its own group/MeshDict
 
-            player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
-            # Now our model is ready to be used.
+        player_object = Object3D(Model(player_md), Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
+        # Now our model is ready to be used.
 
-    We can extract the :class:`Mesh` s we need from the ``my_assets``  :class:`MeshDict` by name.
-    Hence we use ``my_assets["player_model"]``.  This is assuming your desired :class:`Mesh`
+    We can extract the :class:`Mesh<Loxoc.Mesh>` s we need from the ``my_assets``  :class:`MeshDict<Loxoc.MeshDict>` by name.
+    Hence we use ``my_assets["player_model"]``.  This is assuming your desired :class:`Mesh<Loxoc.Mesh>`
     is at the top level of your imported 3D file/asset's heirarchy.  if it is in a group inside
     the 3D file/asset you imported you could do something like:
     ``my_assets["group_name"]["player_model"]``
@@ -160,8 +232,14 @@ class Model:
     Holds all model data for an imported 3D asset file.
     """
 
-    def __init__(self, mesh_dict:MeshDict, animated:bool) -> None:
+    def __init__(self, mesh_dict:MeshDict, animated:bool = False) -> None:
         ...
+
+    @staticmethod
+    def from_file( file_path:str, animated:bool = False) -> Model:
+        """
+        Returns the :class:`Model` instance created from the provided file.  If the 3D asset contains animations, set `animated` to `True` .
+        """
 
     @property
     def use_default_material_properties(self) -> bool:
@@ -671,6 +749,18 @@ class Window:
     def __init__(self, title:str, cam:Camera, width:int, height:int, fullscreen:bool = False, ambient_light:Vec3 = Vec3(1.0, 1.0, 1.0)) -> None:
         """
         Constructs an application window for a game.
+        """
+
+    @property
+    def fullscreen(self) -> bool:
+        """
+        Wether to render the window in fullscreen mode (`True`) or not (`False`).
+        """
+
+    @fullscreen.setter
+    def fullscreen(self, value:bool) -> None:
+        """
+        Wether to render the window in fullscreen mode (`True`) or not (`False`).
         """
 
     @property
@@ -1416,7 +1506,7 @@ class Object2D:
     """
     An 2 Dimensional Object which is rendered infront of all :class:`Object3D` s on the screen.  Good for GUI, HUD interfaces, or anything else 2D.
     """
-    def __init__(self, sprite: Sprite, position:Vec2 = Vec2(0.0,0.0),
+    def __init__(self, sprite: Sprite, position:Vec2 = Vec2(0.0,0.0), depth:float = 0.0,
     rotation:float = 0.0, scale:Vec2 = Vec2(1.0, 1.0),
     material:Material = None) -> None:
         """
@@ -1432,6 +1522,18 @@ class Object2D:
 
     @position.setter
     def position(self, value: Vec2) -> None:...
+
+    @property
+    def depth(self) -> float:
+        """
+        The depth layer of the :class:`Sprite` when rendered, or "z" position.  :class:`Object2D` s with a higher depth are rendered underneath :class:`Object2D` s with a lower depth.
+        """
+
+    @depth.setter
+    def depth(self, value: float):
+        """
+        The depth layer of the :class:`Sprite` when rendered, or "z" position.  :class:`Object2D` s with a higher depth are rendered underneath :class:`Object2D` s with a lower depth.
+        """
 
     @property
     def rotation(self) -> float:
@@ -1806,9 +1908,27 @@ class Matrix4x4:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix4x4:
+    def from_identity(value:float) -> Matrix4x4:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
+        """
+
+    @staticmethod
+    def from_ortho( left:float, right:float, bottom:float, top:float,  zNear:float | None = None, zFar:float | None = None) -> Matrix4x4:
+        """
+        Creates an orthographic projection :class:`Matrix4x4` with the specified bounds.
+        """
+
+    @staticmethod
+    def look_at(eye:Vec3, center:Vec3, up:Vec3) -> Matrix4x4:
+        """
+        Creates a look at :class:`Matrix4x4` from the specified parameters.
+        """
+
+    @staticmethod
+    def from_perspective( fovy:float, aspect:float, near:float, far:float) -> Matrix4x4:
+        """
+        Creates a perspective projection :class:`Matrix4x4` with the specified bounds.
         """
 
     @staticmethod
@@ -1895,9 +2015,9 @@ class Matrix3x4:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix3x4:
+    def from_identity(value:float) -> Matrix3x4:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec4:
@@ -1946,9 +2066,9 @@ class Matrix2x4:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix2x4:
+    def from_identity(value:float) -> Matrix2x4:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec4:
@@ -1997,9 +2117,9 @@ class Matrix3x3:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix3x3:
+    def from_identity(value:float) -> Matrix3x3:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def to_quaternion(self) -> Quaternion:
@@ -2078,9 +2198,9 @@ class Matrix4x3:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix4x3:
+    def from_identity(value:float) -> Matrix4x3:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec3:
@@ -2131,9 +2251,9 @@ class Matrix2x3:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix2x3:
+    def from_identity(value:float) -> Matrix2x3:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec3:
@@ -2184,9 +2304,9 @@ class Matrix2x2:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix2x2:
+    def from_identity(value:float) -> Matrix2x2:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def inverse(self) -> Matrix2x2:
@@ -2245,9 +2365,9 @@ class Matrix3x2:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix3x2:
+    def from_identity(value:float) -> Matrix3x2:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec2:
@@ -2298,9 +2418,9 @@ class Matrix4x2:
         ...
 
     @staticmethod
-    def from_unit(value:float) -> Matrix4x2:
+    def from_identity(value:float) -> Matrix4x2:
         """
-        Creates a unit matrix filled with `value`.
+        Creates a identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec2:
@@ -2434,7 +2554,7 @@ class CubeMap:
 
 class SkyBox:
     """
-    A :class:`CubeMap` skybox. Can be applied to :property:`Window.sky_box` .
+    A :class:`CubeMap` skybox. Can be applied to :attr:`Window.sky_box` .
     """
 
     def __init__(self, cube_map:CubeMap, mat:Material | None = None) -> None:

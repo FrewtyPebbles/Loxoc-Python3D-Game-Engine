@@ -25,9 +25,9 @@ To start, first lets make a basic renderloop in |engine_name|:
     from Loxoc import Camera, Window, EVENT_FLAG
     import math
 
-    dim = (720, 10000)
+    dim = (1280, 720,)
 
-    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), 1280, *dim,
+    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), *dim, 10000,
         math.radians(60))
     # Create the camera at x = 0, y = 0, z = 0 with no rotation 720p resolution,
     # 10000 focal length, and 60 fov
@@ -124,22 +124,22 @@ new imports namely :class:`Loxoc.Mesh` and :class:`Loxoc.Object3D` .  We will al
 .. code-block:: python
 
     # my_game.py
-    from Loxoc import Camera, Window, EVENT_FLAG, Mesh, Object3D, MeshDict
+    from Loxoc import Camera, Window, EVENT_FLAG, Mesh, Object3D, MeshDict, Model
     import math
 
-    dim = (720, 10000)
+    dim = (1280, 720,)
 
-    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), 1280, *dim,
+    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), *dim, 10000,
         math.radians(60))
     
     window = Window("Loxoc Quick Start", camera, *dim, False,
         Vec3(0.2, 0.2, 0.2))
     
-    my_model_meshes: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
-    # We import the contents from the 3D asset file into a MeshDict variable so we can use our
-    # model in our game.
+    my_model: Model = Model.from_file("./assets/models/model_name/model_name.gltf")
+    # We import the contents from the 3D asset file into a Model variable so we can use our
+    # Model in our game.
 
-    my_object = Object3D(my_model_meshes, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
+    my_object = Object3D(my_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
     # We create an object from the model that can be used in our game with a position of
     # x = 0, y = 0, z = 20 infront of the camera, no rotation, and a scale in all directions
     # times 1 or in other words no change in scale.
@@ -159,22 +159,27 @@ new imports namely :class:`Loxoc.Mesh` and :class:`Loxoc.Object3D` .  We will al
 Tada! you should now see your model being rendered when you run your game.  
 Now lets explain a few things:
 
+* :class:`Model<Loxoc.Model>` :
+
+    :class:`Loxoc.Model` is a datastructure holding all of the visual data for an :class:`Object3D<Loxoc.Object3D>` .  It contains a :class:`MeshDict<Loxoc.MeshDict>` , animation api, and some render settings that can be tweaked to change the final appearance of a rendered model.
+    For now just think of this as the "appearance" data for an :class:`Object3D<Loxoc.Object3D>` .
+
 * :class:`MeshDict<Loxoc.MeshDict>` :
 
     :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh<Loxoc.Mesh>` by name.
     This is nessicary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
     asset file with more than one :class:`Mesh<Loxoc.Mesh>` inside of it, you can extract them from their :class:`MeshDict<Loxoc.MeshDict>`
-    to new individual :class:`MeshDict<Loxoc.MeshDict>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
+    to new individual :class:`MeshDict<Loxoc.MeshDict>` s and then to :class:`Model<Loxoc.Model>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
 
     .. code-block:: python
 
-        my_assets: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
+        my_assets: MeshDict = Model.from_file("./assets/models/model_name/model_name.gltf").mesh_dict
         # Import the 3D asset file.
         
-        player_model = MeshDict("player_model_mesh", [my_assets["player_model"]])
+        player_md = MeshDict("player_model_mesh", [my_assets["player_model"]])
         # Extract the Mesh into its own group/MeshDict
 
-        player_object = Object3D(player_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
+        player_object = Object3D(Model(player_md), Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
         # Now our model is ready to be used.
 
     We can extract the :class:`Mesh<Loxoc.Mesh>` s we need from the ``my_assets``  :class:`MeshDict<Loxoc.MeshDict>` by name.
@@ -185,8 +190,8 @@ Now lets explain a few things:
 
 * :class:`Object3D<Loxoc.Object3D>` :
 
-    :class:`Loxoc.Object3D` is our game object.  It holds the :class:`MeshDict<Loxoc.MeshDict>` of :class:`Mesh<Loxoc.Mesh>` es to be rendered, 
-    the :class:`Object3D<Loxoc.Object3D>` 's :class:`Vec3<Loxoc.Vec3>` position, its :class:`Quaternion<Loxoc.Quaternion>` rotation, any object
+    :class:`Loxoc.Object3D` is our game object.  It holds the :class:`Model<Loxoc.Model>` to be rendered, 
+    the :class:`Object3D<Loxoc.Object3D>` 's :class:`Vec3<Loxoc.Vec3>` position, it's :class:`Quaternion<Loxoc.Quaternion>` rotation, any object
     level uniforms to be used in it's :class:`Loxoc.Material` and much more.
 
 * :meth:`Window.add_object_list()<Loxoc.Window.add_object_list>` :
@@ -201,20 +206,20 @@ It should look something like so:
 .. code-block:: python
 
     # my_game.py
-    from Loxoc import Camera, Window, EVENT_FLAG, Mesh, Object3D, MeshDict
+    from Loxoc import Camera, Window, EVENT_FLAG, Mesh, Object3D, MeshDict, Model
     import math
 
-    dim = (720, 10000)
+    dim = (1280, 720,)
 
-    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), 1280, *dim,
+    camera = Camera(Vec3(0.0, 0.0, 0.0), Vec3(0.0,0.0,0.0), *dim, 10000,
         math.radians(60))
     
     window = Window("Loxoc Quick Start", camera, *dim, False,
         Vec3(0.2, 0.2, 0.2))
     
-    my_model_meshes: MeshDict = Mesh.from_file("./assets/models/model_name/model_name.gltf")
+    my_model: Model = Model.from_file("./assets/models/model_name/model_name.gltf")
 
-    my_object = Object3D(my_model_meshes, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
+    my_object = Object3D(my_model, Vec3(0.0, 0.0, 20.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0))
     
     window.add_object_list([
         my_object

@@ -45,6 +45,11 @@ public:
         SDL_SetRelativeMouseMode(SDLBOOL(lock));
     }
 
+    inline void set_fullscreen(bool value) {
+        fullscreen = value;
+        SDL_SetWindowFullscreen(app_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    }
+
     void add_object(object3d* obj);
     void remove_object(object3d* obj);
     void add_object_list(vector<object3d*> objs);

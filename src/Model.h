@@ -120,8 +120,7 @@ public:
 			unsigned int numWeights = mesh->mBones[boneIndex]->mNumWeights;
 
 			// For each weight at vertex x for current bone
-			for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
-			{
+			for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex) {
 				unsigned int vertexId = weights[weightIndex].mVertexId;
 				float weight = weights[weightIndex].mWeight;
 				if (vertexId > vertices->size())

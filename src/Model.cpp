@@ -9,14 +9,13 @@ void model::play_animation(const string& animation) {
 
 model::~model() {
     delete animation_player;
-    for (auto [k, v] : animations)
+    for (auto & [k, v] : animations)
         delete v;
 }
 
 model::model(RC<mesh_dict*>* mesh_data, bool animated) : mesh_data(mesh_data), animated(animated), animation_player(new animator(nullptr)) {}
 
 void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& camera, window* window) {
-    size_t i;
     for (auto [_mesh_name, _mesh_variant] : *_mesh_data->data) {
         if (std::holds_alternative<rc_mesh>(_mesh_variant)) {
             auto _mesh = std::get<rc_mesh>(_mesh_variant);
@@ -46,7 +45,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                 
                 // Point Lights:
                 
-                i = 0;
+                size_t i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
                     // calculate when to remove light by having an attenuation threshhold.
                     float l_distance = pl->position->distance(*obj->position);
@@ -57,7 +56,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     }
                 }
 
-                _mesh->data->mesh_material->data->set_uniform("total_point_lights", (int)i);
+                _mesh->data->mesh_material->data->set_uniform("total_point_lights", static_cast<int>(i));
                 
                 // Directional Lights:
                 
@@ -67,7 +66,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     i++;
                 }
 
-                _mesh->data->mesh_material->data->set_uniform("total_directional_lights", (int)i);
+                _mesh->data->mesh_material->data->set_uniform("total_directional_lights", static_cast<int>(i));
 
                 // Spot Lights:
 
@@ -82,7 +81,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     }
                 }
 
-                _mesh->data->mesh_material->data->set_uniform("total_spot_lights", (int)i);
+                _mesh->data->mesh_material->data->set_uniform("total_spot_lights", static_cast<int>(i));
 
                 // update animations
                 if (obj->model_data->data->animated)
@@ -101,7 +100,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                 );
                 // Point Lights:
 
-                i = 0;
+                size_t i = 0;
                 for (point_light* pl : window->render_list_point_lights) {
                     // calculate when to remove light by having an attenuation threshhold.
                     float l_distance = pl->position->distance(*obj->position);
@@ -112,7 +111,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     }
                 }
                 
-                obj->mat->data->set_uniform("total_point_lights", (int)i);
+                obj->mat->data->set_uniform("total_point_lights", static_cast<int>(i));
 
                 // Directional Lights:
                 
@@ -122,7 +121,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     i++;
                 }
 
-                obj->mat->data->set_uniform("total_directional_lights", (int)i);
+                obj->mat->data->set_uniform("total_directional_lights", static_cast<int>(i));
 
                 // Spot Lights:
 
@@ -137,7 +136,7 @@ void model::render_meshdict(RC<mesh_dict*>* _mesh_data, object3d* obj, camera& c
                     }
                 }
 
-                obj->mat->data->set_uniform("total_spot_lights", (int)i);
+                obj->mat->data->set_uniform("total_spot_lights", static_cast<int>(i));
 
                 // update animations
                 if (obj->model_data->data->animated)

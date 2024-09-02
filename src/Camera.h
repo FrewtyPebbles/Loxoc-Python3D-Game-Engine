@@ -12,6 +12,7 @@
 using std::vector;
 using std::unordered_set;
 class object3d;
+class window;
 
 class camera {
 public:
@@ -28,4 +29,5 @@ public:
     double * deltatime;
     long long * time_ns;
     long long * time;
+    window * win;
 }; 

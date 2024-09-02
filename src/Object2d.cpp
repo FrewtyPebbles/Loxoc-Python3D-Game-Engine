@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Camera.h"
+#include "Window.h"
 
 void object2d::set_uniform(string name, uniform_type value) {
     int loc = glGetUniformLocation(this->mat->data->shader_program, name.c_str());
@@ -13,15 +15,17 @@ void object2d::set_uniform(string name, uniform_type value) {
 
 void object2d::render(camera& camera) {
     // opengl renderer
-    glm::mat4 transform2D = glm::mat4(1.0f);
-    glUseProgram(this->mat->data->shader_program);
-    transform2D = glm::translate(transform2D, glm::vec3(this->position->axis, 0.0f));
-    transform2D = glm::rotate(transform2D, this->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-    transform2D = glm::scale(transform2D, glm::vec3(this->scale->axis, 1.0f));
+    matrix4x4 transform2D = matrix4x4(1.0f);
+    this->mat->data->use_material(); // Use your shader program
 
-    int transform2D_loc = glGetUniformLocation(this->mat->data->shader_program, "transform2D");
+    // Set uniforms like text color
+    this->mat->data->set_uniform("projection", matrix4x4::from_ortho(0.0f, (float)camera.win->width, 0.0f, (float)camera.win->height, -999999.0f, 999999.0f));
 
-    glUniformMatrix4fv(transform2D_loc, 1, GL_FALSE, glm::value_ptr(transform2D));
+    transform2D = transform2D.translate(vec3(*this->position, -this->depth));
+    transform2D = transform2D.rotate(this->rotation, vec3(0.0f, 0.0f, 1.0f));
+    transform2D = transform2D.scale(vec3(this->scale->axis, 1.0f));
+
+    this->mat->data->set_uniform("transform2D", transform2D);
 
     this->mat->data->register_uniforms();
     this->register_uniforms(); // register object level uniforms
@@ -36,3 +40,4 @@ void object2d::render(camera& camera) {
 
     
 }
+ 

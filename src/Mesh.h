@@ -95,11 +95,11 @@ public:
     }
     static rc_model from_file(string file_path, bool animated);
     string name;
-    rc_material mesh_material;
+    rc_material mesh_material = nullptr;
 
     // VVV THESE SHOULD BE HEAP ALLOCATED
-    vector<tup<unsigned int, 3>>* faces;
-    vector<vertex>* vertices;
+    vector<tup<unsigned int, 3>>* faces = nullptr;
+    vector<vertex>* vertices = nullptr;
     bool is_animated = false;
 
     vec3 transform = vec3(0.0f,0.0f,0.0f);

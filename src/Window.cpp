@@ -31,6 +31,7 @@ window::window(string title, camera* cam, int width, int height, bool fullscreen
     cam->deltatime = &deltatime;
     cam->time = &time;
     cam->time_ns = &time_ns;
+    cam->win = this;
 }
 
 void window::create_window() {

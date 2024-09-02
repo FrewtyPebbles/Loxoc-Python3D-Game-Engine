@@ -22,9 +22,9 @@ using std::map;
 
 // Tree of assimp data to help decouple our animations from assimp
 struct assimp_node_data {
-    matrix4x4 transformation;
+    matrix4x4 transformation = matrix4x4(1.0f);
     string name;
-    int children_size;
+    int children_size = 0;
     vector<assimp_node_data> children;
 };
 
@@ -36,7 +36,6 @@ public:
     float ticks_per_second = 0.0f;
     vector<bone> bones;
     vector<bone_info> bone_info_list;
-    matrix4x4 gloabal_inverse_transformation;
 private:
     assimp_node_data assimp_animation_tree;
 public:
@@ -53,8 +52,6 @@ public:
         duration = (float)animation->mDuration;
         ticks_per_second = (float)animation->mTicksPerSecond;
 
-        aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
-		gloabal_inverse_transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(&globalTransformation.Inverse());
 
         read_heirarchy_data(&assimp_animation_tree, scene->mRootNode);
         // assimp_animation_tree.transformation = matrix4x4(1.0f);
@@ -67,9 +64,6 @@ public:
 
         duration = (float)animation->mDuration;
         ticks_per_second = (float)animation->mTicksPerSecond;
-        
-        aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
-		gloabal_inverse_transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(&globalTransformation.Inverse());
 
         read_heirarchy_data(&assimp_animation_tree, scene->mRootNode);
         // assimp_animation_tree.transformation = matrix4x4(1.0f);
@@ -296,7 +290,7 @@ public:
 private:
     //// debug
     vector<glm::vec3> debug_bones; // this is set in the animator.
-    unsigned int VAO, VBO, debug_shader = 0;
+    unsigned int VAO = 0, VBO = 0, debug_shader = 0;
     //
 };
 
@@ -307,8 +301,8 @@ public:
     // attributes
     vector<matrix4x4> final_bone_matricies;
     animation* current_animation = nullptr;
-    float current_time;
-    float delta_time;
+    float current_time = 0.0f;
+    float delta_time = 0.0f;
     bool show_debug = false;
 
     inline void render_debug(const camera * cam, const matrix4x4 & model_mat) {
