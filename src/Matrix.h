@@ -205,7 +205,6 @@ public:
     
     inline matrix<glm_mat_type> operator/(matrix<glm_mat_type> const& other)
     {
-        glm::mat3x4() * glm::vec4();
         return mat / other.mat;
     }
 
