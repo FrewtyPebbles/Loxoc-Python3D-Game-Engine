@@ -83,71 +83,75 @@ public:
         return -axis;
     }
 
-    inline vec2 operator+(vec2 const& other)
+    inline vec2 operator+(vec2 const& other) const
     {
         
         return axis + other.axis;
     }
 
-    inline vec2 operator+(float const& other)
+    inline vec2 operator+(float const& other) const
     {
         return axis + other;
     }
 
-    inline vec2 operator-(vec2 const& other)
+    inline vec2 operator-(vec2 const& other) const
     {
-        return axis - other.axis;
+        return vec2(axis - other.axis);
     }
 
-    inline vec2 operator-(float const& other)
+    inline vec2 operator-(float const& other) const
     {
         return axis - other;
     }
     
-    inline vec2 operator*(vec2 const& other)
+    inline vec2 operator*(vec2 const& other) const
     {
         return axis * other.axis;
     }
 
-    inline vec2 operator*(float const& other)
+    inline vec2 operator*(float const& other) const
     {
         return axis * other;
     }
     
-    inline vec2 operator/(vec2 const& other)
+    inline vec2 operator/(vec2 const& other) const
     {
         return axis / other.axis;
     }
 
-    inline vec2 operator/(float const& other)
+    inline vec2 operator/(float const& other) const
     {
         return axis / other;
     }
 
-    inline float dot(vec2 const& other)
+    inline float dot(vec2 const& other) const
     {
         return glm::dot(this->axis, other.axis);
     }
 
-    inline vec2 lerp(vec2 const& other, float ratio) {
+    inline vec2 lerp(vec2 const& other, float ratio) const {
         return glm::mix(this->axis, other.axis, ratio);
     }
 
-    inline float get_magnitude() {
+    inline float get_magnitude() const {
         return glm::length(this->axis);
     }
     
-    inline vec2 get_normalized() {
+    inline vec2 get_normalized() const {
         return glm::normalize(this->axis);
     }
 
-    inline float to_angle() {
+    inline float to_angle() const {
         return std::atan2(this->axis.y, this->axis.x);
     }
 
     static inline vec2 from_angle(float angle) {
         glm::outerProduct(glm::vec2(1.0f), glm::vec3(1.0f));
         return vec2(cos(angle), sin(angle));
+    }
+
+    inline float distance(vec2 const& other) const {
+        return glm::distance(this->axis, other.axis);
     }
 
     matrix<glm::mat2x2> outer_product(const vec2&);

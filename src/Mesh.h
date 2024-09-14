@@ -94,7 +94,7 @@ public:
         delete vertices;
     }
     static rc_model from_file(string file_path, bool animated);
-    string name;
+    string name = "";
     rc_material mesh_material = nullptr;
 
     // VVV THESE SHOULD BE HEAP ALLOCATED
@@ -201,7 +201,7 @@ public:
     inline meshmap_iterator end() { return this->data.end(); }
     inline const_meshmap_iterator cend() const { return this->data.cend(); }
     std::map<string, mesh_dict_child> data;
-    string name;
+    string name = "";
 };
 
 

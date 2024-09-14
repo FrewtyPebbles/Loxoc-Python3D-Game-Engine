@@ -91,19 +91,23 @@ public:
 
     // Operators
 
-    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top, float zNear, float zFar) {
+    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top, float zNear, float zFar)
+    {
         return glm::ortho(left, right, bottom, top, zNear, zFar);
     }
 
-    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top) {
+    inline static matrix<glm_mat_type> from_ortho(float left, float right, float bottom, float top)
+    {
         return glm::ortho(left, right, bottom, top);
     }
 
-    inline static matrix<glm_mat_type> look_at(const vec3& eye, const vec3& center, const vec3& up) {
+    inline static matrix<glm_mat_type> look_at(const vec3& eye, const vec3& center, const vec3& up)
+    {
         return glm::lookAt(eye.axis, center.axis, up.axis);
     }
 
-    inline static matrix<glm_mat_type> from_perspective(float fovy, float aspect, float near, float far) {
+    inline static matrix<glm_mat_type> from_perspective(float fovy, float aspect, float near, float far)
+    {
         return glm::perspective(fovy, aspect, near, far);
     }
 
@@ -125,90 +129,83 @@ public:
     }
 
 
-    inline matrix<glm_mat_type> operator-() {
+    inline matrix<glm_mat_type> operator-() const
+    {
         return -mat;
     }
 
-    inline matrix<glm_mat_type> operator+(matrix<glm_mat_type> const& other)
+    inline matrix<glm_mat_type> operator+(matrix<glm_mat_type> const& other) const
     {
         
         return mat + other.mat;
     }
 
-    inline matrix<glm_mat_type> operator+(float const& other)
+    inline matrix<glm_mat_type> operator+(float const& other) const
     {
         return mat + other;
     }
 
-    inline matrix<glm_mat_type> operator+=(matrix<glm_mat_type> const& other) {
-        mat += other.mat;
-        return *this;
-    }
-
-    inline matrix<glm_mat_type> operator-(matrix<glm_mat_type> const& other)
+    inline matrix<glm_mat_type> operator-(matrix<glm_mat_type> const& other) const
     {
         return mat - other.mat;
     }
 
-    inline matrix<glm_mat_type> operator-(float const& other)
+    inline matrix<glm_mat_type> operator-(float const& other) const
     {
         return mat - other;
     }
-
-    inline matrix<glm_mat_type> operator-=(matrix<glm_mat_type> const& other) {
-        mat -= other.mat;
-        return *this;
-    }
     
-    inline matrix<glm_mat_type> operator*(matrix<glm_mat_type> const& other)
+    inline matrix<glm_mat_type> operator*(matrix<glm_mat_type> const& other) const
     {
         return mat * other.mat;
     }
 
-    inline matrix<glm_mat_type> operator*=(matrix<glm_mat_type> const& other) {
-        mat *= other.mat;
-        return *this;
-    }
-
-    inline vec2 operator*(const vec2& other) {
+    inline vec2 operator*(const vec2& other) const
+    {
         return mat * other.axis;
     }
     
-    inline vec3 operator*(const vec3& other) {
+    inline vec3 operator*(const vec3& other) const
+    {
         return mat * other.axis;
     }
 
-    inline vec3 mul_4x3(const vec4& other) {
+    inline vec3 mul_4x3(const vec4& other) const
+    {
         return mat * other.axis;
     }
 
-    inline vec3 mul_2x3(const vec2& other) {
+    inline vec3 mul_2x3(const vec2& other) const
+    {
         return mat * other.axis;
     }
 
-    inline vec2 mul_3x2(const vec3& other) {
+    inline vec2 mul_3x2(const vec3& other) const
+    {
         return mat * other.axis;
     }
 
-    inline vec2 mul_4x2(const vec4& other) {
+    inline vec2 mul_4x2(const vec4& other) const
+    {
         return mat * other.axis;
     }
 
-    inline vec4 operator*(const vec4& other) {
+    inline vec4 operator*(const vec4& other) const
+    {
         return mat * other.axis;
     }
 
-    inline matrix<glm_mat_type> operator*(float const& other)
+    inline matrix<glm_mat_type> operator*(float const& other) const
     {
         return mat * other;
     }
     
-    inline matrix<glm_mat_type> operator/(matrix<glm_mat_type> const& other)
+    inline matrix<glm_mat_type> operator/(matrix<glm_mat_type> const& other) const
     {
         return mat / other.mat;
     }
 
-    inline matrix<glm_mat_type> operator/(float const& other)
+    inline matrix<glm_mat_type> operator/(float const& other) const
     {
         return mat / other;
     }
@@ -218,39 +215,48 @@ public:
         return *this;
     }
 
-    inline matrix<glm_mat_type> translate(const vec3& vec) {
+    inline matrix<glm_mat_type> translate(const vec3& vec) const
+    {
         return glm::translate(mat, vec.axis);
     }
 
-    inline matrix<glm_mat_type> translate(vec3 * vec) {
+    inline matrix<glm_mat_type> translate(vec3 * vec) const
+    {
         return glm::translate(mat, vec->axis);
     }
 
-    inline matrix<glm_mat_type> rotate(float angle, const vec3& axis) {
+    inline matrix<glm_mat_type> rotate(float angle, const vec3& axis) const
+    {
         return glm::rotate(mat, angle, axis.axis);
     }
 
-    inline matrix<glm_mat_type> rotate(float angle, vec3 * axis) {
+    inline matrix<glm_mat_type> rotate(float angle, vec3 * axis) const
+    {
         return glm::rotate(mat, angle, axis->axis);
     }
 
-    inline matrix<glm_mat_type> scale(const vec3& vec) {
+    inline matrix<glm_mat_type> scale(const vec3& vec) const
+    {
         return glm::scale(mat, vec.axis);
     }
     
-    inline matrix<glm_mat_type> scale(vec3 * vec) {
+    inline matrix<glm_mat_type> scale(vec3 * vec) const
+    {
         return glm::scale(mat, vec->axis);
     }
 
-    inline matrix<glm_mat_type> scale(const vec2& vec) {
+    inline matrix<glm_mat_type> scale(const vec2& vec) const
+    {
         return glm::scale(mat, vec.axis);
     }
     
-    inline matrix<glm_mat_type> scale(vec2 * vec) {
+    inline matrix<glm_mat_type> scale(vec2 * vec) const
+    {
         return glm::scale(mat, vec->axis);
     }
 
-    inline matrix<glm_mat_type> inverse() {
+    inline matrix<glm_mat_type> inverse() const
+    {
         return glm::inverse(this->mat);
     }
 

@@ -67,7 +67,7 @@ public:
         rotations_size = channel->mNumRotationKeys;
         for (int rot_i = 0; rot_i < rotations_size; ++rot_i) {
             aiQuaternion ai_rot = channel->mRotationKeys[rot_i].mValue;
-            float time_stamp = channel->mRotationKeys[rot_i].mTime;
+            float time_stamp = (float)channel->mRotationKeys[rot_i].mTime;
             key_rotation data = {quaternion(ai_rot.w, ai_rot.x, ai_rot.y, ai_rot.z), time_stamp};
             rotations.push_back(data);
         }
@@ -76,7 +76,7 @@ public:
         scales_size = channel->mNumScalingKeys;
         for (int scale_i = 0; scale_i < scales_size; ++scale_i) {
             aiVector3D ai_scale = channel->mScalingKeys[scale_i].mValue;
-            float time_stamp = channel->mScalingKeys[scale_i].mTime;
+            float time_stamp = (float)channel->mScalingKeys[scale_i].mTime;
             key_scale data = {vec3(ai_scale.x, ai_scale.y, ai_scale.z), time_stamp};
             scales.push_back(data);
         }

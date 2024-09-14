@@ -115,6 +115,7 @@ void mesh::process_node(rc_model model, aiNode* node, const aiScene* scene, rc_m
             mesh_material->data->diffuse_texture = new RC(new texture(get_mod_path() + "/MissingTexture.jpg", TextureWraping::REPEAT, TextureFiltering::LINEAR));
         }
 
+        
         model->data->extract_bone_weight_for_vertices(_vertexes, msh, scene);
   
         for (auto& v : *_vertexes) {
@@ -171,7 +172,6 @@ rc_model mesh::from_file(string file_path, bool animated) {
         ret->data->animations[scene->mAnimations[i]->mName.data] = new animation(scene, scene->mAnimations[i], ret);
         ret->data->animated = true;
     }
-    
     
     return ret;
 }

@@ -136,8 +136,8 @@ public:
         os << "face[" << self.vertices[0] << ", " << self.vertices[1] << ", " << self.vertices[2] << ']';
         return os;
     }
-    bool is_visible(const vec3& point) const;
-    float distance(const vec3& point) const;
+    bool is_visible(const vec3& point, const matrix3x3 & rot = matrix3x3(1.0f)) const;
+    float distance(const vec3& point, const matrix3x3 & rot = matrix3x3(1.0f)) const;
     vec3 furthest_outside();
 };
 struct vec3_compare;
@@ -188,4 +188,45 @@ struct vec3_compare {
     inline bool operator()(const vec3& a, const vec3& b) const {
         return lt_vec(a, b);
     }
+};
+
+struct ray_hit {
+    ray_hit() {}
+    ray_hit(bool hit): hit(hit){}
+    ray_hit(bool hit, vec3 position): hit(hit), position(position){}
+    ray_hit(bool hit, vec3 position, vec3 normal): hit(hit), position(position), normal(normal){has_normal = true;}
+    ray_hit(bool hit, vec3 position, vec3 normal, float distance): hit(hit), position(position), normal(normal), distance(distance){has_normal = true; has_distance = true;}
+    ray_hit(const ray_hit& rh): hit(rh.hit), has_normal(rh.has_normal), has_distance(rh.has_distance), position(rh.position), normal(rh.normal), distance(rh.distance) {}
+    bool hit = false;
+    bool has_normal = false;
+    bool has_distance = false;
+    vec3 position = vec3(0.0f,0.0f,0.0f);
+    vec3 normal = vec3(0.0f,0.0f,0.0f);
+    float distance = 0.0f;
+};
+
+
+class collider_ray : public collider {
+public:
+    using collider::check_collision;
+    collider_ray() {}
+    collider_ray(vec3 *origin, quaternion *direction): origin(origin), direction(direction) {}
+    bool check_collision(vec3 intersection) override {return false;};
+    bool check_collision(collider* other) override;
+    bool check_collision(collider_box* collider);
+    bool check_collision(collider_convex* collider);
+
+    virtual ray_hit get_collision(collider* collider);
+    ray_hit get_collision(collider_box* collider);
+    ray_hit get_collision(collider_convex* collider);
+    ray_hit get_collision(object3d* collider);
+
+    vec3 * origin;
+    quaternion *direction;
+private:
+    ray_hit intersects_hullface(const matrix4x4 & model, const hull_face& triangle);
+    ray_hit intersects_box(collider_box* collider);
+
+    void dbg_render(const camera& cam) override {};
+    std::pair<float, float> minmax_vertex_SAT(const vec3 & axis) override {return std::make_pair(0.0f,0.0f);};
 };

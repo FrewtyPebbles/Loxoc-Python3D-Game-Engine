@@ -14,6 +14,7 @@
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
     SDL_DestroyWindow(this->app_window);
+    delete sound_mixer;
     SDL_Quit();
 }
 
@@ -35,11 +36,13 @@ window::window(string title, camera* cam, int width, int height, bool fullscreen
 }
 
 void window::create_window() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         std::stringstream ss;
         ss << "could not initialize sdl2: " << SDL_GetError() << "\n";
         throw std::runtime_error(ss.str());
     }
+
     atexit(SDL_Quit);
 
     SDL_GL_SetSwapInterval(0);
@@ -48,6 +51,7 @@ void window::create_window() {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	// SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    
 
     if (this->fullscreen) {
         this->app_window = SDL_CreateWindow(
@@ -96,6 +100,9 @@ void window::create_window() {
     
     glViewport(0, 0, this->width, this->height);
     this->old_time = this->starttime = std::chrono::steady_clock::now();
+
+    sound_mixer = new audio_mixer();
+
     return;
 } 
 
@@ -136,7 +143,13 @@ void window::update() {
         ob->render(*this->cam);
     }
 
-    for (object2d* ob : render_list2d) {
+    vector<object2d*> sorted_sprites(render_list2d.begin(), render_list2d.end());
+
+    std::sort(sorted_sprites.begin(), sorted_sprites.end(), [](const object2d* a, const object2d* b) {
+        return a->depth < b->depth;
+    });
+
+    for (object2d* ob : sorted_sprites) {
         ob->render(*this->cam);
     }
 

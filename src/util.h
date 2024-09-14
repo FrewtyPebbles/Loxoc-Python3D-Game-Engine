@@ -13,9 +13,11 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
 #define PI 3.1415927f
 
-
+class vec3;
+class vec2;
 
 class AssimpGLMHelpers
 {
@@ -72,17 +74,6 @@ namespace gamemath {
 }
 
 
-inline tup<float, 3> barycentric_coords(float x1, float y1, float x2, float y2, float x3, float y3,
-float xp, float yp) {
-    float exp1 = xp - x3;
-    float exp2 = yp - y3;
-    float det = fmaf((x1 - x3), (y2 - y3), -(x2 - x3)*(y1 - y3));
-    float u1 = fmaf((y2 - y3), (exp1), (x3 - x2)*(exp2))/det;
-    float u2 = fmaf((y3 - y1), (exp1), (x1 - x3)*(exp2))/det;
-    float u3 = 1 - u1 - u2;
-    return make_tup<float, 3>({u1, u2, u3});
-}
-
 template <typename T>
 inline void vec_extend(vector<T>& v, vector<T>& v_prime) {
   v.reserve(v.size() + distance(v_prime.begin(),v_prime.end()));
@@ -110,3 +101,6 @@ namespace str_tool
 
 template<typename T, typename A>
 using variant2 = std::variant<T,A>;
+
+vec3 barycentric_coords(const vec2 & v1, const vec2 & v2, const vec2 & v3, const vec2 & p);
+vec3 barycentric_coords(const vec3 & v1, const vec3 & v2, const vec3 & v3, const vec3 & p);

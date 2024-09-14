@@ -5,6 +5,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 // TODO: add slerp operation to python frontend
@@ -26,6 +27,7 @@ public:
     // From Euler Angles in Radians
     static quaternion from_euler(const vec3& euler_vec);
     static quaternion from_axis_angle(vec3 axis, float angle);
+    static quaternion from_unit(vec3 axis);
 
     void rotate(vec3 axis, float angle);
 
@@ -123,16 +125,28 @@ public:
         return glm::slerp(this->quat, other.quat, ratio);
     }
 
-    inline float get_magnitude() {
+    inline float get_magnitude() const {
         return glm::length2(this->quat);
     }
 
-    inline quaternion get_normalized() {
+    inline quaternion get_normalized() const {
         return glm::normalize(this->quat);
     }
 
     inline quaternion lerp(const quaternion& other, float ratio) {
         return glm::lerp(this->quat, other.quat, ratio);
+    }
+
+    inline quaternion get_conjugate() const {
+        return glm::conjugate(this->quat);
+    }
+
+    inline quaternion get_inverse() const {
+        return glm::inverse(this->quat);
+    }
+
+    inline quaternion get_reverse() const {
+        return this->get_normalized().get_conjugate();
     }
 
     // Vector operations:

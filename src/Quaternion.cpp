@@ -19,6 +19,10 @@ quaternion quaternion::from_euler(const vec3& euler_vec) {
     return quaternion(glm::quat(euler_vec.axis));
 }
 
+quaternion quaternion::from_unit(vec3 axis) {
+    return glm::rotation(glm::vec3(0.0f, 0.0f, 1.0f), axis.axis);
+}
+
 vec3 quaternion::operator*(vec3 const& other)
 {
     return vec3(quat*other.axis);
@@ -30,16 +34,13 @@ vec3 quaternion::cross(vec3 const& other)
 }
 
 vec3 quaternion::get_up() {
-    glm::mat4 rotMatrix = glm::toMat4(glm::normalize(quat));
-    return glm::vec3(rotMatrix[1]);
+    return *this * vec3(0.0f, 1.0f, 0.0f);
 }
 
 vec3 quaternion::get_right() {
-    glm::mat4 rotMatrix = glm::toMat4(glm::normalize(quat));
-    return glm::vec3(rotMatrix[0]);;
+    return *this * vec3(1.0f, 0.0f, 0.0f);
 }
 
 vec3 quaternion::get_forward() {
-    glm::mat4 rotMatrix = glm::toMat4(glm::normalize(quat));
-    return glm::vec3(rotMatrix[2]);
+    return *this * vec3(0.0f, 0.0f, 1.0f);
 }

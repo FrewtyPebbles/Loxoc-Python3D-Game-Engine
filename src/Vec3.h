@@ -283,6 +283,10 @@ public:
         return glm::distance(this->axis, other.axis);
     }
 
+    inline vec3 rotate(const quaternion & q) {
+        return glm::rotate(q.quat, this->axis);
+    }
+
     matrix<glm::mat2x3> outer_product(const vec2&);
     matrix<glm::mat3x3> outer_product(const vec3&);
     matrix<glm::mat4x3> outer_product(const vec4&);

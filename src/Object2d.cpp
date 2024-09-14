@@ -21,7 +21,7 @@ void object2d::render(camera& camera) {
     // Set uniforms like text color
     this->mat->data->set_uniform("projection", matrix4x4::from_ortho(0.0f, (float)camera.win->width, 0.0f, (float)camera.win->height, -999999.0f, 999999.0f));
 
-    transform2D = transform2D.translate(vec3(*this->position, -this->depth));
+    transform2D = transform2D.translate(vec3(*this->position,0.0f));
     transform2D = transform2D.rotate(this->rotation, vec3(0.0f, 0.0f, 1.0f));
     transform2D = transform2D.scale(vec3(this->scale->axis, 1.0f));
 

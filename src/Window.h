@@ -17,6 +17,7 @@
 #include "Text.h"
 #include "CubeMap.h"
 #include "Emitter.h"
+#include "Sound.h"
 
 #define SDLBOOL(b) b ? SDL_TRUE : SDL_FALSE
 
@@ -92,6 +93,7 @@ public:
     std::set<emitter*> render_list_emitter;
     vec3* ambient_light = nullptr;
     skybox* sky_box = nullptr;
+    audio_mixer* sound_mixer;
 private:
     void create_window();
     SDL_Window* app_window = nullptr;

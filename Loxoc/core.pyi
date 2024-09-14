@@ -531,6 +531,11 @@ class Vec4:
         Calculates the outer product.
         """
 
+    def distance(self, other:Vec4) -> float:
+        """
+        The distance between two vectors as a `float` .
+        """
+
 class Vec3:
     """
     A 3 float datastructure used to represent positional data, colors, or whatever you may need it for.
@@ -650,6 +655,11 @@ class Vec3:
         Calculates the outer product.
         """
 
+    def distance(self, other:Vec3) -> float:
+        """
+        The distance between two vectors as a `float` .
+        """
+
 
 class Vec2:
     """
@@ -668,6 +678,7 @@ class Vec2:
 
     def __neg__(self) -> Vec2:...
 
+    def __copy__(self) -> Vec2:...
 
     @property
     def angle(self) -> float:
@@ -733,6 +744,11 @@ class Vec2:
     def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x2|Matrix3x2|Matrix4x2:
         """
         Calculates the outer product.
+        """
+
+    def distance(self, other:Vec2) -> float:
+        """
+        The distance between two vectors as a `float` .
         """
 
 
@@ -1347,7 +1363,7 @@ class Quaternion:
         Rotation about the x axis.
         """
 
-    def rotate_pitch(self, value:float) -> None:
+    def rotate_pitch(self, value:float) -> Quaternion:
         """
         Rotates the Euler pitch (x) axis by the provided value.
         """
@@ -1358,7 +1374,7 @@ class Quaternion:
         Rotation about the y axis.
         """
 
-    def rotate_yaw(self, value:float) -> None:
+    def rotate_yaw(self, value:float) -> Quaternion:
         """
         Rotates the Euler yaw (y) axis by the provided value.
         """
@@ -1369,7 +1385,7 @@ class Quaternion:
         Rotation about the z axis.
         """
 
-    def rotate_roll(self, value:float) -> None:
+    def rotate_roll(self, value:float) -> Quaternion:
         """
         Rotates the Euler roll (z) axis by the provided value.
         """
@@ -1409,6 +1425,21 @@ class Quaternion:
         Converts the :class:`Quaternion` to a Euler Angle :class:`Vec3` (in radians).
         """
 
+    def get_conjugate(self) -> Quaternion:
+        """
+        The conjugate of the :class:`Quaternion` .
+        """
+
+    def get_inverse(self) -> Quaternion:
+        """
+        The inverse of the :class:`Quaternion` .
+        """
+    
+    def get_reverse(self) -> Quaternion:
+        """
+        The 180 degree reverse of the :class:`Quaternion` .
+        """
+
     @staticmethod
     def from_euler(euler_vec: Vec3) -> Quaternion:
         """
@@ -1438,6 +1469,12 @@ class Quaternion:
     def from_quat(quat:Quaternion) -> Quaternion:
         """
         Used to construct a copy of a :class:`Quaternion` .
+        """
+
+    @staticmethod
+    def from_unit(axis:Vec3) -> Quaternion:
+        """
+        Takes in a unit :class:`Vec3` direction and returns a :class:`Quaternion` rotated in that direction from the global forward `Vec3(0.0, 0.0, 1.0)` .
         """
 
     def lerp(self, other: Quaternion, ratio: float) -> Quaternion:
@@ -1894,6 +1931,107 @@ class ConvexCollider(Collider):
         Creates a :class:`ConvexCollider` from the provided :class:`MeshDict` .
         """
 
+class RayCollider(Collider):
+    """
+    A raycast collider that takes in an :class:`Vec3` origin and :class:`Quaternion` direction.
+    """
+
+    def __init__(self, origin:Vec3, direction:Quaternion) -> None:
+        ...
+
+    def get_collision(self, intersection: Collider | Object3D) -> RayHit:
+        """
+        Checks for a collision on the `RayCollider` .  Upon colliding this function returns an instance of :class:`RayHit` .
+        """
+
+    @property
+    def rotation(self) -> Quaternion:
+        """
+        The :class:`Quaternion` direction of the `RayCollider` .
+        """
+
+    @rotation.setter
+    def rotation(self, value:Quaternion) -> None:
+        """
+        The :class:`Quaternion` direction of the `RayCollider` .
+        """
+
+    @property
+    def direction(self) -> Quaternion:
+        """
+        The :class:`Quaternion` direction of the `RayCollider` .
+        """
+
+    @direction.setter
+    def direction(self, value:Quaternion) -> None:
+        """
+        The :class:`Quaternion` direction of the `RayCollider` .
+        """
+
+    @property
+    def offset(self) -> Vec3:
+        """
+        The :class:`Vec3` origin of the `RayCollider` .
+        """
+
+    @offset.setter
+    def offset(self, value:Vec3) -> None:
+        """
+        The :class:`Vec3` origin of the `RayCollider` .
+        """
+
+    @property
+    def origin(self) -> Vec3:
+        """
+        The :class:`Vec3` origin of the `RayCollider` .
+        """
+
+    @origin.setter
+    def origin(self, value:Vec3) -> None:
+        """
+        The :class:`Vec3` origin of the `RayCollider` .
+        """
+
+class RayHit:
+    """
+    Returned by :attr:`RayCollider.get_collision` .  This class contains information about the :class:`RayCollider` collision.
+    """
+
+    @property
+    def hit(self) -> bool:
+        """
+        `True` if the :class:`RayCollider` has hit its target, `False` if not.
+        """
+    
+    @property
+    def has_normal(self) -> bool:
+        """
+        Wether the `RayHit` 's collided surface has a normal.
+        """
+
+    @property
+    def has_distance(self) -> bool:
+        """
+        Wether the `RayHit` has recorded the distance between the collision point and its origin.
+        """
+
+    @property
+    def position(self) -> Vec3:
+        """
+        The :class:`Vec3` position of the `RayHit` .
+        """
+
+    @property
+    def normal(self) -> Vec3:
+        """
+        The :class:`Vec3` normal of the surface the :class:`RayCollider` has collided with.
+        """
+
+    @property
+    def distance(self) -> float:
+        """
+        The distance between the :class:`Vec3` origin and the :class:`Vec3` position of the `RayHit` .
+        """
 
 # MATRICES ------------------------------------------------------------------------------------
 
@@ -2803,4 +2941,22 @@ class Emitter:
     def start_lifetime_max(self, value:float) -> None:
         """
         The maximum starting life value of a particle.    The start life value of a particle will be randomly selected between `Emitter.start_lifetime_min` and `Emitter.start_lifetime_max` .
+        """
+
+class Sound:
+    """
+    A sound asset.  This can also be used to play sounds directly.
+    """
+    def __init__(self, win:Window, source:str, loop:bool) -> None:
+        ...
+
+    def play(self, volume:float = 1.0, panning:float = 0.0, pitch:float = 1.0, position: Vec3 | None = None) -> None:
+        """
+        Plays the sound globally.  If a :class:`Vec3` `position` is specified, the panning and volume will be balanced to play from that position relative to the camera.
+        It will play with the same panning and volume until the sound is finished.  For dynamic positional audio see :class:`Sound3D` .
+        """
+
+    def stop(self) -> None:
+        """
+        Stops the sound if it is playing.
         """

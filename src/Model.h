@@ -14,7 +14,7 @@ class animator;
 
 struct bone_info
 {
-    string name;
+    string name = "";
     int id = -1;
     /*offset matrix transforms vertex from model space to bone space*/
     matrix4x4 offset = matrix4x4(1.0f);
@@ -29,7 +29,7 @@ public:
     }
 
     ~model();
-    RC<mesh_dict*>* mesh_data;
+    RC<mesh_dict*>* mesh_data = nullptr;
     bool use_default_material_properties = false;
     
     // ANIMATION STUFF
@@ -117,10 +117,10 @@ public:
 
 			// Get all vertex weights for current bone
 			aiVertexWeight* weights = mesh->mBones[boneIndex]->mWeights;
-			unsigned int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+			int numWeights = mesh->mBones[boneIndex]->mNumWeights;
 
 			// For each weight at vertex x for current bone
-			for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex) {
+			for (unsigned int weightIndex = 0; weightIndex < numWeights; ++weightIndex) {
 				unsigned int vertexId = weights[weightIndex].mVertexId;
 				float weight = weights[weightIndex].mWeight;
 				if (vertexId > vertices->size())

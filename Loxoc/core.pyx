@@ -566,22 +566,25 @@ cdef class Quaternion:
     def euler_pitch(self) -> float:
         return self.to_euler().x
 
-    def rotate_pitch(self, float value):
+    def rotate_pitch(self, float value) -> Quaternion:
         self.c_class.rotate(vec3(1.0,0.0,0.0), value)
+        return self
 
     @property
     def euler_yaw(self) -> float:
         return self.to_euler().y
 
-    def rotate_yaw(self, float value):
+    def rotate_yaw(self, float value) -> Quaternion:
         self.c_class.rotate(vec3(0.0,1.0,0.0), value)
+        return self
 
     @property
     def euler_roll(self) -> float:
         return self.to_euler().z
 
-    def rotate_roll(self, float value):
+    def rotate_roll(self, float value) -> Quaternion:
         self.c_class.rotate(vec3(0.0,0.0,1.0), value)
+        return self
 
     # OPERATORS
 
@@ -659,6 +662,15 @@ cdef class Quaternion:
     cpdef Quaternion get_normalized(self):
         return quat_from_cpp(self.c_class.get_normalized())
 
+    cpdef Quaternion get_conjugate(self):
+        return quat_from_cpp(self.c_class.get_conjugate())
+
+    cpdef Quaternion get_inverse(self):
+        return quat_from_cpp(self.c_class.get_inverse())
+    
+    cpdef Quaternion get_reverse(self):
+        return quat_from_cpp(self.c_class.get_reverse())
+
 
     cpdef Vec3 to_euler(self):
         return vec3_from_cpp(self.c_class.to_euler())
@@ -670,6 +682,11 @@ cdef class Quaternion:
     @staticmethod
     def from_axis_angle(Vec3 axis, float angle) -> Quaternion:
         return quat_from_cpp(quaternion.from_axis_angle(axis.c_class[0], angle))
+
+    @staticmethod
+    def from_unit(Vec3 axis) -> Quaternion:
+        return quat_from_cpp(quaternion.from_unit(axis.c_class[0]))
+
 
     cpdef void rotate(self, Vec3 axis, float angle):
         self.c_class.rotate(axis.c_class[0], angle)
@@ -698,7 +715,7 @@ cdef class Vec4:
     cpdef Vec4 lerp(self, Vec4 other, float ratio):
         return vec4_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
-    def __copy__(self) -> Quaternion:
+    def __copy__(self) -> Vec4:
         return vec4_from_cpp(self.c_class[0])
 
     def __repr__(self) -> str:
@@ -840,6 +857,9 @@ cdef class Vec4:
             v4 = vec
             return mat4x4_from_cpp(self.c_class.outer_product(v4.c_class[0]))
 
+    cpdef float distance(self, Vec4 other):
+        return self.c_class.distance(other.c_class[0])
+
 cdef Vec4 vec4_from_cpp(vec4 cppinst):
     cdef Vec4 ret = Vec4.__new__(Vec4)
     ret.c_class = new vec4(cppinst)
@@ -852,7 +872,7 @@ cdef class Vec3:
     cpdef Vec3 lerp(self, Vec3 other, float ratio):
         return vec3_from_cpp(self.c_class.lerp(other.c_class[0], ratio))
 
-    def __copy__(self) -> Quaternion:
+    def __copy__(self) -> Vec3:
         return vec3_from_cpp(self.c_class[0])
 
     def __repr__(self) -> str:
@@ -1011,6 +1031,9 @@ cdef class Vec3:
         elif isinstance(vec, Vec4):
             v4 = vec
             return mat4x3_from_cpp(self.c_class.outer_product(v4.c_class[0]))
+    
+    cpdef float distance(self, Vec3 other):
+        return self.c_class.distance(other.c_class[0])
 
 cdef Vec3 vec3_from_cpp(vec3 cppinst):
     cdef Vec3 ret = Vec3.__new__(Vec3)
@@ -1032,6 +1055,9 @@ cdef class Vec2:
 
     def __neg__(self) -> Vec2:
         return vec2_from_cpp(-self.c_class[0])
+
+    def __copy__(self) -> Vec2:
+        return vec2_from_cpp(self.c_class[0])
 
 
     @property
@@ -1140,6 +1166,9 @@ cdef class Vec2:
         elif isinstance(vec, Vec4):
             v4 = vec
             return mat4x2_from_cpp(self.c_class.outer_product(v4.c_class[0]))
+
+    cpdef float distance(self, Vec2 other):
+        return self.c_class.distance(other.c_class[0])
 
 cdef Vec2 vec2_from_cpp(vec2 cppinst):
     cdef:
@@ -1888,6 +1917,97 @@ cdef class ConvexCollider(Collider):
 
     def __dealloc__(self):
         RC_collect(self.c_class)
+
+cdef class RayCollider(Collider):
+
+    def __init__(self, Vec3 origin, Quaternion direction) -> None:
+        self._origin = origin
+        self._direction = direction
+        self.c_class = new RC[collider_ptr](new collider_ray(self._origin.c_class, self._direction.c_class))
+
+    def get_collision(self, intersection: Collider | Object3D) -> RayHit:
+        cdef:
+            Collider argcol
+            Object3D argobj
+        if isinstance(intersection, Collider):
+            argcol = intersection
+            return RayHit.from_cpp((<collider_ray*>self.c_class.data).get_collision(argcol.c_class.data))
+        elif isinstance(intersection, Object3D):
+            argobj = intersection
+            return RayHit.from_cpp((<collider_ray*>self.c_class.data).get_collision(argobj.c_class))
+        
+        return RayHit.from_cpp(ray_hit(False))
+
+    @property
+    def rotation(self) -> Quaternion:
+        return self._direction
+
+    @rotation.setter
+    def rotation(self, Quaternion value) -> None:
+        self._direction.c_class[0] = value.c_class[0]
+
+    @property
+    def direction(self) -> Quaternion:
+        return self._direction
+
+    @direction.setter
+    def direction(self, Quaternion value) -> None:
+        self._direction.c_class[0] = value.c_class[0]
+
+    @property
+    def offset(self) -> Vec3:
+        return self._origin
+
+    @offset.setter
+    def offset(self, Vec3 value) -> None:
+        self._origin.c_class[0] = value.c_class[0]
+
+    @property
+    def origin(self) -> Vec3:
+        return self._origin
+
+    @origin.setter
+    def origin(self, Vec3 value) -> None:
+        self._origin.c_class[0] = value.c_class[0]
+
+    def __dealloc__(self):
+        RC_collect(self.c_class)
+
+cdef class RayHit:
+    @staticmethod
+    cdef RayHit from_cpp(ray_hit hit):
+        cdef:
+            RayHit ret = RayHit.__new__(RayHit)
+        ret.c_class = new ray_hit(hit)
+        return ret
+
+    @property
+    def hit(self) -> bool:
+        return self.c_class.hit
+    
+    @property
+    def has_normal(self) -> bool:
+        return self.c_class.has_normal
+
+    @property
+    def has_distance(self) -> bool:
+        return self.c_class.has_distance
+
+    @property
+    def position(self) -> Vec3:
+        return vec3_from_cpp(self.c_class.position)
+
+    @property
+    def normal(self) -> Vec3:
+        return vec3_from_cpp(self.c_class.normal)
+
+    @property
+    def distance(self) -> float:
+        return self.c_class.distance
+
+    def __dealloc__(self):
+        del self.c_class
+
 
 # MATRICES ------------------------------------------------------------------------------------
 
@@ -3089,6 +3209,23 @@ cdef class Emitter:
 
     cpdef void start(self):
         self.c_class.start()
+
+    cpdef void stop(self):
+        self.c_class.stop()
+
+
+cdef class Sound:
+    def __init__(self, Window win, str source, bint loop) -> None:
+        self.c_class = new sound(win.c_class, source.encode(), loop)
+
+    def __dealloc__(self):
+        del self.c_class
+
+    def play(self, float volume = 1.0, float panning = 0.0, float pitch = 1.0, Vec3 position = None) -> None:
+        if position:
+            self.c_class.play(position.c_class[0], volume, panning, pitch)
+        else:
+            self.c_class.play(volume, panning, pitch)
 
     cpdef void stop(self):
         self.c_class.stop()

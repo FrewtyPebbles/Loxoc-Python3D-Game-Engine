@@ -23,9 +23,9 @@ cdef extern from "<variant>" namespace "std" nogil:
 
 cdef extern from "../src/util.h" namespace "std" nogil:
     cdef cppclass variant2[T,A]:
-        variant2() except *
-        variant2(T) except *
-        variant2(A) except *
+        variant2() except +
+        variant2(T) except +
+        variant2(A) except +
         variant2[T,A]& operator=(variant2[T,A]&)
 
         # value status
@@ -43,8 +43,8 @@ cdef extern from "../src/util.h" namespace "std" nogil:
 
 cdef extern from "../src/RC.h":
     cdef cppclass RC[T]:
-        RC() except *
-        RC(T data) except *
+        RC() except +
+        RC(T data) except +
         T inc()
         void dec()
         T data
@@ -69,8 +69,8 @@ cdef extern from "../src/Texture.h":
         CLAMP_TO_BORDER
 
     cdef cppclass texture:
-        texture() except *
-        texture(string file_path, TextureWraping wrap, TextureFiltering filtering) except *
+        texture() except +
+        texture(string file_path, TextureWraping wrap, TextureFiltering filtering) except +
         int width, height, number_of_channels
         void bind()
 
@@ -86,13 +86,13 @@ cdef extern from "../src/Shader.h":
         GEOMETRY,
         COMPUTE
     cdef cppclass shader:
-        shader() except *
-        shader(string source, ShaderType type) except *
-        void compile() except *
+        shader() except +
+        shader(string source, ShaderType type) except +
+        void compile() except +
         const char * source
         ShaderType type
         unsigned int shader_handle
-        from_file(string filepath, ShaderType type) except *
+        from_file(string filepath, ShaderType type) except +
  
 cdef class Shader:
     cdef RC[shader*]* c_class
@@ -108,14 +108,14 @@ cdef extern from "../src/Material.h":
         
 
     cdef cppclass material:
-        material() except *
-        material(RC[shader*]* vertex, RC[shader*]* fragment) except *
-        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry) except *
-        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry, RC[shader*]* compute) except *
-        void set_uniform(string name, uniform_type value) except *
-        void register_uniforms() except *
-        void link_shaders() except *
-        void use_material() except *
+        material() except +
+        material(RC[shader*]* vertex, RC[shader*]* fragment) except +
+        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry) except +
+        material(RC[shader*]* vertex, RC[shader*]* fragment, RC[shader*]* geometry, RC[shader*]* compute) except +
+        void set_uniform(string name, uniform_type value) except +
+        void register_uniforms() except +
+        void link_shaders() except +
+        void use_material() except +
         RC[shader*]* vertex
         RC[shader*]* fragment
         RC[shader*]* geometry
@@ -144,54 +144,54 @@ ctypedef unsigned char uint8
 
 cdef extern from "../src/Tup.h":
     cdef cppclass tup2f:
-        tup2f() except *
-        tup2f(float[2] values) except *
+        tup2f() except +
+        tup2f(float[2] values) except +
         float[2] data
 
     cdef cppclass tup3tup2f:
-        tup3tup2f() except *
-        tup3tup2f(tup2f[3] values) except *
+        tup3tup2f() except +
+        tup3tup2f(tup2f[3] values) except +
         tup2f[3] data
 
 
     cdef cppclass tup3f:
-        tup3f() except *
-        tup3f(float[3] values) except *
+        tup3f() except +
+        tup3f(float[3] values) except +
         float[3] data
 
     cdef cppclass tup4f:
-        tup4f() except *
-        tup4f(float[4] values) except *
+        tup4f() except +
+        tup4f(float[4] values) except +
         float[4] data
     
     cdef cppclass tup2i:
-        tup2i() except *
-        tup2i(int[2] values) except *
+        tup2i() except +
+        tup2i(int[2] values) except +
         int[2] data
 
     cdef cppclass tup3tup2i:
-        tup3tup2i() except *
-        tup3tup2i(tup2i[3] values) except *
+        tup3tup2i() except +
+        tup3tup2i(tup2i[3] values) except +
         tup2i[3] data
 
     cdef cppclass tup3i:
-        tup3i() except *
-        tup3i(int[3] values) except *
+        tup3i() except +
+        tup3i(int[3] values) except +
         int[3] data
 
     cdef cppclass tup3ui:
-        tup3ui() except *
-        tup3ui(unsigned int[3] values) except *
+        tup3ui() except +
+        tup3ui(unsigned int[3] values) except +
         unsigned int[3] data
 
     cdef cppclass tup4i:
-        tup4i() except *
-        tup4i(int[4] values) except *
+        tup4i() except +
+        tup4i(int[4] values) except +
         int[4] data
 
     cdef cppclass tup3ui8:
-        tup3i() except *
-        tup3i(uint8[3] values) except *
+        tup3i() except +
+        tup3i(uint8[3] values) except +
         uint8[3] data
 
 cdef extern from "../src/Vec3.h":
@@ -199,10 +199,10 @@ cdef extern from "../src/Vec3.h":
         float w,x,y,z
 
     cdef cppclass quaternion:
-        quaternion() except *
-        quaternion(float w, float x, float y, float z) except *
-        quaternion(const glmquat& quat) except *
-        quaternion(const quaternion& quat) except *
+        quaternion() except +
+        quaternion(float w, float x, float y, float z) except +
+        quaternion(const glmquat& quat) except +
+        quaternion(const quaternion& quat) except +
         glmquat quat
         #conversions/alternate constructors:
         vec3 to_euler()
@@ -210,6 +210,8 @@ cdef extern from "../src/Vec3.h":
         quaternion from_euler(const vec3& euler_vec)
         @staticmethod
         quaternion from_axis_angle(vec3 axis, float angle)
+        @staticmethod
+        quaternion from_unit(vec3 axis)
 
         void rotate(vec3 axis, float angle)
 
@@ -243,6 +245,12 @@ cdef extern from "../src/Vec3.h":
         quaternion get_normalized()
         quaternion lerp(const quaternion& other, float ratio)
         quaternion slerp(const quaternion& other, float ratio)
+
+        inline quaternion get_conjugate()
+
+        inline quaternion get_inverse()
+
+        inline quaternion get_reverse()
 
         vec3 cross(vec3& other)
 
@@ -288,6 +296,12 @@ cdef class Quaternion:
     cpdef Quaternion lerp(self, Quaternion other, float ratio)
     
     cpdef Quaternion slerp(self, Quaternion other, float ratio)
+
+    cpdef Quaternion get_conjugate(self)
+
+    cpdef Quaternion get_inverse(self)
+    
+    cpdef Quaternion get_reverse(self)
     
 cdef Quaternion quat_from_cpp(quaternion cppinst)
 
@@ -329,18 +343,18 @@ ctypedef mat4x4 glmmat4x4
 cdef extern from "../src/Matrix.h":
 
     cdef cppclass matrix[glm_mat_type]:
-        matrix() except *
-        matrix(float value) except *
-        matrix(float, float, float, float) except *
-        matrix(float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float, float, float, float) except *
-        matrix(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) except *
-        matrix(const quaternion& quat) except *
-        matrix(quaternion * quat) except *
-        matrix(const glm_mat_type& glm_mat) except *
-        matrix(const matrix[glm_mat_type]& other) except *
+        matrix() except +
+        matrix(float value) except +
+        matrix(float, float, float, float) except +
+        matrix(float, float, float, float, float, float) except +
+        matrix(float, float, float, float, float, float, float, float) except +
+        matrix(float, float, float, float, float, float, float, float, float) except +
+        matrix(float, float, float, float, float, float, float, float, float, float, float, float) except +
+        matrix(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) except +
+        matrix(const quaternion& quat) except +
+        matrix(quaternion * quat) except +
+        matrix(const glm_mat_type& glm_mat) except +
+        matrix(const matrix[glm_mat_type]& other) except +
 
         glm_mat_type mat
 
@@ -453,12 +467,12 @@ cdef extern from "../src/Vec4.h":
         float x,y,z,w
 
     cdef cppclass vec4:
-        vec4() except *
-        vec4(float x, float y, float z, float w) except *
-        vec4(const glmvec4& axis) except *
-        vec4(const vec4& rhs) except *
-        vec4(const vec3& rhs, float w) except *
-        vec4(const vec2& rhs, float z, float w) except *
+        vec4() except +
+        vec4(float x, float y, float z, float w) except +
+        vec4(const glmvec4& axis) except +
+        vec4(const vec4& rhs) except +
+        vec4(const vec3& rhs, float w) except +
+        vec4(const vec2& rhs, float z, float w) except +
         glmvec4 axis
         float get_x()
         float get_y()
@@ -528,6 +542,8 @@ cdef class Vec4:
     cpdef Vec2 to_vec2(self)
 
     cpdef Vec4 lerp(self, Vec4 other, float ratio)
+
+    cpdef float distance(self, Vec4 other)
     
 cdef Vec4 vec4_from_cpp(vec4 cppinst)
 
@@ -536,12 +552,12 @@ cdef extern from "../src/Vec3.h":
         float x,y,z
 
     cdef cppclass vec3:
-        vec3() except *
-        vec3(float x, float y, float z) except *
-        vec3(const glmvec3& axis) except *
-        vec3(const vec3& rhs) except *
-        vec3(const vec2& rhs, float z) except *
-        vec3(const vec4& rhs) except *
+        vec3() except +
+        vec3(float x, float y, float z) except +
+        vec3(const glmvec3& axis) except +
+        vec3(const vec3& rhs) except +
+        vec3(const vec2& rhs, float z) except +
+        vec3(const vec4& rhs) except +
         glmvec3 axis
         float get_x()
         float get_y()
@@ -623,6 +639,8 @@ cdef class Vec3:
     
     cpdef Vec3 lerp(self, Vec3 other, float ratio)
     
+    cpdef float distance(self, Vec3 other)
+    
 cdef Vec3 vec3_from_cpp(vec3 cppinst)
 
 
@@ -631,10 +649,10 @@ cdef extern from "../src/Vec2.h":
         float x,y
 
     cdef cppclass vec2:
-        vec2() except *
-        vec2(float x, float y) except *
-        vec2(glmvec2& axis) except *
-        vec2(vec2& rhs) except *
+        vec2() except +
+        vec2(float x, float y) except +
+        vec2(glmvec2& axis) except +
+        vec2(vec2& rhs) except +
         glmvec2 axis
         float get_x()
         float get_y()
@@ -657,6 +675,7 @@ cdef extern from "../src/Vec2.h":
         float to_angle()
         @staticmethod
         vec2 from_angle(float angle)
+        float distance(vec2& other)
 
         inline vec2 lerp(const vec2 & other, float ratio)
 
@@ -691,6 +710,8 @@ cdef class Vec2:
     cpdef float to_angle(self)
 
     cpdef Vec2 lerp(self, Vec2 other, float ratio)
+
+    cpdef float distance(self, Vec2 other)
     
 
 cdef Vec2 vec2_from_cpp(vec2 cppinst)
@@ -707,11 +728,11 @@ cdef extern from "../src/Mesh.h":
         pass
 
     cdef cppclass mesh:
-        mesh() except *
-        mesh(const mesh& rhs) except *
-        mesh(string name, RC[material*]* mesh_material, vector[vertex]* vertices, vector[tup3ui]* faces, vec3 transform) except *
+        mesh() except +
+        mesh(const mesh& rhs) except +
+        mesh(string name, RC[material*]* mesh_material, vector[vertex]* vertices, vector[tup3ui]* faces, vec3 transform) except +
         @staticmethod
-        RC[model*]* from_file(string file_path, bint animated) except *
+        RC[model*]* from_file(string file_path, bint animated) except +
         string name
         RC[material*]* mesh_material
         vector[tup3ui]* faces
@@ -728,23 +749,23 @@ cdef extern from "../src/Mesh.h":
         ctypedef map[string, mesh_dict_child].iterator meshmap_iterator
         ctypedef map[string, mesh_dict_child].const_iterator const_meshmap_iterator
         #
-        mesh_dict() except *
-        mesh_dict(string name, map[string, mesh_dict_child] data) except *
-        mesh_dict(mesh_dict& rhs) except *
-        void insert(mesh_dict_child m) except *
-        mesh_dict_child get(string name) except * 
-        void remove(string name) except *
-        mesh_dict_child operator[](string name) except *
-        meshmap_iterator begin() except *
-        const_meshmap_iterator cbegin() except *
-        meshmap_iterator end() except *
-        const_meshmap_iterator cend() except *
+        mesh_dict() except +
+        mesh_dict(string name, map[string, mesh_dict_child] data) except +
+        mesh_dict(mesh_dict& rhs) except +
+        void insert(mesh_dict_child m) except +
+        mesh_dict_child get(string name) except + 
+        void remove(string name) except +
+        mesh_dict_child operator[](string name) except +
+        meshmap_iterator begin() except +
+        const_meshmap_iterator cbegin() except +
+        meshmap_iterator end() except +
+        const_meshmap_iterator cend() except +
         string name
         map[string, mesh_dict_child] data
 
 cdef class MeshDict:
     cdef RC[mesh_dict*]* c_class
-    cpdef void remove(self, str name) except *
+    cpdef void remove(self, str name)
 
     @staticmethod
     cdef MeshDict from_cpp(mesh_dict cppinst)
@@ -763,9 +784,9 @@ cpdef Model model_from_file(str file_path, bint animated)
 
 cdef extern from "../src/Model.h":
     cdef cppclass model:
-        model() except *
-        model(RC[mesh_dict*]* mesh_data, bint animated) except *
-        void play_animation(const string& animation) except *
+        model() except +
+        model(RC[mesh_dict*]* mesh_data, bint animated) except +
+        void play_animation(const string& animation) except +
         RC[mesh_dict*]* mesh_data
         bint animated
         bint use_default_material_properties
@@ -786,10 +807,10 @@ cdef class Model:
 
 cdef extern from "../src/Object3d.h":
     cdef cppclass object3d:
-        object3d() except *
-        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale) except *
-        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except *
-        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat, RC[collider*]* collider) except *
+        object3d() except +
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale) except +
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat) except +
+        object3d(RC[model*]* model_data, vec3* position, quaternion* rotation, vec3* scale, RC[material*]* mat, RC[collider*]* collider) except +
         RC[model*]* model_data
         vec3* position
         quaternion* rotation
@@ -830,8 +851,8 @@ cdef class Object3D:
 cdef extern from "../src/Camera.h":
 
     cdef cppclass camera:
-        camera() except *
-        camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov) except *
+        camera() except +
+        camera(vec3* position, quaternion* rotation, int view_width, int view_height, float focal_length, float fov) except +
         vec3* position
         quaternion* rotation
         int view_width, view_height
@@ -853,8 +874,8 @@ cdef class Camera:
 
 cdef extern from "../src/PointLight.h":
     cdef cppclass point_light:
-        point_light() except *
-        point_light(vec3* pos, float rad, vec3* col, float intensity) except *
+        point_light() except +
+        point_light(vec3* pos, float rad, vec3* col, float intensity) except +
         vec3* position
         float radius
         vec3* color
@@ -871,8 +892,8 @@ cdef class PointLight:
 
 cdef extern from "../src/DirectionalLight.h":
     cdef cppclass directional_light:
-        directional_light() except *
-        directional_light(quaternion* rotation, vec3* color, vec3* ambient, vec3* diffuse, vec3* specular, float intensity) except *
+        directional_light() except +
+        directional_light(quaternion* rotation, vec3* color, vec3* ambient, vec3* diffuse, vec3* specular, float intensity) except +
         quaternion* rotation
         vec3* color
         vec3* ambient
@@ -889,9 +910,9 @@ cdef class DirectionalLight:
 
 cdef extern from "../src/SpotLight.h":
     cdef cppclass spot_light:
-        spot_light() except *
-        spot_light(vec3* position, quaternion*  rotation, vec3* color, float cutOff, float outerCutOff, float intensity, float reach, bint use_cookie) except *
-        spot_light(vec3* position, quaternion*  rotation, vec3* color, float cutOff, float outerCutOff, float intensity, float reach, bint use_cookie, RC[texture*]* cookie) except *
+        spot_light() except +
+        spot_light(vec3* position, quaternion*  rotation, vec3* color, float cutOff, float outerCutOff, float intensity, float reach, bint use_cookie) except +
+        spot_light(vec3* position, quaternion*  rotation, vec3* color, float cutOff, float outerCutOff, float intensity, float reach, bint use_cookie, RC[texture*]* cookie) except +
         vec3* position
         quaternion* rotation
         vec3* color
@@ -915,9 +936,9 @@ cdef class SpotLight:
 
 cdef extern from "../src/Text.h":
     cdef cppclass text:
-        text() except *
-        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation) except *
-        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation, RC[material*]* mat) except *
+        text() except +
+        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation) except +
+        text(string render_text, font* font_data, vec4* color, vec2* position, vec2* scale, float rotation, RC[material*]* mat) except +
 
         inline void render(camera& camera)
 
@@ -948,14 +969,14 @@ cdef class Text:
 
 cdef extern from "../src/Window.h":
     cdef cppclass window:
-        window() except *
-        window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light) except *
+        window() except +
+        window(string title, camera* cam, int width, int height, bint fullscreen, vec3 * ambient_light) except +
         camera* cam
         string title
         int width, height
         bint resizeable
-        void update() except *
-        void lock_mouse(bint lock) except *
+        void update() except +
+        void lock_mouse(bint lock) except +
         inline void set_fullscreen(bint value)
 
         void add_object(object3d* obj)
@@ -1163,13 +1184,13 @@ cdef extern from "../src/Event.h":
         NORMAL
 
     cdef cppclass mouse_wheel:
-        mouse_wheel() except *
+        mouse_wheel() except +
         int int_x, int_y
         float x, y
         MOUSE_WHEEL_DIRECTION direction
 
     cdef cppclass mouse_device:
-        mouse_device() except *
+        mouse_device() except +
         unsigned int id
         unsigned int timestamp
         unsigned int x, y, rel_x, rel_y
@@ -1181,11 +1202,11 @@ cdef extern from "../src/Event.h":
         mouse_wheel wheel
 
     cdef cppclass event:
-        event() except *
+        event() except +
         EVENT_STATE get_flag(EVENT_FLAG _event)
         bint check_flag(EVENT_FLAG _event)
-        mouse_device get_mouse() except *
-        mouse_device get_mouse(unsigned char id) except *
+        mouse_device get_mouse() except +
+        mouse_device get_mouse(unsigned char id) except +
         vector[mouse_device] mice
         unsigned char current_mouse_id
 
@@ -1220,8 +1241,8 @@ cdef class MouseWheel:
 
 cdef extern from "../src/Sprite.h":
     cdef cppclass sprite:
-        sprite() except *
-        sprite(RC[texture*]* tex) except *
+        sprite() except +
+        sprite(RC[texture*]* tex) except +
 
         RC[texture*]* tex
         vec2[4] quad
@@ -1236,8 +1257,8 @@ cpdef Sprite sprite_from_texture(Texture tex)
 
 cdef extern from "../src/Object2d.h":
     cdef cppclass object2d:
-        object2d() except *
-        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat, float depth) except *
+        object2d() except +
+        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat, float depth) except +
         
         sprite* spr
         vec2* position
@@ -1262,7 +1283,7 @@ cpdef Sprite sprite_from_texture(Texture tex)
 
 cdef extern from "../src/Colliders.h":
     cdef cppclass collider:
-        collider() except *
+        collider() except +
         bint check_collision(vec3 intersection)
         bint check_collision(collider* intersection)
         bint check_collision(object3d* intersection)
@@ -1276,9 +1297,9 @@ cdef extern from "../src/Colliders.h":
         bint show_collider
 
     cdef cppclass collider_box(collider):
-        collider_box() except *
-        collider_box(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
-        collider_box(vec3 upper_bounds, vec3 lower_bounds, vec3* offset, quaternion* rotation, vec3* scale) except *
+        collider_box() except +
+        collider_box(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except +
+        collider_box(vec3 upper_bounds, vec3 lower_bounds, vec3* offset, quaternion* rotation, vec3* scale) except +
         bint check_collision(vec3 intersection)
         bint check_collision(collider* other)
         bint check_collision(collider_box* collider)
@@ -1291,14 +1312,43 @@ cdef extern from "../src/Colliders.h":
         vec3[8] bounds
 
     cdef cppclass collider_convex(collider):
-        collider_convex() except *
-        collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
-        collider_convex(RC[mesh*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
-        collider_convex(RC[mesh_dict*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except *
+        collider_convex() except +
+        collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) except +
+        collider_convex(RC[mesh*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except +
+        collider_convex(RC[mesh_dict*]* owner, vec3* offset, quaternion* rotation, vec3* scale) except +
         bint check_collision(const vec3& intersection)
         bint check_collision(collider* other)
         bint check_collision(collider_box* collider)
         bint check_collision(collider_convex* collider)
+
+    cdef cppclass ray_hit:
+        ray_hit(bint hit) except +
+        ray_hit(bint hit, vec3 position) except +
+        ray_hit(bint hit, vec3 position, vec3 normal) except +
+        ray_hit(bint hit, vec3 position, vec3 normal, float distance) except +
+        ray_hit(const ray_hit& rh) except +
+
+        bint hit
+        bint has_normal
+        bint has_distance
+        vec3 position
+        vec3 normal
+        float distance
+
+    cdef cppclass collider_ray(collider):
+        collider_ray() except +
+        collider_ray(vec3* origin, quaternion* direction) except +
+        bint check_collision(collider* other)
+        bint check_collision(collider_box* collider)
+        bint check_collision(collider_convex* collider)
+
+        ray_hit get_collision(collider* collider)
+        ray_hit get_collision(collider_box* collider)
+        ray_hit get_collision(collider_convex* collider)
+        ray_hit get_collision(object3d* collider)
+
+        vec3* origin
+        quaternion* direction
 
 cdef class Collider:
     cdef:
@@ -1316,6 +1366,17 @@ cdef class BoxCollider(Collider):
 
 cdef class ConvexCollider(Collider):
     pass
+
+cdef class RayHit:
+    cdef ray_hit* c_class
+
+    @staticmethod
+    cdef RayHit from_cpp(ray_hit hit)
+
+cdef class RayCollider(Collider):
+    cdef:
+        Vec3 _origin
+        Quaternion _direction
 
 # MAT TYPES ------------------------------------------------------------------------------------
 
@@ -1454,15 +1515,15 @@ cdef void _set_uniform_helpermaterial(material* obj, str name, uniform_type valu
 
 cdef extern from "../src/CubeMap.h":
     cdef cppclass cubemap:
-        cubemap() except *
-        cubemap(string right_path, string left_path, string top_path, string bottom_path, string back_path, string front_path) except *
+        cubemap() except +
+        cubemap(string right_path, string left_path, string top_path, string bottom_path, string back_path, string front_path) except +
         inline void bind()
         void load_textures(string right_path, string left_path, string top_path, string bottom_path, string back_path, string front_path)
         unsigned int texture
 
     cdef cppclass skybox:
-        skybox() except *
-        skybox(cubemap* cube_map, RC[material*]* mat) except *
+        skybox() except +
+        skybox(cubemap* cube_map, RC[material*]* mat) except +
         void render(camera& camera)
         cubemap* cube_map
         unsigned int vao, vbo
@@ -1480,8 +1541,8 @@ cdef class SkyBox:
 
 cdef extern from "../src/Emitter.h":
     cdef cppclass particle:
-        particle() except *
-        particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) except *
+        particle() except +
+        particle(vec3 position, vec2 scale, vec3 velocity, vec4 color, float life) except +
 
         vec3 position, velocity
         vec2 scale
@@ -1490,7 +1551,7 @@ cdef extern from "../src/Emitter.h":
         float starting_life
 
     cdef cppclass emitter:
-        emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, size_t rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, RC[material*]* material) except *
+        emitter(vec3* position, quaternion* direction, vec2* scale_min, vec2* scale_max, size_t rate, float decay_rate, float spread, float velocity_decay, float start_velocity_min, float start_velocity_max, float start_lifetime_min, float start_lifetime_max, vec4* color_min, vec4* color_max, RC[material*]* material) except +
 
         inline void start()
         inline void stop()
@@ -1520,4 +1581,19 @@ cdef class Emitter:
         Vec2 _scale_min, _scale_max
 
     cpdef void start(self)
+    cpdef void stop(self)
+
+cdef extern from "../src/Sound.h":
+    cdef cppclass sound:
+        sound() except +
+        sound(window* win, string src, bint loop) except +
+        inline void play(float volume, float panning, float pitch)
+        inline void play(const vec3& position, float volume, float panning, float pitch)
+        inline void stop()
+        unsigned int audio_position
+        bint loop
+
+cdef class Sound:
+    cdef sound* c_class
+
     cpdef void stop(self)

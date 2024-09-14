@@ -48,7 +48,7 @@ public:
         if (this->position)
             model = model.translate(this->position);
         if (this->rotation)
-            model *= matrix4x4(this->rotation);
+            model = model * matrix4x4(this->rotation);
         if (this->scale)
             model = model.scale(this->scale);
         this->model_matrix = model;

@@ -5,12 +5,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <algorithm>
 #include "Tup.h"
 #include <set>
 #include "util.h"
 #include "Camera.h"
 #include "Model.h"
+#include "util.h"
 
 using std::set;
 
@@ -57,12 +59,7 @@ bool collider_box::check_collision(vec3 intersection) {
     auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
 
 
-    intersection = (vec3(
-        this->owner ?
-        this_mat.inverse() * vec4(intersection.axis, 1.0)
-        :
-        vec4(intersection.axis, 1.0)
-    ) - *offset);
+    intersection = (vec3(this_mat.inverse() * vec4(intersection.axis, 1.0)) - *offset);
     return upper_bounds >= intersection && lower_bounds <= intersection;
 }
 
@@ -82,15 +79,15 @@ bool collider_box::check_collision(collider_box* other) {
     auto other_mat = ((other->owner ? other->owner->model_matrix : matrix4x4(1.0f)).translate(other->offset) * matrix4x4(other->rotation)).scale(other->scale);
 
     vec3 dirs_this[3] = {
-        this->owner ? this_mat[0] : vec3(1.0f, 0.0f, 0.0f),
-        this->owner ? this_mat[1] : vec3(0.0f, 1.0f, 0.0f),
-        this->owner ? this_mat[2] : vec3(0.0f, 0.0f, 1.0f)
+        this_mat[0],
+        this_mat[1],
+        this_mat[2]
     };
 
     vec3 dirs_other[3] = {
-        other->owner ? other_mat[0] : vec3(1.0f, 0.0f, 0.0f),
-        other->owner ? other_mat[1] : vec3(0.0f, 1.0f, 0.0f),
-        other->owner ? other_mat[2] : vec3(0.0f, 0.0f, 1.0f)
+        other_mat[0],
+        other_mat[1],
+        other_mat[2]
     };
 
     // Check face normals as potential separating axes
@@ -113,9 +110,9 @@ bool collider_box::check_collision(collider_convex* other) {
     auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
     
     vec3 dirs_this[3] = {
-        this->owner ? this_mat[0] : vec3(1.0f, 0.0f, 0.0f),
-        this->owner ? this_mat[1] : vec3(0.0f, 1.0f, 0.0f),
-        this->owner ? this_mat[2] : vec3(0.0f, 0.0f, 1.0f)
+        this_mat[0],
+        this_mat[1],
+        this_mat[2]
     };
 
     // Check face normals as potential separating axes
@@ -285,21 +282,11 @@ std::pair<float, float> collider::minmax_vertex_SAT(const vec3 & axis) {
 
 std::pair<float, float> collider_box::minmax_vertex_SAT(const vec3 & axis) {
     auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
-    float min_proj = (vec3(
-        this->owner ?
-        this_mat * vec4(this->bounds[0], 1.0f)
-        :
-        vec4(this->bounds[0], 1.0f)
-    ) + *offset).dot(axis);
+    float min_proj = (vec3(this_mat * vec4(this->bounds[0], 1.0f))).dot(axis);
     float max_proj = min_proj;
-
+    
     for (const auto &bound : this->bounds) {
-        float proj = (vec3(
-            this->owner ?
-            this_mat * vec4(bound, 1.0f)
-            :
-            vec4(bound, 1.0f)
-        ) + *offset).dot(axis);
+        float proj = (vec3(this_mat * vec4(bound, 1.0f))).dot(axis);
         min_proj = std::min(min_proj, proj);
         max_proj = std::max(max_proj, proj);
     }
@@ -311,7 +298,8 @@ bool collider::check_SAT(vec3 axis, collider *other) {
     auto [min1, max1] = this->minmax_vertex_SAT(axis);
     auto [min2, max2] = other->minmax_vertex_SAT(axis);
 
-    return max1 >= min2 && max2 >= min1;
+    const float epsilon = 1e-6f;
+    return (max1 >= min2 - epsilon) && (max2 >= min1 - epsilon);
 }
 
 collider_convex::collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) {
@@ -699,15 +687,15 @@ vec3 calculate_normal(const vec3& v0, const vec3& v1, const vec3& v2) {
     // since the cross product is the orthagonal vector of 2 vectors this gives you the normal
 }
 
-float hull_face::distance(const vec3& point) const {
-    return normal.dot(point - vertices[0]);
+float hull_face::distance(const vec3& point, const matrix3x3 & rot) const {
+    return (rot * normal).get_normalized().dot(point - vertices[0]);
     // projects the vector from a vert of the face to the point onto the normal
     // if the vector is outside the face it will project a positive distance onto the normal
     // if it is inside the face it will project a negative 
 }
 
-bool hull_face::is_visible(const vec3& point) const {
-    return distance(point) > std::numeric_limits<float>::min() && !contains(point);
+bool hull_face::is_visible(const vec3& point, const matrix3x3 & rot) const {
+    return distance(point, rot) > std::numeric_limits<float>::min() && !contains(point);
 }
 
 // convex collisions:
@@ -716,7 +704,7 @@ bool collider_convex::check_collision(vec3 intersection) {
     auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
     vec3 transformed_point = this_mat.inverse() * vec4(intersection, 1.0f);
     for (const auto& face : hull) {
-        if (!face.is_visible(transformed_point - *offset)) {
+        if (!face.is_visible(transformed_point - *offset, matrix3x3(this->rotation))) {
             return false;
         }
     }
@@ -736,14 +724,14 @@ bool collider_convex::check_collision(collider* other) {
 bool collider_convex::check_collision(collider_box* other) {
     auto other_mat = ((other->owner ? other->owner->model_matrix : matrix4x4(1.0f)).translate(other->offset) * matrix4x4(other->rotation)).scale(other->scale);
     vec3 dirs_other[3] = {
-        other->owner ? other_mat[0] : vec3(1.0f, 0.0f, 0.0f),
-        other->owner ? other_mat[1] : vec3(0.0f, 1.0f, 0.0f),
-        other->owner ? other_mat[2] : vec3(0.0f, 0.0f, 1.0f)
+        other_mat[0],
+        other_mat[1],
+        other_mat[2]
     };
 
     // Check face normals as potential separating axes
     for (auto face : hull) {
-        if (!this->check_SAT(face.normal, other)) {
+        if (!this->check_SAT((matrix3x3(this->rotation) * face.normal).get_normalized(), other)) {
             return false;
         }
     }
@@ -762,13 +750,13 @@ bool collider_convex::check_collision(collider_convex* other) {
 
     // Check face normals as potential separating axes
     for (auto face : hull) {
-        if (!this->check_SAT(face.normal, other)) {
+        if (!this->check_SAT((matrix3x3(this->rotation) * face.normal).get_normalized(), other)) {
             return false;
         }
     }
         
     for (auto face : other->hull) {
-        if (!other->check_SAT(face.normal, this)) {
+        if (!other->check_SAT((matrix3x3(other->rotation) * face.normal).get_normalized(), this)) {
             return false;
         }
     }
@@ -778,22 +766,12 @@ bool collider_convex::check_collision(collider_convex* other) {
 
 std::pair<float, float> collider_convex::minmax_vertex_SAT(const vec3 & axis) {
     auto this_mat = ((this->owner ? this->owner->model_matrix : matrix4x4(1.0f)).translate(this->offset) * matrix4x4(this->rotation)).scale(this->scale);
-    float min_proj = axis.dot(vec3(
-        this->owner ?
-        this_mat * vec4(this->hull[0].vertices[0], 1.0f)
-        :
-        vec4(this->hull[0].vertices[0], 1.0f)
-        ) + *offset);
+    float min_proj = axis.dot(vec3(this_mat * vec4(this->hull[0].vertices[0], 1.0f)));
     float max_proj = min_proj;
 
     for (const auto &face : this->hull) {
         for (const auto& vertex : face.vertices) {
-            float proj = axis.dot(vec3(
-                this->owner ?
-                this_mat * vec4(vertex, 1.0f)
-                :
-                vec4(vertex, 1.0f)
-            ) + *offset);
+            float proj = axis.dot(vec3(this_mat * vec4(vertex, 1.0f)));
             if (proj < min_proj) min_proj = proj;
             if (proj > max_proj) max_proj = proj;
         }
@@ -822,4 +800,152 @@ void collider::dbg_render(const camera& cam) {
     } else if (auto convex = dynamic_cast<collider_convex*>(this)) {
         convex->dbg_render(cam);
     }
+}
+
+matrix3x3 extract_rotation_matrix(const matrix4x4& model) {
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(model.mat, scale, rotation, translation, skew, perspective);
+    return quaternion(rotation);    
+}
+
+ray_hit collider_ray::intersects_hullface(const matrix4x4 & model, const hull_face& triangle) {
+    vec3 vdir = vec3(0.0f,0.0f,-1.0f).rotate(*this->direction).get_normalized();
+    const float EPSILON = 0.01f;
+
+    vec3 vertices[] = {
+        model * vec4(triangle.vertices[0], 1.0f),
+        model * vec4(triangle.vertices[1], 1.0f),
+        model * vec4(triangle.vertices[2], 1.0f) 
+    };
+    auto rot = extract_rotation_matrix(model);
+    vec3 normal = (rot * triangle.normal).get_normalized();
+
+    vec3 center = (vertices[0] + vertices[1] + vertices[2])/3.0f;
+
+    float denom = vdir.dot(normal);
+    if (denom <= -EPSILON) {
+        float t = (normal.dot(center - *this->origin)) / denom;
+        if (t >= EPSILON) {
+            vec3 intersection_point = *this->origin + vdir * t;
+            vec3 bv = barycentric_coords(vertices[0], vertices[1], vertices[2], intersection_point);
+            if (bv.axis.x >= -EPSILON && bv.axis.y >= -EPSILON && bv.axis.x + bv.axis.y <= 1.0f + EPSILON) return ray_hit(true, intersection_point, normal, t);
+        }
+    }
+    
+    return ray_hit(false);
+}
+
+void decompose(const matrix4x4 & model, matrix3x3& rotation, vec3& scale, vec3& translation) {
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::quat qrotation;
+    glm::decompose(model.mat, scale.axis, qrotation, translation.axis, skew, perspective);
+    rotation = matrix3x3(qrotation);
+}
+
+ray_hit collider_ray::intersects_box(collider_box* collider) {
+    const float EPSILON = 1e-6f;  // Precision tolerance
+    vec3 ray_origin = *this->origin;
+    vec3 ray_direction = vec3(0.0f, 0.0f, 1.0f).rotate(*this->direction).get_normalized();
+
+    // Build the transformation matrix from world space to local space
+    auto model_matrix = ((collider->owner ? collider->owner->model_matrix : matrix4x4(1.0f)).translate(collider->offset) * matrix4x4(collider->rotation)).scale(collider->scale);
+
+    // Extract the inverse of the model matrix
+    matrix4x4 inv_model_matrix = model_matrix.inverse();
+
+    // Transform ray origin and direction to local space
+    vec3 local_origin = inv_model_matrix * vec4(ray_origin, 1.0f);
+    vec3 local_direction = (inv_model_matrix * vec4(ray_direction, 0.0f)).get_normalized();
+
+    // OBB half-extents
+    vec3 half_extents = (collider->upper_bounds - collider->lower_bounds) * 0.5f;
+
+    // Calculate tMin and tMax for each axis
+    float tMin = 0.0f;
+    float tMax = std::numeric_limits<float>::max();
+
+    for (int i = 0; i < 3; ++i) {
+        float invDir = 1.0f / local_direction[i];
+        float t0 = (local_origin[i] - half_extents[i]) * invDir;
+        float t1 = (local_origin[i] + half_extents[i]) * invDir;
+
+        if (invDir < 0.0f) std::swap(t0, t1);
+
+        tMin = std::max(tMin, t0);
+        tMax = std::min(tMax, t1);
+
+        if (tMin > tMax) return ray_hit(false);
+    }
+
+    // Calculate the intersection point in local space
+    vec3 hit_pos_local = local_origin - local_direction * tMin;
+
+    vec3 world_normal = (extract_rotation_matrix(model_matrix.transpose()) * vec3(1.0f)).get_normalized();
+
+    vec3 hit_pos_world = model_matrix * vec4(hit_pos_local, 1.0f);
+
+    return ray_hit(true, hit_pos_world, world_normal, tMin);
+}
+
+bool collider_ray::check_collision(collider* other) {
+    if (auto box = dynamic_cast<collider_box*>(other)) {
+        return check_collision(box);
+    } else if (auto convex = dynamic_cast<collider_convex*>(other)) {
+        return check_collision(convex);
+    }
+    // Add other collider types here as needed
+    return false;
+}
+
+bool collider_ray::check_collision(collider_box* collider) {
+    return intersects_box(collider).hit;
+}
+
+bool collider_ray::check_collision(collider_convex* collider) {
+    auto collider_mat = ((collider->owner ? collider->owner->model_matrix : matrix4x4(1.0f)).translate(collider->offset) * matrix4x4(collider->rotation)).scale(collider->scale);
+    for (const hull_face & h : collider->hull) {
+        auto hit = intersects_hullface(collider_mat, h);
+        if (hit.hit) return true;
+    }
+    return false;
+}
+
+// returns the hit struct
+
+ray_hit collider_ray::get_collision(collider* other) {
+    if (auto box = dynamic_cast<collider_box*>(other)) {
+        return get_collision(box);
+    } else if (auto convex = dynamic_cast<collider_convex*>(other)) {
+        return get_collision(convex);
+    }
+    // Add other collider types here as needed
+    return false;
+}
+
+ray_hit collider_ray::get_collision(object3d* other) {
+    for (auto col : other->colliders) {
+        ray_hit rh;
+        if ((rh = get_collision(col->data)).hit)
+            return rh;
+    }
+    // Add other collider types here as needed
+    return false;
+}
+
+ray_hit collider_ray::get_collision(collider_box* collider) {
+    return intersects_box(collider);
+}
+
+ray_hit collider_ray::get_collision(collider_convex* collider) {
+    auto collider_mat = ((collider->owner ? collider->owner->model_matrix : matrix4x4(1.0f)).translate(collider->offset) * matrix4x4(collider->rotation)).scale(collider->scale);
+    for (const hull_face & h : collider->hull) {
+        auto rh = intersects_hullface(collider_mat, h);
+        if (rh.hit) return rh;
+    }
+    return false;
 }

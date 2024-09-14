@@ -23,7 +23,7 @@ using std::map;
 // Tree of assimp data to help decouple our animations from assimp
 struct assimp_node_data {
     matrix4x4 transformation = matrix4x4(1.0f);
-    string name;
+    string name = "";
     int children_size = 0;
     vector<assimp_node_data> children;
 };
