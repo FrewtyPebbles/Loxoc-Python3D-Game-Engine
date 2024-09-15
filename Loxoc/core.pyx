@@ -1517,6 +1517,7 @@ cdef class Event:
         mdev.id = cmdev.id
         mdev.timestamp = cmdev.timestamp
         mdev.x = cmdev.x
+        mdev.y = cmdev.y
         mdev.rel_x = cmdev.rel_x
         mdev.rel_y = cmdev.rel_y
         mdev.type = cmdev.type

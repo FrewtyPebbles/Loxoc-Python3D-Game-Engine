@@ -8,7 +8,7 @@ from setuptools.command.build_ext import build_ext
 
 MODULE_NAME = "Loxoc"
 
-DEV_VERSION = 30
+DEV_VERSION = 31
 
 VERSION = f"1.0.0.dev{DEV_VERSION}"
 
