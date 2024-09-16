@@ -1555,13 +1555,13 @@ cpdef Sprite sprite_from_texture(Texture tex):
 ctypedef object2d* obj2d_ptr
 
 cdef class Object2D:
-    def __init__(self, Sprite sprite, Vec2 position = Vec2(0.0,0.0), float depth = 0.0,
+    def __init__(self, Sprite sprite, Camera camera, Vec2 position = Vec2(0.0,0.0), float depth = 0.0,
     float rotation = 0.0, Vec2 scale = Vec2(1.0, 1.0),
     Material material = None) -> None:
         self._position = position
         self._scale = scale
         self.sprite = sprite
-
+        self._camera = camera
         
         
         if material:
@@ -1573,7 +1573,7 @@ cdef class Object2D:
                 Shader.from_file(path.join(path.dirname(__file__), "default_fragment_2D.glsl"), ShaderType.FRAGMENT)
             )
         
-        self.c_class = new object2d(sprite.c_class, position.c_class, rotation, scale.c_class, self.material.c_class, depth)
+        self.c_class = new object2d(sprite.c_class, self._camera.c_class, position.c_class, rotation, scale.c_class, self.material.c_class, depth)
 
     @property
     def position(self) -> Vec2:
@@ -1610,9 +1610,26 @@ cdef class Object2D:
     def scale(self, Vec2 value):
         self._scale.c_class[0] = value.c_class[0]
 
+    @property
+    def untransformed_dimensions(self) -> Vec2:
+        return vec2_from_cpp(self.c_class.unscaled_dim)
+
+    @property
+    def dimensions(self) -> Vec2:
+        return vec2_from_cpp(self.c_class.get_scaled_dimensions())
+
+    @property
+    def width(self) -> float:
+        return self.c_class.get_scaled_dimensions().axis.x
+
+    @property
+    def height(self) -> float:
+        return self.c_class.get_scaled_dimensions().axis.y
+
     def __dealloc__(self):
         del self.c_class
 
+    
 
     cpdef void set_uniform(self, str name, value:UniformValueType):
         _set_uniform(self, name, value)

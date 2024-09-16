@@ -33,7 +33,7 @@ void event::handle_events(window* _window) {
             
                 mouse->clicks = event.button.clicks;
                 mouse->x = event.button.x;
-                mouse->y = event.button.y;
+                mouse->y = _window->cam->view_height - event.button.y;
                 mouse->timestamp = event.button.timestamp;
                 mouse->window = _window;
                 // button
@@ -87,7 +87,7 @@ void event::handle_events(window* _window) {
                 mouse->wheel.x = event.wheel.preciseX;
                 mouse->wheel.y = event.wheel.preciseY;
                 mouse->x = event.wheel.mouseX;
-                mouse->y = event.wheel.mouseY;
+                mouse->y = _window->cam->view_height - event.wheel.mouseY;
                 mouse->window = _window;
                 
                 // MWheel direction
@@ -109,7 +109,7 @@ void event::handle_events(window* _window) {
                 this->current_mouse_id = mouse->id = event.motion.which + 1;
 
                 mouse->x = event.motion.x;
-                mouse->y = event.motion.y;
+                mouse->y = _window->cam->view_height - event.motion.y;
                 mouse->rel_x = event.motion.xrel;
                 mouse->rel_y = event.motion.yrel;
                 mouse->timestamp = event.motion.timestamp;

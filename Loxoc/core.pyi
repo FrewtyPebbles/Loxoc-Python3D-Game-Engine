@@ -1543,7 +1543,7 @@ class Object2D:
     """
     An 2 Dimensional Object which is rendered infront of all :class:`Object3D` s on the screen.  Good for GUI, HUD interfaces, or anything else 2D.
     """
-    def __init__(self, sprite: Sprite, position:Vec2 = Vec2(0.0,0.0), depth:float = 0.0,
+    def __init__(self, sprite: Sprite, camera:Camera, position:Vec2 = Vec2(0.0,0.0), depth:float = 0.0,
     rotation:float = 0.0, scale:Vec2 = Vec2(1.0, 1.0),
     material:Material = None) -> None:
         """
@@ -1590,6 +1590,29 @@ class Object2D:
     @scale.setter
     def scale(self, value:Vec2) -> None:...
 
+    @property
+    def untransformed_dimensions(self) -> Vec2:
+        """
+        The screen/camera coordinate dimensions of the :class:`Sprite` before scale is applied.
+        """
+
+    @property
+    def dimensions(self) -> Vec2:
+        """
+        The true screen/camera coordinate dimensions of the :class:`Sprite` .
+        """
+
+    @property
+    def width(self) -> float:
+        """
+        The true screen/camera coordinate height of the :class:`Sprite` .
+        """
+
+    @property
+    def height(self) -> float:
+        """
+        The true screen/camera coordinate height of the :class:`Sprite` .
+        """
 
     def set_uniform(self, name:str, value:UniformValueType) ->None:
         """

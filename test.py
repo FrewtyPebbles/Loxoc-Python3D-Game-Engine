@@ -63,9 +63,9 @@ test_anim_model = Mesh.from_file("./meshes/dancing_crab/scene.gltf")
 p(2)
 spr_doomguy = Sprite("./textures/doomguy.png")
 p(3)
-doomguy = Object2D(spr_doomguy, scale=Vec2(200,200), depth=-3.0)
+doomguy = Object2D(spr_doomguy, camera, scale=Vec2(100,100), depth=-3.0)
 p(4)
-doomguy2 = Object2D(spr_doomguy, position=Vec2(dim[0]/4,dim[1]/4), scale=Vec2(100,100), depth=-4.0)
+doomguy2 = Object2D(spr_doomguy, camera, position=Vec2(dim[0]/4,dim[1]/4), scale=Vec2(100,100), depth=-4.0)
 p(5)
 car = Object3D(car_meshes,
     Vec3(0.0,-10,500), Vec3(0,0,0), Vec3(100,100,100))
@@ -161,7 +161,7 @@ window.add_emitter_list([
 
 test_emitter.start()
 
-window.lock_mouse(True)
+window.lock_mouse(False)
 
 print("START COLLIDERS")
 pirate_ship_collider = BoxCollider(pirate_ship, Vec3(30,0,0), Vec3(0,math.radians(45),0), Vec3(2,1,1))
@@ -191,10 +191,10 @@ cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
-    if window.dt > 0:
-        print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
-    else:
-        print("FRAMERATE: inf fps")
+    # if window.dt > 0:
+    #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")
+    # else:
+    #     print("FRAMERATE: inf fps")
     
     if (rh := random_raycast_collider.get_collision(pirate_ship)).hit and window.event.get_flag(EVENT_FLAG.KEY_SPACE) == EVENT_STATE.PRESSED:
         
@@ -276,6 +276,16 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
     random_raycast_collider.origin = car.position + Vec3(0,100,0)
 
     random_raycast_collider.direction = car.rotation
+
+    # SPRITE DIMENSIONS TEST
+    dt = window.deltatime
+    mouse = window.event.mouse
+
+    if mouse.state == EVENT_STATE.PRESSED:
+        print(doomguy2.width, ", ", mouse.x)
+        if doomguy2.position.x - doomguy2.width/2 < mouse.x < doomguy2.position.x + doomguy2.width/2 and \
+        doomguy2.position.y - doomguy2.height/2 < mouse.y < doomguy2.position.y + doomguy2.height/2:#doomguy2.position.distance(Vec2(mouse.x, camera.view_height - mouse.y)) < 30:
+            print("CLICKED DOOM GUY")
 
     # Re-render the scene.
     window.update()

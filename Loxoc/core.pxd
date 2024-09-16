@@ -1258,14 +1258,18 @@ cpdef Sprite sprite_from_texture(Texture tex)
 cdef extern from "../src/Object2d.h":
     cdef cppclass object2d:
         object2d() except +
-        object2d(sprite* spr, vec2* position, float rotation, vec2* scale, RC[material*]* mat, float depth) except +
+        object2d(sprite* spr, camera * cam, vec2* position, float rotation, vec2* scale, RC[material*]* mat, float depth) except +
         
         sprite* spr
+        camera * cam
         vec2* position
         float rotation
         vec2* scale
         material* mat
         float depth
+        vec2 unscaled_dim
+
+        vec2 get_scaled_dimensions()
 
         void set_uniform(string name, uniform_type value)
 
@@ -1275,6 +1279,7 @@ cdef class Object2D:
         public Sprite sprite
         public Material material
         Vec2 _position, _scale
+        Camera _camera
     
     cpdef void set_uniform(self, str name, value:UniformValueType)
 
