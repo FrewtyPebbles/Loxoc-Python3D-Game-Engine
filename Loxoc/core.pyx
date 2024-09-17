@@ -612,7 +612,7 @@ cdef class Quaternion:
     cpdef Quaternion floatsub(self, float other):
         return quat_from_cpp(self.c_class[0] - other)
 
-    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:
+    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion | Vec3:
         if isinstance(other, Quaternion):
             return self.quatmul(other)
         elif isinstance(other, Vec3):
@@ -3014,6 +3014,14 @@ cdef class Text:
     @font.setter
     def font(self, Font value):
         self._font.c_class[0] = value.c_class[0]
+
+    @property
+    def text(self) -> str:
+        return self.c_class.render_text
+
+    @text.setter
+    def text(self, value:str):
+        self.c_class.render_text = value.encode()
 
     def __dealloc__(self):
         del self.c_class

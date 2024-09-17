@@ -1396,7 +1396,7 @@ class Quaternion:
 
     def __sub__(self, other:Quaternion | float) -> Quaternion:...
 
-    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion:...
+    def __mul__(self, other:Quaternion | float | Vec3) -> Quaternion | Vec3:...
 
     def __truediv__(self, other:Quaternion | float) -> Quaternion:...
 
@@ -2704,6 +2704,18 @@ class Text:
     def font(self, value:Font):
         """
         The :class:`Font` of the text.
+        """
+
+    @property
+    def text(self) -> str:
+        """
+        The content of the text object.
+        """
+
+    @text.setter
+    def text(self, value:str):
+        """
+        The content of the text object.
         """
 
 class CubeMap:

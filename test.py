@@ -277,6 +277,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
     random_raycast_collider.direction = car.rotation
 
+    text.text = repr(camera.position)
+
     # SPRITE DIMENSIONS TEST
     dt = window.deltatime
     mouse = window.event.mouse
