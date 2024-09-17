@@ -139,7 +139,7 @@ void collider_box::dbg_create_shader_program() {
     
     // Vertex Shader source code
     const char* vertexShaderSource = R"(
-        #version 450 core
+        #version 330 core
         layout(location = 0) in vec3 aPos;
         out vec3 frag_pos;
 
@@ -154,7 +154,7 @@ void collider_box::dbg_create_shader_program() {
 
     // Fragment Shader source code
     const char* fragmentShaderSource = R"(
-        #version 450 core
+        #version 330 core
         out vec4 FragColor;
         in vec3 frag_pos;
         void main() {
