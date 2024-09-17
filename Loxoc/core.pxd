@@ -211,7 +211,7 @@ cdef extern from "../src/Vec3.h":
         @staticmethod
         quaternion from_axis_angle(vec3 axis, float angle)
         @staticmethod
-        quaternion from_unit(vec3 axis)
+        quaternion from_unit(vec3 axis, const vec3 & up)
 
         void rotate(vec3 axis, float angle)
 

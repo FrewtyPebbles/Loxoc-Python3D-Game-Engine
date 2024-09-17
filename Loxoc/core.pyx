@@ -684,8 +684,9 @@ cdef class Quaternion:
         return quat_from_cpp(quaternion.from_axis_angle(axis.c_class[0], angle))
 
     @staticmethod
-    def from_unit(Vec3 axis) -> Quaternion:
-        return quat_from_cpp(quaternion.from_unit(axis.c_class[0]))
+    def from_unit(Vec3 axis, Vec3 up = None) -> Quaternion:
+        up = up if up else Vec3(0.0,1.0,0.0)
+        return quat_from_cpp(quaternion.from_unit(axis.c_class[0], up.c_class[0]))
 
 
     cpdef void rotate(self, Vec3 axis, float angle):

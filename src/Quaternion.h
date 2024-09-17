@@ -27,7 +27,7 @@ public:
     // From Euler Angles in Radians
     static quaternion from_euler(const vec3& euler_vec);
     static quaternion from_axis_angle(vec3 axis, float angle);
-    static quaternion from_unit(vec3 axis);
+    static quaternion from_unit(vec3 axis, const vec3 & up);
 
     void rotate(vec3 axis, float angle);
 

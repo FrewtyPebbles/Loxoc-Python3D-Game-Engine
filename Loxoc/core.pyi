@@ -1472,7 +1472,7 @@ class Quaternion:
         """
 
     @staticmethod
-    def from_unit(axis:Vec3) -> Quaternion:
+    def from_unit(axis:Vec3, up:Vec3 | None = Vec3(0.0, 1.0, 0.0)) -> Quaternion:
         """
         Takes in a unit :class:`Vec3` direction and returns a :class:`Quaternion` rotated in that direction from the global forward `Vec3(0.0, 0.0, 1.0)` .
         """

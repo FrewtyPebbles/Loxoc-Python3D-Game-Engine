@@ -161,7 +161,7 @@ window.add_emitter_list([
 
 test_emitter.start()
 
-window.lock_mouse(False)
+window.lock_mouse(True)
 
 print("START COLLIDERS")
 pirate_ship_collider = BoxCollider(pirate_ship, Vec3(30,0,0), Vec3(0,math.radians(45),0), Vec3(2,1,1))
@@ -275,7 +275,7 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
 
     random_raycast_collider.origin = car.position + Vec3(0,100,0)
 
-    random_raycast_collider.direction = car.rotation
+    random_raycast_collider.direction = Quaternion.from_unit(-car.rotation.forward)
 
     text.text = repr(camera.position)
 

@@ -850,7 +850,7 @@ void decompose(const matrix4x4 & model, matrix3x3& rotation, vec3& scale, vec3& 
 ray_hit collider_ray::intersects_box(collider_box* collider) {
     const float EPSILON = 1e-6f;  // Precision tolerance
     vec3 ray_origin = *this->origin;
-    vec3 ray_direction = vec3(0.0f, 0.0f, 1.0f).rotate(*this->direction).get_normalized();
+    vec3 ray_direction = vec3(0.0f, 0.0f, -1.0f).rotate(*this->direction).get_normalized();
 
     // Build the transformation matrix from world space to local space
     auto model_matrix = ((collider->owner ? collider->owner->model_matrix : matrix4x4(1.0f)).translate(collider->offset) * matrix4x4(collider->rotation)).scale(collider->scale);
