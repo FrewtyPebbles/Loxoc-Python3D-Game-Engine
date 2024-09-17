@@ -1,4 +1,4 @@
-#version 450 core
+#version 330 core
 
 in vec2 tex_coords;
 in vec4 particle_color;
