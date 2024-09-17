@@ -149,7 +149,7 @@ public:
         unsigned int vertexShader, geometryShader, fragmentShader;
         // Vertex Shader source code
         const char* vertexShaderSource = R"(
-            #version 450 core
+            #version 330 core
             layout(location = 0) in vec3 aPos;
 
             uniform mat4 transform;
@@ -162,7 +162,7 @@ public:
 
         // Geometry Shader source code
         const char* geometryShaderSource = R"(
-            #version 450 core
+            #version 330 core
             layout(lines) in;
             layout(line_strip, max_vertices = 4) out;
 
