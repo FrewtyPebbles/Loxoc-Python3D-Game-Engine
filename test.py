@@ -115,7 +115,7 @@ test_emitter = Emitter(
 space_ship_mesh = Mesh.from_file("./meshes/space_ship/Space_Ship.gltf")
 
 space_ship = Object3D(space_ship_mesh,
-    Vec3(0.0, 100,500), Vec3(0,0,0), Vec3(1,1,1))
+    Vec3(0.0, 100,500), Vec3(0,0,0))
 
 test_sound = Sound(window, "./sound/pop.wav", False)
 
