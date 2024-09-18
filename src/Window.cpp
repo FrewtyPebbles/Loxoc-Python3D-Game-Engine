@@ -11,6 +11,8 @@
 #include "Model.h"
 #include "Animation.h"
 
+#define in_set(the_set, item) the_set.find(item) != the_set.end()
+
 window::~window(){
     SDL_GL_DeleteContext(this->gl_context);
     SDL_DestroyWindow(this->app_window);
@@ -172,7 +174,8 @@ void window::add_object(object3d* obj) {
 }
 
 void window::remove_object(object3d* obj) {
-    this->render_list.erase(obj);
+    if(in_set(this->render_list, obj))
+        this->render_list.erase(obj);
 }
 
 void window::add_object_list(vector<object3d*> objs) {
@@ -183,7 +186,8 @@ void window::add_object_list(vector<object3d*> objs) {
 
 void window::remove_object_list(vector<object3d*> objs) {
     for (object3d * obj : objs) {
-        this->render_list.erase(obj);
+        if(in_set(this->render_list, obj))
+            this->render_list.erase(obj);
     }
 }
 
@@ -192,7 +196,8 @@ void window::add_object2d(object2d* obj) {
 }
 
 void window::remove_object2d(object2d* obj) {
-    this->render_list2d.erase(obj);
+    if(in_set(this->render_list2d, obj))
+        this->render_list2d.erase(obj);
 }
 
 void window::add_object2d_list(vector<object2d*> objs) {
@@ -203,7 +208,8 @@ void window::add_object2d_list(vector<object2d*> objs) {
 
 void window::remove_object2d_list(vector<object2d*> objs) {
     for (object2d * obj : objs) {
-        this->render_list2d.erase(obj);
+        if(in_set(this->render_list2d, obj))
+            this->render_list2d.erase(obj);
     }
 }
 
@@ -214,7 +220,8 @@ void window::add_point_light(point_light* obj) {
 }
 
 void window::remove_point_light(point_light* obj) {
-    this->render_list_point_lights.erase(obj);
+    if(in_set(this->render_list_point_lights, obj))
+        this->render_list_point_lights.erase(obj);
 }
 
 void window::add_point_light_list(vector<point_light*> objs) {
@@ -225,7 +232,8 @@ void window::add_point_light_list(vector<point_light*> objs) {
 
 void window::remove_point_light_list(vector<point_light*> objs) {
     for (point_light * obj : objs) {
-        this->render_list_point_lights.erase(obj);
+        if(in_set(this->render_list_point_lights, obj))
+            this->render_list_point_lights.erase(obj);
     }
 }
 
@@ -236,7 +244,8 @@ void window::add_directional_light(directional_light* obj) {
 }
 
 void window::remove_directional_light(directional_light* obj) {
-    this->render_list_directional_lights.erase(obj);
+    if(in_set(this->render_list_directional_lights, obj))
+        this->render_list_directional_lights.erase(obj);
 }
 
 void window::add_directional_light_list(vector<directional_light*> objs) {
@@ -247,7 +256,8 @@ void window::add_directional_light_list(vector<directional_light*> objs) {
 
 void window::remove_directional_light_list(vector<directional_light*> objs) {
     for (directional_light * obj : objs) {
-        this->render_list_directional_lights.erase(obj);
+        if(in_set(this->render_list_directional_lights, obj))
+            this->render_list_directional_lights.erase(obj);
     }
 }
 
@@ -258,7 +268,8 @@ void window::add_spot_light(spot_light* obj) {
 }
 
 void window::remove_spot_light(spot_light* obj) {
-    this->render_list_spot_lights.erase(obj);
+    if(in_set(this->render_list_spot_lights, obj))
+        this->render_list_spot_lights.erase(obj);
 }
 
 void window::add_spot_light_list(vector<spot_light*> objs) {
@@ -269,7 +280,8 @@ void window::add_spot_light_list(vector<spot_light*> objs) {
 
 void window::remove_spot_light_list(vector<spot_light*> objs) {
     for (spot_light * obj : objs) {
-        this->render_list_spot_lights.erase(obj);
+        if(in_set(this->render_list_spot_lights, obj))
+            this->render_list_spot_lights.erase(obj);
     }
 }
 
@@ -280,7 +292,8 @@ void window::add_text(text* obj) {
 }
 
 void window::remove_text(text* obj) {
-    this->render_list_text.erase(obj);
+    if(in_set(this->render_list_text, obj))
+        this->render_list_text.erase(obj);
 }
 
 void window::add_text_list(vector<text*> objs) {
@@ -291,7 +304,8 @@ void window::add_text_list(vector<text*> objs) {
 
 void window::remove_text_list(vector<text*> objs) {
     for (text * obj : objs) {
-        this->render_list_text.erase(obj);
+        if(in_set(this->render_list_text, obj))
+            this->render_list_text.erase(obj);
     }
 }
 
@@ -302,7 +316,8 @@ void window::add_emitter(emitter* obj) {
 }
 
 void window::remove_emitter(emitter* obj) {
-    this->render_list_emitter.erase(obj);
+    if(in_set(this->render_list_emitter, obj))
+        this->render_list_emitter.erase(obj);
 }
 
 void window::add_emitter_list(vector<emitter*> objs) {
@@ -313,6 +328,7 @@ void window::add_emitter_list(vector<emitter*> objs) {
 
 void window::remove_emitter_list(vector<emitter*> objs) {
     for (emitter * obj : objs) {
-        this->render_list_emitter.erase(obj);
+        if(in_set(this->render_list_emitter, obj))
+            this->render_list_emitter.erase(obj);
     }
 }
