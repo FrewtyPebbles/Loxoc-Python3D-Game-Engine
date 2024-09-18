@@ -1873,7 +1873,7 @@ cdef class Collider:
 ctypedef collider* collider_ptr
 
 cdef class BoxCollider(Collider):
-    def __cinit__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
         self._offset = offset if offset else Vec3(0,0,0)
         self._scale = scale if scale else Vec3(1.0,1.0,1.0)
         if isinstance(rotation, Vec3):
@@ -1908,7 +1908,7 @@ cdef class BoxCollider(Collider):
 
 
 cdef class ConvexCollider(Collider):
-    def __cinit__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
         offset = offset if offset else Vec3(0,0,0)
         rotation = rotation if rotation else Vec3(0,0,0)
         scale = scale if scale else Vec3(1.0,1.0,1.0)
@@ -1955,7 +1955,7 @@ cdef class ConvexCollider(Collider):
 
 cdef class RayCollider(Collider):
 
-    def __cinit__(self, Vec3 origin, Quaternion direction) -> None:
+    def __init__(self, Vec3 origin, Quaternion direction) -> None:
         self._origin = origin
         self._direction = direction
         self.c_class = new RC[collider_ptr](new collider_ray(self._origin.c_class, self._direction.c_class))
