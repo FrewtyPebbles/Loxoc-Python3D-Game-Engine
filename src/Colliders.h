@@ -21,6 +21,8 @@ class collider_convex;
 class collider {
 public:
     collider() {}
+    virtual void cleanup();
+    virtual ~collider();
     virtual bool check_collision(vec3 intersection) = 0;
     virtual bool check_collision(collider* intersection) = 0;
     bool check_collision(object3d* intersection);
@@ -58,6 +60,10 @@ public:
         this->scale = scale;
         dbg_create_shader_program();
     };
+
+    ~collider_box() {cleanup();};
+
+    void cleanup() override;
     bool check_collision(vec3 intersection) override;
     bool check_collision(collider* other) override;
     bool check_collision(collider_box* collider);
@@ -148,6 +154,11 @@ public:
     collider_convex(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale);
     collider_convex(rc_mesh owner, vec3* offset, quaternion* rotation, vec3* scale);
     collider_convex(rc_mesh_dict owner, vec3* offset, quaternion* rotation, vec3* scale);
+
+    ~collider_convex() {cleanup();};
+
+    void cleanup() override;
+
     bool check_collision(vec3 intersection) override;
     bool check_collision(collider* other) override;
     bool check_collision(collider_box* collider);
@@ -211,6 +222,8 @@ public:
     using collider::check_collision;
     collider_ray() {}
     collider_ray(vec3 *origin, quaternion *direction): origin(origin), direction(direction) {}
+    ~collider_ray() {};
+    void cleanup() override;
     bool check_collision(vec3 intersection) override {return false;};
     bool check_collision(collider* other) override;
     bool check_collision(collider_box* collider);

@@ -289,6 +289,8 @@ while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVE
         doomguy2.position.y - doomguy2.height/2 < mouse.y < doomguy2.position.y + doomguy2.height/2:#doomguy2.position.distance(Vec2(mouse.x, camera.view_height - mouse.y)) < 30:
             print("CLICKED DOOM GUY")
 
+    leak_test_collider = BoxCollider(car)
+
     # Re-render the scene.
     window.update()
     # This also refreshes window.current_event.

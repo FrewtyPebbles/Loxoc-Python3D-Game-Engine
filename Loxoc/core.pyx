@@ -204,10 +204,10 @@ cdef class MeshDict:
         self.c_class.data.remove(name.encode())
         if holds_alternative[rc_mesh](m):
             _m = get[rc_mesh](m)
-            _m.dec()
+            RC_collect(_m)
         elif holds_alternative[rc_mesh_dict](m):
             _m_d = get[rc_mesh_dict](m)
-            _m_d.dec()
+            RC_collect(_m_d)
 
     def __iter__(self) -> Generator[(str, Mesh|MeshDict), None, None]:
         cdef:
@@ -1869,10 +1869,11 @@ cdef class Collider:
     cpdef void dbg_render(self, Camera cam):
         self.c_class.data.dbg_render(cam.c_class[0])
 
+
 ctypedef collider* collider_ptr
 
 cdef class BoxCollider(Collider):
-    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+    def __cinit__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
         self._offset = offset if offset else Vec3(0,0,0)
         self._scale = scale if scale else Vec3(1.0,1.0,1.0)
         if isinstance(rotation, Vec3):
@@ -1901,12 +1902,13 @@ cdef class BoxCollider(Collider):
             ret._rotation = rotation
         ret.c_class = new RC[collider_ptr](new collider_box(upper_bound.c_class[0], lower_bound.c_class[0], ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
         return ret
-
+    
     def __dealloc__(self):
         RC_collect(self.c_class)
 
+
 cdef class ConvexCollider(Collider):
-    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+    def __cinit__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
         offset = offset if offset else Vec3(0,0,0)
         rotation = rotation if rotation else Vec3(0,0,0)
         scale = scale if scale else Vec3(1.0,1.0,1.0)
@@ -1953,7 +1955,7 @@ cdef class ConvexCollider(Collider):
 
 cdef class RayCollider(Collider):
 
-    def __init__(self, Vec3 origin, Quaternion direction) -> None:
+    def __cinit__(self, Vec3 origin, Quaternion direction) -> None:
         self._origin = origin
         self._direction = direction
         self.c_class = new RC[collider_ptr](new collider_ray(self._origin.c_class, self._direction.c_class))
@@ -2005,6 +2007,7 @@ cdef class RayCollider(Collider):
 
     def __dealloc__(self):
         RC_collect(self.c_class)
+
 
 cdef class RayHit:
     @staticmethod

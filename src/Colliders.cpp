@@ -16,6 +16,57 @@
 
 using std::set;
 
+collider::~collider() {cleanup();}
+
+void collider::cleanup() {
+    if (auto box = dynamic_cast<collider_box*>(this)) {
+        box->cleanup();
+    } else if (auto convex = dynamic_cast<collider_convex*>(this)) {
+        convex->cleanup();
+    }
+}
+
+void collider_box::cleanup() {
+        
+    if (shader_program) {
+        glUseProgram(0);
+        glDeleteProgram(shader_program);
+    }
+        
+    
+    if (VAO) {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &VAO);
+    }
+        
+    if (VBO) {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &VBO);
+    }
+}
+
+void collider_convex::cleanup() {
+        
+    if (shader_program) {
+        glUseProgram(0);
+        glDeleteProgram(shader_program);
+    }
+        
+    
+    if (VAO) {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &VAO);
+    }
+        
+    if (VBO) {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(1, &VBO);
+    }
+        
+}
+
+void collider_ray::cleanup() {}
+
 collider_box::collider_box(object3d* owner, vec3* offset, quaternion* rotation, vec3* scale) {
     this->owner = owner;
     vec3 box_max = vec3(0,0,0);
