@@ -353,16 +353,16 @@ cdef class Object3D:
         if material:
             self._material = material
             if collider is not None:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self._material.c_class, collider.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
             else:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class, self._material.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
         else:
             if collider is not None:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class)
                 collider.c_class.inc()
                 self.c_class.colliders.push_back(collider.c_class)
             else:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, scale.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class)
 
     @property
     def use_default_material_properties(self) -> bint:
