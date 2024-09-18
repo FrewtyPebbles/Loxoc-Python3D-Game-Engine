@@ -342,12 +342,12 @@ cdef class Model:
         RC_collect(self.c_class)
 
 cdef class Object3D:
-    def __init__(self, Model model_data, Vec3 position = Vec3(0.0,0.0,0.0),
-    Vec3 rotation = Vec3(0.0,0.0,0.0), Vec3 scale = Vec3(1.0, 1.0, 1.0),
+    def __init__(self, Model model_data, Vec3 position = None,
+    Vec3 rotation = None, Vec3 scale = None,
     Collider collider = None, Material material = None) -> None:
-        self._position = position
-        self._rotation = rotation.to_quaternion()
-        self._scale = scale
+        self._position = position if position else Vec3(0.0,0.0,0.0)
+        self._rotation = rotation.to_quaternion() if rotation else Vec3(0.0,0.0,0.0).to_quaternion()
+        self._scale = scale if scale else Vec3(1.0, 1.0, 1.0)
         self._model_data = model_data
         
         if material:
@@ -1260,8 +1260,8 @@ cdef class Material:
 
 cdef class Window:
 
-    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = Vec3(1.0, 1.0, 1.0)) -> None:
-        self._ambient_light = ambient_light
+    def __init__(self, str title, Camera cam, int width, int height, bint fullscreen = False, Vec3 ambient_light = None) -> None:
+        self._ambient_light = ambient_light if ambient_light else Vec3(1.0, 1.0, 1.0)
         self.c_class = new window(title.encode(), cam.c_class, width, height, fullscreen, self._ambient_light.c_class)
     
     @property
@@ -1556,11 +1556,11 @@ cpdef Sprite sprite_from_texture(Texture tex):
 ctypedef object2d* obj2d_ptr
 
 cdef class Object2D:
-    def __init__(self, Sprite sprite, Camera camera, Vec2 position = Vec2(0.0,0.0), float depth = 0.0,
-    float rotation = 0.0, Vec2 scale = Vec2(1.0, 1.0),
+    def __init__(self, Sprite sprite, Camera camera, Vec2 position = None, float depth = 0.0,
+    float rotation = 0.0, Vec2 scale = None,
     Material material = None) -> None:
-        self._position = position
-        self._scale = scale
+        self._position = position if position else Vec2(0.0,0.0)
+        self._scale = scale if scale else Vec2(1.0, 1.0)
         self.sprite = sprite
         self._camera = camera
         
@@ -1872,18 +1872,25 @@ cdef class Collider:
 ctypedef collider* collider_ptr
 
 cdef class BoxCollider(Collider):
-    def __init__(self, Object3D object, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> None:
-        self._offset = offset
-        self._scale = scale
+    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+        self._offset = offset if offset else Vec3(0,0,0)
+        self._scale = scale if scale else Vec3(1.0,1.0,1.0)
         if isinstance(rotation, Vec3):
             self._rotation = rotation.to_quaternion()
         elif isinstance(rotation, Quaternion):
             self._rotation = rotation
+        else:
+            self._rotation = Vec3(0,0,0).to_quaternion()
 
         self.c_class = new RC[collider_ptr](new collider_box(object.c_class, self._offset.c_class, self._rotation.c_class, self._scale.c_class))
 
     @classmethod
-    def from_bounds(cls, Vec3 upper_bound = Vec3(10.0,10.0,10.0), Vec3 lower_bound = Vec3(-10.0,-10.0,-10.0), Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+    def from_bounds(cls, Vec3 upper_bound = None, Vec3 lower_bound = None, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> BoxCollider:
+        upper_bound = upper_bound if upper_bound else Vec3(10.0,10.0,10.0)
+        lower_bound = lower_bound if lower_bound else Vec3(-10.0,-10.0,-10.0)
+        offset = offset if offset else Vec3(0,0,0)
+        rotation = rotation if rotation else Vec3(0,0,0)
+        scale = scale if scale else Vec3(1.0,1.0,1.0)
         cdef:
             BoxCollider ret = BoxCollider.__new__(BoxCollider)
         ret._offset = offset
@@ -1899,7 +1906,10 @@ cdef class BoxCollider(Collider):
         RC_collect(self.c_class)
 
 cdef class ConvexCollider(Collider):
-    def __init__(self, Object3D object, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> None:
+    def __init__(self, Object3D object, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> None:
+        offset = offset if offset else Vec3(0,0,0)
+        rotation = rotation if rotation else Vec3(0,0,0)
+        scale = scale if scale else Vec3(1.0,1.0,1.0)
         self._offset = offset
         self._scale = scale
         if isinstance(rotation, Vec3):
@@ -1909,28 +1919,32 @@ cdef class ConvexCollider(Collider):
         self.c_class = new RC[collider_ptr](new collider_convex(object.c_class, self._offset.c_class, self._rotation.c_class, self._scale.c_class))
 
     @classmethod
-    def from_mesh(cls, Mesh msh, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+    def from_mesh(cls, Mesh msh, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> BoxCollider:
         cdef:
             BoxCollider ret = BoxCollider.__new__(BoxCollider)
-        ret._offset = offset
-        ret._scale = scale
+        ret._offset = offset if offset else Vec3(0,0,0)
+        ret._scale = scale if scale else Vec3(1.0,1.0,1.0)
         if isinstance(rotation, Vec3):
             ret._rotation = rotation.to_quaternion()
         elif isinstance(rotation, Quaternion):
             ret._rotation = rotation
+        else:
+            ret._rotation = Vec3(0,0,0)
         ret.c_class = new RC[collider_ptr](new collider_convex(msh.c_class, ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
         return ret
 
     @classmethod
-    def from_mesh_dict(cls, MeshDict msh_dict, Vec3 offset = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), Vec3 scale = Vec3(1.0,1.0,1.0)) -> BoxCollider:
+    def from_mesh_dict(cls, MeshDict msh_dict, Vec3 offset = None, rotation: Vec3 | Quaternion = None, Vec3 scale = None) -> BoxCollider:
         cdef:
             BoxCollider ret = BoxCollider.__new__(BoxCollider)
-        ret._offset = offset
-        ret._scale = scale
+        ret._offset = offset if offset else Vec3(0,0,0)
+        ret._scale = scale if scale else Vec3(1.0,1.0,1.0)
         if isinstance(rotation, Vec3):
             ret._rotation = rotation.to_quaternion()
         elif isinstance(rotation, Quaternion):
             ret._rotation = rotation
+        else:
+            ret._rotation = Vec3(0,0,0)
         ret.c_class = new RC[collider_ptr](new collider_convex(msh_dict.c_class, ret._offset.c_class, ret._rotation.c_class, ret._scale.c_class))
         return ret
 
@@ -2960,9 +2974,9 @@ cdef class Font:
         del self.c_class
 
 cdef class Text:
-    def __init__(self, str text_string, Vec4 color, Vec2 position, Vec2 scale = Vec2(1.0, 1.0), float rotation = 0, Font font = None, Material material = None) -> None:
+    def __init__(self, str text_string, Vec4 color, Vec2 position, Vec2 scale = None, float rotation = 0, Font font = None, Material material = None) -> None:
         self._position = position
-        self._scale = scale
+        self._scale = scale if scale else Vec2(1.0, 1.0)
         self._font = font
         self._color = color
         self._material = material if material else Material(Shader.from_file(path.join(path.dirname(__file__), "default_vertex_text.glsl"), ShaderType.VERTEX), Shader.from_file(path.join(path.dirname(__file__), "default_fragment_text.glsl"), ShaderType.FRAGMENT))
@@ -3062,13 +3076,13 @@ cdef class SkyBox:
 
 cdef class Emitter:
 
-    def __init__(self, Vec3 position, Quaternion direction, Vec2 scale_min = Vec2(1.0, 1.0), Vec2 scale_max = Vec2(1.0, 1.0), int rate = 50, float decay_rate = 1.0, float spread = math.radians(30), float velocity_decay = 1.0, float start_velocity_min = 1.0, float start_velocity_max = 1.0, float start_lifetime_min = 10.0, float start_lifetime_max = 10.0, Vec4 color_min = Vec4(1.0,1.0,1.0,1.0), Vec4 color_max = Vec4(1.0,1.0,1.0,1.0), Material material = None) -> None:
+    def __init__(self, Vec3 position, Quaternion direction, Vec2 scale_min = None, Vec2 scale_max = None, int rate = 50, float decay_rate = 1.0, float spread = math.radians(30), float velocity_decay = 1.0, float start_velocity_min = 1.0, float start_velocity_max = 1.0, float start_lifetime_min = 10.0, float start_lifetime_max = 10.0, Vec4 color_min = None, Vec4 color_max = None, Material material = None) -> None:
         self._position = position
         self._direction = direction
-        self._color_min = color_min
-        self._color_max = color_max
-        self._scale_min = scale_min
-        self._scale_max = scale_max
+        self._color_min = color_min if color_min else Vec4(1.0,1.0,1.0,1.0)
+        self._color_max = color_max if color_max else Vec4(1.0,1.0,1.0,1.0)
+        self._scale_min = scale_min if scale_min else Vec2(1.0, 1.0)
+        self._scale_max = scale_max if scale_max else Vec2(1.0, 1.0)
         self._material = material if material else Material(
             Shader.from_file(path.join(path.dirname(__file__), "default_vertex_particle.glsl"), ShaderType.VERTEX),
             Shader.from_file(path.join(path.dirname(__file__), "default_fragment_particle.glsl"), ShaderType.FRAGMENT),
