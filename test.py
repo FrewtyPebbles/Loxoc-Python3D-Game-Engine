@@ -161,7 +161,7 @@ window.add_emitter_list([
 
 test_emitter.start()
 
-window.lock_mouse(True)
+window.lock_mouse(False)
 
 print("START COLLIDERS")
 pirate_ship_collider = BoxCollider(pirate_ship, Vec3(30,0,0), Vec3(0,math.radians(45),0), Vec3(2,1,1))

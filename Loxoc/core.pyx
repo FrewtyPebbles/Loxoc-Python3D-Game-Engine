@@ -1574,7 +1574,7 @@ cdef class Object2D:
                 Shader.from_file(path.join(path.dirname(__file__), "default_fragment_2D.glsl"), ShaderType.FRAGMENT)
             )
         
-        self.c_class = new object2d(sprite.c_class, self._camera.c_class, position.c_class, rotation, scale.c_class, self.material.c_class, depth)
+        self.c_class = new object2d(sprite.c_class, self._camera.c_class, self._position.c_class, rotation, self._scale.c_class, self.material.c_class, depth)
 
     @property
     def position(self) -> Vec2:

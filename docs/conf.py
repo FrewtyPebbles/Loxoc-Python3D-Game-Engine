@@ -13,7 +13,7 @@ from sphinx.ext.autodoc import ModuleDocumenter, between
 project = 'Loxoc'
 copyright = '2024, William A. Lim'
 author = 'William A. Lim'
-release = '1.0.0.dev36'
+release = '1.0.0.dev37'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
