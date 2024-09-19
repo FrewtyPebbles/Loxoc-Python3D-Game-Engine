@@ -227,6 +227,42 @@ class Material:
         Sets the value of a uniform for the shaders in the material.
         """
 
+    @property
+    def diffuse_texture(self) -> Texture:
+        """
+        The diffuse :class:`Texture` .
+        """
+
+    @diffuse_texture.setter
+    def diffuse_texture(self, value:Texture):
+        """
+        The diffuse :class:`Texture` .
+        """
+
+    @property
+    def specular_texture(self) -> Texture:
+        """
+        The specular :class:`Texture` .
+        """
+
+    @specular_texture.setter
+    def specular_texture(self, value:Texture):
+        """
+        The specular :class:`Texture` .
+        """
+
+    @property
+    def normals_texture(self) -> Texture:
+        """
+        The normal :class:`Texture` .
+        """
+
+    @normals_texture.setter
+    def normals_texture(self, value:Texture):
+        """
+        The normal :class:`Texture` .
+        """
+
 class Model:
     """
     Holds all model data for an imported 3D asset file.
