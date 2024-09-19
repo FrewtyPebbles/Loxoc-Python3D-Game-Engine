@@ -1276,8 +1276,8 @@ cdef extern from "../src/Object2d.h":
 cdef class Object2D:
     cdef:
         object2d* c_class
-        public Sprite sprite
-        public Material material
+        Sprite _sprite
+        Material _material
         Vec2 _position, _scale
         Camera _camera
     

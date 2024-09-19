@@ -306,7 +306,7 @@ class Object3D:
         """
 
     @property
-    def material(self) -> Vec3:
+    def material(self) -> Material:
         """
         The :class:`Material` used to specify how to render the :class:`Object3D`
         """
@@ -1549,6 +1549,30 @@ class Object2D:
         """
         :class:`Object2D` s are rendered infront of all objects rendered in 3D space (:class:`Object3D`).
         This class is good for 2D games, GUIs, game heads up displays or anything you might need to render something in 2D space for.
+        """
+
+    @property
+    def material(self) -> Material:
+        """
+        The :class:`Material` to render the :class:`Sprite` with when the :class:`Object2D` is rendered.
+        """
+
+    @material.setter
+    def material(self, value:Material) -> None:
+        """
+        The :class:`Material` to render the :class:`Sprite` with when the :class:`Object2D` is rendered.
+        """
+
+    @property
+    def sprite(self) -> Sprite:
+        """
+        The :class:`Sprite` to be displayed when the :class:`Object2D` is rendered.
+        """
+
+    @sprite.setter
+    def sprite(self, value:Sprite) -> None:
+        """
+        The :class:`Sprite` to be displayed when the :class:`Object2D` is rendered.
         """
 
     @property

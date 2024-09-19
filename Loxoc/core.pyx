@@ -1561,20 +1561,36 @@ cdef class Object2D:
     Material material = None) -> None:
         self._position = position if position else Vec2(0.0,0.0)
         self._scale = scale if scale else Vec2(1.0, 1.0)
-        self.sprite = sprite
+        self._sprite = sprite
         self._camera = camera
         
         
         if material:
-            self.material = material
+            self._material = material
             
         else:
-            self.material = Material(
+            self._material = Material(
                 Shader.from_file(path.join(path.dirname(__file__), "default_vertex_2D.glsl"), ShaderType.VERTEX),
                 Shader.from_file(path.join(path.dirname(__file__), "default_fragment_2D.glsl"), ShaderType.FRAGMENT)
             )
         
-        self.c_class = new object2d(self.sprite.c_class, self._camera.c_class, self._position.c_class, rotation, self._scale.c_class, self.material.c_class, depth)
+        self.c_class = new object2d(self._sprite.c_class, self._camera.c_class, self._position.c_class, rotation, self._scale.c_class, self._material.c_class, depth)
+
+    @property
+    def material(self) -> Material:
+        return self._material
+
+    @material.setter
+    def material(self, Material value) -> None:
+        self._material.c_class[0] = value.c_class[0]
+
+    @property
+    def sprite(self) -> Sprite:
+        return self._sprite
+
+    @sprite.setter
+    def sprite(self, Sprite value) -> None:
+        self._sprite.c_class[0] = value.c_class[0]
 
     @property
     def position(self) -> Vec2:
