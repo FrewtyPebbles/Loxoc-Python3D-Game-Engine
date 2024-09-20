@@ -360,16 +360,16 @@ cdef class Object3D:
         if material:
             self._material = material
             if collider is not None:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
+                self.c_class = new object3d(self._model_data.c_class, self._position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
             else:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
+                self.c_class = new object3d(self._model_data.c_class, self._position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
         else:
             self._material = Material(animated=self._model_data.animated)
 
             if collider is not None:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
+                self.c_class = new object3d(self._model_data.c_class, self._position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
             else:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
+                self.c_class = new object3d(self._model_data.c_class, self._position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
 
 
     @property
