@@ -79,6 +79,8 @@ cdef class Texture:
 
 cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering)
 
+cdef Texture texture_from_cpp(RC[texture*]* cppinst)
+
 cdef extern from "../src/Shader.h":
     cpdef enum class ShaderType:
         FRAGMENT,
@@ -139,6 +141,7 @@ cdef class Material:
 
     @staticmethod
     cdef Material from_cpp(RC[material*]* cppinst)
+
 
 ctypedef unsigned char uint8
 
@@ -815,7 +818,7 @@ cdef extern from "../src/Object3d.h":
         vec3* position
         quaternion* rotation
         vec3* scale
-        material* mat
+        RC[material*]* mat
         vector[RC[collider*]*] colliders
 
         void render(camera& camera, window* window)

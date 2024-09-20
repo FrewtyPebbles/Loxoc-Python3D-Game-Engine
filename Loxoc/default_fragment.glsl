@@ -163,7 +163,7 @@ vec4 LOXOC_default(vec4 base_color) {
         }
     }
 
-    return vec4(max(ambient_light * base_color.xyz, ambient + diffuse + specular), 1.0);
+    return vec4(max(ambient_light * base_color.xyz, ambient + diffuse + specular), base_color.w);
 }
 
 void main() {

@@ -34,6 +34,13 @@ cdef class Texture:
     def __dealloc__(self):
         RC_collect(self.c_class)
 
+cdef Texture texture_from_cpp(RC[texture*]* cppinst):
+    cdef:
+        Texture ret = Texture.__new__(Texture)
+    ret.c_class = cppinst
+    ret.c_class.inc()
+    return ret
+
 ctypedef texture* texture_ptr
 
 cpdef Texture Texture_from_file(str file_path, TextureWraping wrap, TextureFiltering filtering):
@@ -349,7 +356,7 @@ cdef class Object3D:
         self._rotation = rotation.to_quaternion() if rotation else Vec3(0.0,0.0,0.0).to_quaternion()
         self._scale = scale if scale else Vec3(1.0, 1.0, 1.0)
         self._model_data = model_data
-        
+        # TODO propagate default material made in c++ to python frontend self._material
         if material:
             self._material = material
             if collider is not None:
@@ -357,12 +364,13 @@ cdef class Object3D:
             else:
                 self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
         else:
+            self._material = Material(animated=self._model_data.animated)
+
             if collider is not None:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class)
-                collider.c_class.inc()
-                self.c_class.colliders.push_back(collider.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class, collider.c_class)
             else:
-                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class)
+                self.c_class = new object3d(self._model_data.c_class, position.c_class, self._rotation.c_class, self._scale.c_class, self._material.c_class)
+
 
     @property
     def use_default_material_properties(self) -> bint:
@@ -1205,6 +1213,12 @@ cdef class Material:
         else:
             self.c_class = new RC[material_ptr](new material(self._vertex_shader.c_class, self._fragment_shader.c_class))
         
+        # set texture properties
+
+        self._diffuse_texture = texture_from_cpp(self.c_class.data.diffuse_texture) if  self.c_class.data.diffuse_texture else None
+        self._specular_texture = texture_from_cpp(self.c_class.data.specular_texture) if  self.c_class.data.specular_texture else None
+        self._normals_texture = texture_from_cpp(self.c_class.data.normals_texture) if  self.c_class.data.normals_texture else None
+        
     def __dealloc__(self):
         RC_collect(self.c_class)
 
@@ -1214,8 +1228,12 @@ cdef class Material:
 
     @diffuse_texture.setter
     def diffuse_texture(self, Texture value):
-        self._diffuse_texture = value
-        self.c_class.data.diffuse_texture = self._diffuse_texture.c_class
+        if self.c_class.data.diffuse_texture:
+            self.c_class.data.diffuse_texture.data[0] = value.c_class.data[0]
+        else:
+            self.c_class.data.diffuse_texture = value.c_class
+        if not self._diffuse_texture:
+            self._diffuse_texture = texture_from_cpp(self.c_class.data.diffuse_texture)
 
     @property
     def specular_texture(self) -> Texture:
@@ -1223,8 +1241,12 @@ cdef class Material:
 
     @specular_texture.setter
     def specular_texture(self, Texture value):
-        self._specular_texture = value
-        self.c_class.data.specular_texture = self._specular_texture.c_class
+        if self.c_class.data.specular_texture:
+            self.c_class.data.specular_texture.data[0] = value.c_class.data[0]
+        else:
+            self.c_class.data.specular_texture = value.c_class
+        if not self._specular_texture:
+            self._specular_texture = texture_from_cpp(self.c_class.data.specular_texture)
 
     @property
     def normals_texture(self) -> Texture:
@@ -1232,8 +1254,12 @@ cdef class Material:
 
     @normals_texture.setter
     def normals_texture(self, Texture value):
-        self._normals_texture = value
-        self.c_class.data.normals_texture = self._normals_texture.c_class
+        if self.c_class.data.normals_texture:
+            self.c_class.data.normals_texture.data[0] = value.c_class.data[0]
+        else:
+            self.c_class.data.normals_texture = value.c_class
+        if not self._normals_texture:
+            self._normals_texture = texture_from_cpp(self.c_class.data.normals_texture)
     
     cpdef void set_uniform(self, str name, value:UniformValueType):
         _set_uniform(self, name, value)
@@ -1247,12 +1273,8 @@ cdef class Material:
         ret.c_class.inc()
 
         # register material
-        
         ret._vertex_shader = Shader.from_cpp(cppinst.data.vertex)
         ret._fragment_shader = Shader.from_cpp(cppinst.data.fragment)
-
-        ret.c_class.data.vertex = ret._vertex_shader.c_class
-        ret.c_class.data.fragment = ret._fragment_shader.c_class
 
         return ret
         
@@ -3107,6 +3129,7 @@ cdef class Emitter:
             Shader.from_file(path.join(path.dirname(__file__), "default_fragment_particle.glsl"), ShaderType.FRAGMENT),
             Shader.from_file(path.join(path.dirname(__file__), "default_geometry_particle.glsl"), ShaderType.GEOMETRY)
         )
+
         self._material.diffuse_texture = Texture.from_file(path.join(path.dirname(__file__), "default_particle.png"))
 
         self.c_class = new emitter(

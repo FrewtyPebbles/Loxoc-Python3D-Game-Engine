@@ -2,6 +2,7 @@
 #include "util.h"
 #include <sstream>
 #include "Texture.h"
+#include "Object3d.h"
 
 void material::set_uniform(string name, uniform_type value) {
     int loc = glGetUniformLocation(this->shader_program, name.c_str());
@@ -114,20 +115,29 @@ void material::set_material() {
     glUniform1f(shine_loc, this->shine);
 }
 
-void material::set_material_fallback(bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties) {
+void material::set_material_fallback(const RC<material*>* obj_mat, bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties) {
     string prefix = "material.";
     // set struct parameters
     if (use_default_material_properties) {
         GLuint ambient_loc = glGetUniformLocation(this->shader_program, (prefix + "ambient").c_str());
         glUniform3fv(ambient_loc, 1, glm::value_ptr(this->ambient.axis));
+    } else {
+        GLuint ambient_loc = glGetUniformLocation(obj_mat->data->shader_program, (prefix + "ambient").c_str());
+        glUniform3fv(ambient_loc, 1, glm::value_ptr(obj_mat->data->ambient.axis));
     }
     
     if (has_diffuse) {
+        glActiveTexture(GL_TEX_N_ITTER[0]);
+        obj_mat->data->diffuse_texture->data->bind();
+    } else {
         glActiveTexture(GL_TEX_N_ITTER[0]);
         this->diffuse_texture->data->bind();
     }
     
     if (has_specular) {
+        glActiveTexture(GL_TEX_N_ITTER[1]);
+        obj_mat->data->specular_texture->data->bind();
+    } else if (this->specular_texture != nullptr) {
         glActiveTexture(GL_TEX_N_ITTER[1]);
         this->specular_texture->data->bind();
     }
@@ -135,5 +145,9 @@ void material::set_material_fallback(bool has_diffuse, bool has_specular, bool h
     if (use_default_material_properties) {
         GLuint shine_loc = glGetUniformLocation(this->shader_program, (prefix + "shine").c_str());
         glUniform1f(shine_loc, this->shine);
+    } else {
+        GLuint shine_loc = glGetUniformLocation(obj_mat->data->shader_program, (prefix + "shine").c_str());
+        glUniform1f(shine_loc, obj_mat->data->shine);
     }
+
 }

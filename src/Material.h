@@ -67,7 +67,7 @@ public:
 
     void set_material();
 
-    void set_material_fallback(bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties);
+    void set_material_fallback(const RC<material*>* obj_mat, bool has_diffuse, bool has_specular, bool has_normal, bool use_default_material_properties);
 
     rc_shader vertex = nullptr;
     rc_shader fragment = nullptr;

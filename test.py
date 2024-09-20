@@ -78,6 +78,7 @@ teapot = Object3D(Mesh.from_file("./meshes/teapot/scene.gltf"),
 p(8)
 cube = Object3D(Mesh.from_file("./meshes/basic_crate_2/scene.gltf"),
     Vec3(100,0,0), Vec3(0,0,0), Vec3(20,20,20))
+cube.material.diffuse_texture = Texture.from_file("./textures/doomguy.png")
 p(9)
 test_anim_obj = Object3D(test_anim_model,
     Vec3(100,30,60), Vec3(0,0,0), Vec3(100,100,100))
@@ -89,15 +90,15 @@ p(11)
 test_light = PointLight(Vec3(-100,100,300), 500.0, Vec3(1,1,1), 2.5)
 p(12)
 test_light2 = PointLight(Vec3(20,100,0), 500.0, Vec3(0,0,2), 3)
-
+p(13)
 dir_light = DirectionalLight(Vec3(math.radians(180),0,0), intensity=2)
-
+p(14)
 spot_light = SpotLight(Vec3(0,0,0), Vec3(0,0,0), intensity=20.0)
-
+p(15)
 font_roboto = Font("./fonts/Roboto/Roboto-Regular.ttf")
-
+p(16)
 text = Text("Hello!", Vec4(0,1,0.5,1), Vec2(dim[0]/2, dim[1]/2), font=font_roboto)
-
+p(17)
 test_emitter = Emitter(
     Vec3(0,0,0),
     Quaternion.from_axis_angle(Vec3(1,0,0), math.radians(-90)),
@@ -111,21 +112,21 @@ test_emitter = Emitter(
     Vec4(1,0,0,1),
     Vec4(0.5,0.5,0.5,1)
 )
-
+p(18)
 space_ship_mesh = Mesh.from_file("./meshes/space_ship/Space_Ship.gltf")
-
+p(19)
 space_ship = Object3D(space_ship_mesh,
     Vec3(0.0, 100,500), Vec3(0,0,0))
-
+p(20)
 test_sound = Sound(window, "./sound/pop.wav", False)
-
+p(21)
 music = Sound(window, "./sound/Vanguard.wav", True)
 music.play(volume=0.5)
-
+p(22)
 window.add_text_list([
     text
 ])
-
+p(23)
 window.add_object_list([
     test_anim_obj,
     space_ship,
@@ -135,33 +136,33 @@ window.add_object_list([
     cube,
     pirate_ship
 ])
-
+p(24)
 window.add_object2d_list([
     doomguy,
     doomguy2,
 ])
-
+p(25)
 window.add_point_light_list([
     test_light,
     test_light2
 ])
-
+p(26)
 window.add_directional_light_list([
     dir_light
 ])
-
+p(27)
 window.add_spot_light_list([
     spot_light
 ])
-
+p(28)
 
 window.add_emitter_list([
     test_emitter
 ])
-
+p(29)
 test_emitter.start()
-
-window.lock_mouse(False)
+p(30)
+window.lock_mouse(True)
 
 print("START COLLIDERS")
 pirate_ship_collider = BoxCollider(pirate_ship, Vec3(30,0,0), Vec3(0,math.radians(45),0), Vec3(2,1,1))
@@ -190,6 +191,7 @@ accel = 5
 cam_dist = 300.0
 magic_turn_dampener = 4
 mouse_sensitivity = 10
+print("Start gameloop")
 while not window.event.check_flag(EVENT_FLAG.QUIT) and window.event.get_flag(EVENT_FLAG.KEY_ESCAPE) != EVENT_STATE.PRESSED:
     # if window.dt > 0:
     #     print(f"FRAMERATE: {1.0/window.dt:.1f} fps")

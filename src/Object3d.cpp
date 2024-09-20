@@ -16,8 +16,9 @@
 #define ATTENUATION_THRESHOLD 0.003
 
 object3d::object3d(rc_model model_data, vec3* position, quaternion* rotation, vec3* scale, rc_material mat, RC<collider*>* collider) : model_data(model_data), position(position), rotation(rotation), scale(scale), mat(mat) {
-    if (collider)
+    if (collider) {
         this->colliders.push_back(collider);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const object3d& self){
@@ -28,26 +29,6 @@ std::ostream& operator<<(std::ostream& os, const object3d& self){
 void object3d::render(camera& camera, window* window) {
     // opengl renderer
     this->get_model_matrix();
-
-    if (this->mat != nullptr) {
-
-        // set mvp
-        this->mat->data->use_material();
-        this->mat->data->set_uniform("model", this->model_matrix);
-        this->mat->data->set_uniform("view", camera.view);
-        this->mat->data->set_uniform("projection", camera.projection);
-
-        // camera view pos
-        this->mat->data->set_uniform("viewPos", *camera.position);
-
-        // ambient light
-        this->mat->data->set_uniform("ambient_light", *window->ambient_light);
-
-        this->mat->data->set_material();
-
-        this->mat->data->register_uniforms();
-        this->register_uniforms(); // register object level uniforms
-    }
 
     // render mesh tree
     this->model_data->data->render(this, camera, window);
