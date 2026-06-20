@@ -24,7 +24,7 @@ class ShaderType(Enum):
 
 class Camera:
     """
-    This class is the 3d perspective for a :class:`Window`.
+    This class is the 3D perspective for a :class:`Window`.
     """
     
     def __init__(self, position:Vec3, rotation:Vec3, view_width:int, view_height:int, focal_length:float, fov:float) -> None:
@@ -150,9 +150,9 @@ class Mesh:
 class MeshDict:
     """
     :class:`Loxoc.MeshDict` is a datastructure that acts like a statically typed dictionary storing each :class:`Mesh<Loxoc.Mesh>` by name.
-    This is nessicary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
+    This is necessary because 3D asset files can have more than one :class:`Mesh<Loxoc.Mesh>` in them.  If you have a 3D
     asset file with more than one :class:`Mesh<Loxoc.Mesh>` inside of it, you can extract them from their :class:`MeshDict<Loxoc.MeshDict>`
-    to new individual :class:`MeshDict<Loxoc.MeshDict>` s and then to :class:`Model<Loxoc.Model>` s to be used in :class:`Object3D<Loxoc.Object3D>` s like so:
+    to new individual :class:`MeshDict<Loxoc.MeshDict>` s and then to :class:`Model<Loxoc.Model>` s to be used in :class:`Object3D<Loxoc.Object3D>`\s like this:
 
     .. code-block:: python
 
@@ -167,8 +167,8 @@ class MeshDict:
 
     We can extract the :class:`Mesh<Loxoc.Mesh>` s we need from the ``my_assets``  :class:`MeshDict<Loxoc.MeshDict>` by name.
     Hence we use ``my_assets["player_model"]``.  This is assuming your desired :class:`Mesh<Loxoc.Mesh>`
-    is at the top level of your imported 3D file/asset's heirarchy.  if it is in a group inside
-    the 3D file/asset you imported you could do something like:
+    is at the top level of your imported 3D file/asset's hierarchy.  If it is in a group inside
+    the 3D file/asset you imported, you might extract it with:
     ``my_assets["group_name"]["player_model"]``
     """
 
@@ -206,7 +206,7 @@ class MeshDict:
 
     def __iter__(self) -> Generator[tuple[str, Mesh|MeshDict], None, None]:
         """
-        Itterates through the key value pairs of the dict.
+        Iterates through the key value pairs of the dict.
         """
 
     def __getitem__(self, key: str) -> Mesh|MeshDict:
@@ -312,7 +312,7 @@ class Model:
     @property
     def animated(self) -> bool:
         """
-        Whether or not the model has animations.  If it does set this to true.
+        If the model has animations, this property will evaluate to ``True``.
         """
 
     @animated.setter
@@ -411,7 +411,7 @@ class Object3D:
     @rotation.setter
     def rotation(self, value: Vec3 | Quaternion):
         """
-        The rotation of the object as a Quaternion.  Can assign a :class:`Vec3` of euler angles to it.
+        The rotation of the object as a Quaternion.  Can assign a :class:`Vec3` of Euler Angles to it.
         """
 
     @property
@@ -618,19 +618,19 @@ class Vec3:
     @property
     def up(self) -> Vec3:
         """
-        The up directional vector from the euler representation of the :class:`Vec3` .
+        The up directional vector from the Euler representation of the :class:`Vec3` .
         """
 
     @property
     def right(self) -> Vec3:
         """
-        The right directional vector from the euler representation of the :class:`Vec3` .
+        The right directional vector from the Euler representation of the :class:`Vec3` .
         """
 
     @property
     def forward(self) -> Vec3:
         """
-        The forward directional vector from the euler representation of the :class:`Vec3` .
+        The forward directional vector from the Euler representation of the :class:`Vec3` .
         """
 
 
@@ -658,7 +658,7 @@ class Vec3:
 
     def __truediv__(self, other:Vec3 | float) -> Vec3:
         """
-        divide 2 vectors.
+        Divide 2 vectors.
         """
 
     def dot(self, other:Vec3) -> float:
@@ -683,7 +683,7 @@ class Vec3:
 
     def to_quaternion(self) -> Quaternion:
         """
-        Constructs a :class:`Quaternion` from the given euler angle :class:`Vec3` (in radians).
+        Constructs a :class:`Quaternion` from the given Euler Angle :class:`Vec3` (in radians).
         """
 
     def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x3|Matrix3x3|Matrix4x3:
@@ -693,7 +693,7 @@ class Vec3:
 
     def distance(self, other:Vec3) -> float:
         """
-        The distance between two vectors as a `float` .
+        The distance between two vectors as a `float`.
         """
 
 
@@ -784,13 +784,13 @@ class Vec2:
 
     def distance(self, other:Vec2) -> float:
         """
-        The distance between two vectors as a `float` .
+        The distance between two vectors as a `float`.
         """
 
 
 class Window:
     """
-    An application window for a game.  This class also keeps track of the state of the game engine runtime (ie. what to and not to render along with events and time).
+    An application window for a game.  This class also keeps track of the state of the game engine runtime (ie. what to and what not to render along with events and time).
     """
 
     ambient_light:Vec3
@@ -806,25 +806,25 @@ class Window:
     @property
     def fullscreen(self) -> bool:
         """
-        Wether to render the window in fullscreen mode (`True`) or not (`False`).
+        Whether to render the window in fullscreen mode (`True`) or not (`False`).
         """
 
     @fullscreen.setter
     def fullscreen(self, value:bool) -> None:
         """
-        Wether to render the window in fullscreen mode (`True`) or not (`False`).
+        Whether to render the window in fullscreen mode (`True`) or not (`False`).
         """
 
     @property
     def resizeable(self) -> bool:
         """
-        This flag determines wether or not the window is resizeable.  The default value is `True`.
+        This flag determines whether the window is resizable. The default value is `True`.
         """
 
     @resizeable.setter
     def resizeable(self, value: bool):
         """
-        This flag determines wether or not the window is resizeable.  The default value is `True`.
+        This flag determines whether the window is resizable. The default value is `True`.
         """
 
     @property
@@ -842,7 +842,7 @@ class Window:
     @property
     def event(self) -> Event:
         """
-        This is the most recent event that the window recieved durring :meth:`Window.update` .
+        This is the most recent event that the window has received during :meth:`Window.update` .
         """
 
     @property
@@ -872,7 +872,7 @@ class Window:
     def update(self) -> None:
         """
         Re-renders and refreshes the :attr:`Window.event` on the application :class:`Window` .
-        Should be used in a render/gameloop like so:
+        Should be used in a render/gameloop like this:
 
             .. code-block:: python
 
@@ -1197,7 +1197,7 @@ class MouseWheel:
 
 class MouseDevice:
     """
-    The data for a mouse device populated durring a mouse event.
+    The data for a mouse device populated during a mouse event.
     """
     id:int
     """
@@ -1225,7 +1225,7 @@ class MouseDevice:
     """
     clicks:int
     """
-    The ammount of clicks recorded.
+    The number of clicks recorded.
     """
     type:MOUSE_EVENT_TYPE
     """
@@ -1237,7 +1237,7 @@ class MouseDevice:
     """
     button:MOUSE_BUTTON
     """
-    The button pressed durring the mouse event.
+    The button pressed during the mouse event.
     """
     wheel:MouseWheel
     """
@@ -1247,7 +1247,7 @@ class MouseDevice:
 class Event:
     """
     This non-constructable class contains all information pertaining to :class:`Window` events.  
-    This class can be accessed/read via :class:`Window` :class:`.event<Event>` .
+    This class can be accessed/read via :class:`Window` :class:`.event<Event>`\.
 
     To check if an :class:`EVENT_FLAG` has been triggered you can use :class:`Window` :class:`.event.check_flag(...)<Event.check_flag>`:
 
@@ -1261,7 +1261,7 @@ class Event:
 
                 window.update()
         
-    This can be useful for events where you only need to chjeck if they have been triggered.  Such as quitting the game when you close the window.
+    This can be useful for events that only need to be checked if they have been triggered.  Such as quitting the game when you close the window.
 
     To check the :class:`EVENT_STATE` of an :class:`EVENT_FLAG` you can use :class:`Window` :class:`.event.get_flag(...)<Event.get_flag>`:
 
@@ -1282,12 +1282,12 @@ class Event:
     """
     def get_flag(self, _event: EVENT_FLAG) -> EVENT_STATE:
         """
-        Checks if the provided event flag is occuring.
+        Checks if the provided event flag is occurring.
         """
 
     def check_flag(self, _event: EVENT_FLAG) -> bool:
         """
-        Checks if the provided event flag is occuring.
+        Checks if the provided event flag is occurring.
         """
 
     @property
@@ -1303,11 +1303,11 @@ class Event:
 
 class Quaternion:
     """
-    A *"4 dimensional"* rotation arround a developer defined :class:`Vec3` axis.
+    A *"4 dimensional"* rotation around a developer-defined :class:`Vec3` axis.
 
-    In simple terms, a Quaternion is just an angle (in radians) rotation arround some 3D vector.  
-    For example if we wanted to rotate arround the euler y axis of an :class:`Object3D` 
-    or along "yaw" we would just rotate arroud the :class:`Object3D` :class:`.rotation.up<Quaternion.up>` vector:
+    In simple terms, a Quaternion is just an angle (in radians) rotation around some 3D vector.  
+    For example, if we wanted to rotate around the Euler y axis of an :class:`Object3D` 
+    or along "yaw" we would just rotate around the :class:`Object3D` :class:`.rotation.up<Quaternion.up>` vector:
 
         .. code-block:: python
 
@@ -1382,15 +1382,15 @@ class Quaternion:
     @property
     def euler_angles(self) -> Vec3:
         """
-        The euler angle :class:`Vec3` form of the Quaternion.  Can also be assigned to, but not mutated.
+        The Euler Angle :class:`Vec3` form of the Quaternion.  Can also be assigned to but not mutated.
         
-        Use :meth:`Quaternion.rotate_pitch`, :meth:`Quaternion.rotate_yaw`, and :meth:`Quaternion.rotate_roll` for mutating euler angle rotation.
+        Use :meth:`Quaternion.rotate_pitch`, :meth:`Quaternion.rotate_yaw`, and :meth:`Quaternion.rotate_roll` for mutating Euler Angle rotation.
         """
 
     @euler_angles.setter
     def euler_angles(self, value:Vec3 | Quaternion):
         """        
-        Set the rotation to a euler angle Vec3 in radians.  This is also not mutable.
+        Set the rotation to a Euler Angle Vec3 in radians.  This is also not mutable.
         """
     
     @property
@@ -1401,7 +1401,7 @@ class Quaternion:
 
     def rotate_pitch(self, value:float) -> Quaternion:
         """
-        Rotates the euler angle pitch (x) axis by the provided value.
+        Rotates the Euler Angle pitch (x) axis by the provided value.
         """
 
     @property
@@ -1412,7 +1412,7 @@ class Quaternion:
 
     def rotate_yaw(self, value:float) -> Quaternion:
         """
-        Rotates the euler angle yaw (y) axis by the provided value.
+        Rotates the Euler Angle yaw (y) axis by the provided value.
         """
 
     @property
@@ -1423,7 +1423,7 @@ class Quaternion:
 
     def rotate_roll(self, value:float) -> Quaternion:
         """
-        Rotates the euler angle roll (z) axis by the provided value.
+        Rotates the Euler Angle roll (z) axis by the provided value.
         """
 
     # OPERATORS
@@ -1458,7 +1458,7 @@ class Quaternion:
 
     def to_euler(self) -> Vec3:
         """
-        Converts the :class:`Quaternion` to a euler angle :class:`Vec3` (in radians).
+        Converts the :class:`Quaternion` to a Euler Angle :class:`Vec3` (in radians).
         """
 
     def get_conjugate(self) -> Quaternion:
@@ -1473,32 +1473,32 @@ class Quaternion:
     
     def get_reverse(self) -> Quaternion:
         """
-        The 180 degree reverse of the :class:`Quaternion` .
+        The 180-degree reverse of the :class:`Quaternion` .
         """
 
     @staticmethod
     def from_euler(euler_vec: Vec3) -> Quaternion:
         """
-        Converts the provided euler angle :class:`Vec3` (in radians) to a :class:`Quaternion` .
+        Converts the provided Euler Angle :class:`Vec3` (in radians) to a :class:`Quaternion` .
         """
 
     @staticmethod
     def from_axis_angle(axis:Vec3, angle:float) -> Quaternion:
         """
-        Constructs a :class:`Quaternion` with a rotation of ``angle`` arround ``axis``. 
+        Constructs a :class:`Quaternion` with a rotation of ``angle`` around ``axis``. 
 
         :arg Vec3 axis: A Euler Angle :class:`Vec3` (in radians).
 
-        :arg float angle: An angle in radians of which to rotate arround the ``axis``.
+        :arg float angle: An angle in radians of which to rotate around the ``axis``.
         """
 
     def rotate(self, axis:Vec3, angle:float) -> None:
         """
-        Mutably rotates the :class:`Quaternion` by `angle` arround `axis`.
+        Mutably rotates the :class:`Quaternion` by `angle` around `axis`.
 
         :arg Vec3 axis: A Euler Angle :class:`Vec3` (in radians).
 
-        :arg float angle: An angle in radians of which to rotate arround the ``axis``.
+        :arg float angle: An angle in radians of which to rotate around the ``axis``.
         """
 
     @staticmethod
@@ -1555,7 +1555,7 @@ class Texture:
 
 class Sprite:
     """
-    The image asset which is used when rendering an :class:`Object2D`\.  Its purpose is analagous to how :class:`Mesh` is used with :class:`Object3D` but for :class:`Object2D`\s.
+    The image asset used when rendering an :class:`Object2D`\.  Its purpose is analogous to how :class:`Mesh` is used with :class:`Object3D` but for :class:`Object2D`\s.
     """
     
     texture:Texture
@@ -1577,7 +1577,7 @@ class Sprite:
 
 class Object2D:
     """
-    An 2 Dimensional Object which is rendered infront of all :class:`Object3D` s on the screen.  Good for GUI, HUD interfaces, or anything else 2D.
+    A 2-Dimensional Object rendered in front of all :class:`Object3D`\s on the screen. Object2D is often used for GUIs, HUD interfaces, or anything else 2D.
     """
     def __init__(self, sprite: Sprite, camera:Camera, position:Vec2 = Vec2(0.0,0.0), depth:float = 0.0,
     rotation:float = 0.0, scale:Vec2 = Vec2(1.0, 1.0),
@@ -1681,7 +1681,7 @@ class Object2D:
 
 class PointLight:
     """
-    A Object that emits light from a :class:`Vec3` point in 3D space.
+    An object that emits light from a :class:`Vec3` point in 3D space.
     """
     def __init__(self, position:Vec3, radius:float, color:Vec3, intensity:float) -> None:
         """
@@ -1703,13 +1703,13 @@ class PointLight:
     @property
     def color(self) -> Vec3:
         """
-        The :class:`Vec3` color of the light in rgb.
+        The :class:`Vec3` color of the light in RGB.
         """
 
     @color.setter
     def color(self, value:Vec3) -> None:
         """
-        The :class:`Vec3` color of the light in rgb.
+        The :class:`Vec3` color of the light in RGB.
         """
 
     @property
@@ -1727,13 +1727,13 @@ class PointLight:
     @property
     def radius(self) -> float:
         """
-        The radius of the light
+        The radius of the light.
         """
 
     @radius.setter
     def radius(self, value:float):
         """
-        The radius of the light
+        The radius of the light.
         """
 
 
@@ -1886,25 +1886,25 @@ class SpotLight:
     @property
     def cutoff(self) -> float:
         """
-        the cutoff of the light cookie as an angle from the center.
+        The cutoff of the light cookie as an angle from the center.
         """
 
     @cutoff.setter
     def cutoff(self, value: float):
         """
-        the cutoff of the light cookie as an angle from the center.
+        The cutoff of the light cookie as an angle from the center.
         """
 
     @property
     def outer_cutoff(self) -> float:
         """
-        the cutoff of the light cookie smoothing as an angle from the center.
+        The cutoff of the light cookie smoothing as an angle from the center.
         """
 
     @outer_cutoff.setter
     def outer_cutoff(self, value: float):
         """
-        the cutoff of the light cookie smoothing as an angle from the center.
+        The cutoff of the light cookie smoothing as an angle from the center.
         """
 
     @property
@@ -1967,23 +1967,23 @@ class Collider:
     @property
     def show(self):
         """
-        Makes the collider visible.  Good for debugging purposes.
+        Sets the collider visibility, which is good for debugging purposes.
         """
 
     @show.setter
     def show(self, value: bool):
         """
-        Makes the collider visible.  Good for debugging purposes.
+        Sets the collider visibility, which is good for debugging purposes.
         """
     
     def dbg_render(self, cam: Camera) -> None:
         """
-        Call this function when you wish to show a collider's collision mesh despite the collider not having an owner.  (This api is temporary until future game engine systems are implemented.)
+        Call this function when you wish to show a collider's collision mesh despite the collider not having an owner.  (This API is temporary until future game engine systems are implemented.)
         """
 
 class BoxCollider(Collider):
     """
-    An Oriented Box Collider.
+    An oriented box collider.
     """
     def __init__(self, object: Object3D, offset: Vec3 = Vec3(0,0,0), rotation: Vec3 | Quaternion = Vec3(0,0,0), scale: Vec3 = Vec3(1.0,1.0,1.0)) -> None:
         ...
@@ -2089,13 +2089,13 @@ class RayHit:
     @property
     def has_normal(self) -> bool:
         """
-        Wether the `RayHit` 's collided surface has a normal.
+        Whether the `RayHit`\'s collided surface has a normal.
         """
 
     @property
     def has_distance(self) -> bool:
         """
-        Wether the `RayHit` has recorded the distance between the collision point and its origin.
+        Whether the `RayHit` has recorded the distance between the collision point and its origin.
         """
 
     @property
@@ -2131,7 +2131,7 @@ class Matrix4x4:
     @staticmethod
     def from_identity(value:float) -> Matrix4x4:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     @staticmethod
@@ -2238,7 +2238,7 @@ class Matrix3x4:
     @staticmethod
     def from_identity(value:float) -> Matrix3x4:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec4:
@@ -2289,7 +2289,7 @@ class Matrix2x4:
     @staticmethod
     def from_identity(value:float) -> Matrix2x4:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec4:
@@ -2340,7 +2340,7 @@ class Matrix3x3:
     @staticmethod
     def from_identity(value:float) -> Matrix3x3:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def to_quaternion(self) -> Quaternion:
@@ -2421,7 +2421,7 @@ class Matrix4x3:
     @staticmethod
     def from_identity(value:float) -> Matrix4x3:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec3:
@@ -2474,7 +2474,7 @@ class Matrix2x3:
     @staticmethod
     def from_identity(value:float) -> Matrix2x3:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec3:
@@ -2527,7 +2527,7 @@ class Matrix2x2:
     @staticmethod
     def from_identity(value:float) -> Matrix2x2:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def inverse(self) -> Matrix2x2:
@@ -2588,7 +2588,7 @@ class Matrix3x2:
     @staticmethod
     def from_identity(value:float) -> Matrix3x2:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec2:
@@ -2641,7 +2641,7 @@ class Matrix4x2:
     @staticmethod
     def from_identity(value:float) -> Matrix4x2:
         """
-        Creates a identity matrix with `value`.
+        Creates an identity matrix with `value`.
         """
 
     def __getitem__(self, index:int) -> Vec2:
@@ -2935,13 +2935,13 @@ class Emitter:
     @property
     def rate(self) -> int:
         """
-        The ammount of particles present at any one time.
+        The number of particles present at any one time.
         """
 
     @rate.setter
     def rate(self, value:int) -> None:
         """
-        The ammount of particles present at any one time.
+        The number of particles present at any one time.
         """
 
     # decay_rate
@@ -2977,13 +2977,13 @@ class Emitter:
     @property
     def velocity_decay(self) -> float:
         """
-        The ammount a particle's velocity decreases over time.
+        The amount a particle's velocity decreases over time.
         """
 
     @velocity_decay.setter
     def velocity_decay(self, value:float) -> None:
         """
-        The ammount a particle's velocity decreases over time.
+        The amount a particle's velocity decreases over time.
         """
 
     # start_velocity_min, start_velocity_max
