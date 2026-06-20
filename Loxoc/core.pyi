@@ -411,7 +411,7 @@ class Object3D:
     @rotation.setter
     def rotation(self, value: Vec3 | Quaternion):
         """
-        The rotation of the object as a Quaternion.  Can assign a :class:`Vec3` of EulerAngles to it.
+        The rotation of the object as a Quaternion.  Can assign a :class:`Vec3` of euler angles to it.
         """
 
     @property
@@ -618,19 +618,19 @@ class Vec3:
     @property
     def up(self) -> Vec3:
         """
-        The up directional vector from the Euler representation of the :class:`Vec3` .
+        The up directional vector from the euler representation of the :class:`Vec3` .
         """
 
     @property
     def right(self) -> Vec3:
         """
-        The right directional vector from the Euler representation of the :class:`Vec3` .
+        The right directional vector from the euler representation of the :class:`Vec3` .
         """
 
     @property
     def forward(self) -> Vec3:
         """
-        The forward directional vector from the Euler representation of the :class:`Vec3` .
+        The forward directional vector from the euler representation of the :class:`Vec3` .
         """
 
 
@@ -683,7 +683,7 @@ class Vec3:
 
     def to_quaternion(self) -> Quaternion:
         """
-        Constructs a :class:`Quaternion` from the given Euler Angle :class:`Vec3` (in radians).
+        Constructs a :class:`Quaternion` from the given euler angle :class:`Vec3` (in radians).
         """
 
     def outer_product(self, vec: Vec2|Vec3|Vec4) -> Matrix2x3|Matrix3x3|Matrix4x3:
@@ -1306,7 +1306,7 @@ class Quaternion:
     A *"4 dimensional"* rotation arround a developer defined :class:`Vec3` axis.
 
     In simple terms, a Quaternion is just an angle (in radians) rotation arround some 3D vector.  
-    For example if we wanted to rotate arround the Euler y axis of an :class:`Object3D` 
+    For example if we wanted to rotate arround the euler y axis of an :class:`Object3D` 
     or along "yaw" we would just rotate arroud the :class:`Object3D` :class:`.rotation.up<Quaternion.up>` vector:
 
         .. code-block:: python
@@ -1382,15 +1382,15 @@ class Quaternion:
     @property
     def euler_angles(self) -> Vec3:
         """
-        The Euler Angle Vec3 form of the Quaternion.  Can also be assigned to, but not mutated.
+        The euler angle :class:`Vec3` form of the Quaternion.  Can also be assigned to, but not mutated.
         
-        Use :meth:`Quaternion.rotate_pitch`, :meth:`Quaternion.rotate_yaw`, and :meth:`Quaternion.rotate_roll` for mutating Euler angle rotation.
+        Use :meth:`Quaternion.rotate_pitch`, :meth:`Quaternion.rotate_yaw`, and :meth:`Quaternion.rotate_roll` for mutating euler angle rotation.
         """
 
     @euler_angles.setter
     def euler_angles(self, value:Vec3 | Quaternion):
         """        
-        Set the rotation to a Euler angle Vec3 in radians.  This is also not mutable.
+        Set the rotation to a euler angle Vec3 in radians.  This is also not mutable.
         """
     
     @property
@@ -1401,7 +1401,7 @@ class Quaternion:
 
     def rotate_pitch(self, value:float) -> Quaternion:
         """
-        Rotates the Euler pitch (x) axis by the provided value.
+        Rotates the euler angle pitch (x) axis by the provided value.
         """
 
     @property
@@ -1412,7 +1412,7 @@ class Quaternion:
 
     def rotate_yaw(self, value:float) -> Quaternion:
         """
-        Rotates the Euler yaw (y) axis by the provided value.
+        Rotates the euler angle yaw (y) axis by the provided value.
         """
 
     @property
@@ -1423,7 +1423,7 @@ class Quaternion:
 
     def rotate_roll(self, value:float) -> Quaternion:
         """
-        Rotates the Euler roll (z) axis by the provided value.
+        Rotates the euler angle roll (z) axis by the provided value.
         """
 
     # OPERATORS
@@ -1458,7 +1458,7 @@ class Quaternion:
 
     def to_euler(self) -> Vec3:
         """
-        Converts the :class:`Quaternion` to a Euler Angle :class:`Vec3` (in radians).
+        Converts the :class:`Quaternion` to a euler angle :class:`Vec3` (in radians).
         """
 
     def get_conjugate(self) -> Quaternion:
@@ -1479,7 +1479,7 @@ class Quaternion:
     @staticmethod
     def from_euler(euler_vec: Vec3) -> Quaternion:
         """
-        Converts the provided Euler Angle :class:`Vec3` (in radians) to a :class:`Quaternion` .
+        Converts the provided euler angle :class:`Vec3` (in radians) to a :class:`Quaternion` .
         """
 
     @staticmethod
@@ -1555,7 +1555,7 @@ class Texture:
 
 class Sprite:
     """
-    The image asset which is used when rendering an :class:`Object2D` .  Serves a purpose similar to how :class:`Mesh` is used with :class:`Object3D` but for :class:`Object2D` .
+    The image asset which is used when rendering an :class:`Object2D`\.  Its purpose is analagous to how :class:`Mesh` is used with :class:`Object3D` but for :class:`Object2D`\s.
     """
     
     texture:Texture

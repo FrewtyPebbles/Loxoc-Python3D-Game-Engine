@@ -10,7 +10,7 @@
    :maxdepth: 2
    :caption: Reference:
 
-|engine_name| is a free to use, MIT licensed, 3D python game engine designed to be intuitive for making high quality games with a simple and easy to understand API.
+|engine_name| is a free to use, MIT licensed, 3D python game engine designed to be user friendly.  It has a simple, easy to understand API.
 
 Table of Contents:
 ------------------
