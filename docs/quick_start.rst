@@ -7,7 +7,7 @@ Quick Start
 A Brief Introduction to |engine_name|
 -------------------------------------
 
-This quick start covers the basics of both how the |engine_name| game engine works and scaffolding a render/game loop.
+This Quick Start covers the basics of the |engine_name| game engine and scaffolding a render/game loop.
 
 To get started, install the |engine_name| engine:
 
@@ -16,11 +16,11 @@ To get started, install the |engine_name| engine:
     pip install Loxoc
 
 
-|engine_name| was designed with a developer experience first mindset.
+|engine_name| was designed with a \"developer experience first\" mindset.
 If you have used game engines like `Pygame <https://www.pygame.org>`_, the structure of a basic game/render loop should look familiar.
 In this tutorial you will learn how to create a render loop and add objects to it to be rendered.
 
-To start, we'll create a new python file called ``my_game.py`` and import our dependencies.
+To start, we'll create a new Python file called ``my_game.py`` and import our dependencies.
 
 .. code-block:: python
 
@@ -47,8 +47,8 @@ Next, we create the actual application :class:`Window<Loxoc.Window>` upon which 
     window = Window("Loxoc Quick Start", camera, *dim, False,
         Vec3(0.2, 0.2, 0.2))
 
-The title bar of the window will be labeled ``Loxoc Quick Start``.  We will pass in the :class:`Camera<Loxoc.Camera>` and dimensions from before
-Fullscreen mode will be set to false for this example. Finally, the ambient light level is assigned a red, green, and blue color value of ``0.2``, ``0.2``, and ``0.2`` respectively.
+The title bar of the window will be labeled ``Loxoc Quick Start``.  We will pass in the :class:`Camera<Loxoc.Camera>` and dimensions from before.
+Fullscreen mode will be set to false for this example. Finally, the ambient light level is assigned a red, green, and blue color value of ``0.2``, ``0.2``, and ``0.2``, respectively.
 
 Now we will learn how to add game assets to our :class:`Window<Loxoc.Window>` to be rendered.
 
@@ -69,7 +69,7 @@ Now we will learn how to add game assets to our :class:`Window<Loxoc.Window>` to
 In |engine_name|, game assets to be rendered are attached to the :class:`Window<Loxoc.Window>` they are to be rendered to.
 This is done with explicitly named functions for each type of game asset.
 
-Now that we have defined in our python file where we will attach game assets to our :class:`Window<Loxoc.Window>`,
+Now that we have defined in our Python file where we will attach game assets to our :class:`Window<Loxoc.Window>`,
 we will create a basic scaffolding for our game loop.
 
 .. code-block:: python
@@ -122,7 +122,7 @@ Before we cover how to import a 3D asset into our game, lets add one to our proj
 
         ...other project files...
 
-There are a few **important** things to take note of here:
+**Important Notes:**
 
 * The ``/textures/`` directory:
 
@@ -171,7 +171,7 @@ From the :class:`Model<Loxoc.Model>` we will create an :class:`Object3D<Loxoc.Ob
         my_object # Now we add our object to the list of objects to be rendered.
     ])
 
-The :class:`Object3D<Loxoc.Object3D>` we created will have a starting x, y, and z position of ``0``, ``0``, and ``20`` respectively.
+The :class:`Object3D<Loxoc.Object3D>` we created will have a starting x, y, and z position of ``0``, ``0``, and ``20``, respectively.
 It will start with no initial rotation.
 It's scale will be multipied by ``1.0`` in all directions. In other words, it will not be scaled at all.
 
@@ -218,17 +218,17 @@ Now that you've managed to render something to the :class:`Window<Loxoc.Window>`
 * :class:`Object3D<Loxoc.Object3D>`\:
 
     :class:`Loxoc.Object3D` is our game object.  It holds the :class:`Model<Loxoc.Model>` to be rendered, 
-    the :class:`Object3D<Loxoc.Object3D>`\'s :class:`Vec3<Loxoc.Vec3>` position, it's :class:`Quaternion<Loxoc.Quaternion>` rotation, any object
-    level uniforms to be used in it's :class:`Loxoc.Material` and much more.
+    the :class:`Object3D<Loxoc.Object3D>`\'s :class:`Vec3<Loxoc.Vec3>` position, its :class:`Quaternion<Loxoc.Quaternion>` rotation, any object
+    level uniforms to be used in its :class:`Loxoc.Material` and much more.
 
 * :meth:`Window.add_object_list()<Loxoc.Window.add_object_list>` :
 
-    :meth:`Loxoc.Window.add_object_list` is used to add objects to the set of objects to render to the screen on :meth:`Window.update()<Loxoc.Window.update>` .
-    You can think of this like creating an object in the game.  You can also remove objects with :meth:`Window.remove_object()<Loxoc.Window.remove_object>` .
+    :meth:`Loxoc.Window.add_object_list` is used to add objects to the set of objects to render to the screen on :meth:`Window.update()<Loxoc.Window.update>`\.
+    You can think of this like creating an object in the game.  You can also remove objects with :meth:`Window.remove_object()<Loxoc.Window.remove_object>`\.
     
 As a final bonus for this quick start guide, we are going to make our :class:`Object3D<Loxoc.Object3D>` spin!
-To do this we rotate our :class:`Object3D<Loxoc.Object3D>` arround its up direction :class:`vector<Loxoc.Vec3>`. 
-It should look something like so:
+To do this we rotate our :class:`Object3D<Loxoc.Object3D>` arround its up direction :class:`vector<Loxoc.Vec3>`\. 
+It should look something like this:
 
 .. code-block:: python
 
